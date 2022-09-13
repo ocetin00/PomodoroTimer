@@ -9,38 +9,44 @@ import android.os.CountDownTimer
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.work.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration
 
-class WorkTimer(appContext: Context, workerParams: WorkerParameters):
-    CoroutineWorker(appContext, workerParams) {
 
-    companion object {
-        const val Progress = "Progress"
-        private const val delayDuration = 1L
-        private var left = 25*1000
-        val workRequest: WorkRequest =
-            OneTimeWorkRequestBuilder<WorkTimer>()
-                .build()
+class TimerWorker(
+    appContext: Context,
+    workerParams: WorkerParameters
+) : CoroutineWorker(appContext, workerParams) {
+
+    companion object{
+        private var timer: CountDownTimer? = null
     }
 
+    private var left = 0L
 
     override suspend fun doWork(): Result {
-        setForeground(createForegroundInfo("progress"))
-        withContext(Dispatchers.Default) {
-            repeat(60*25){
+        val startTime = inputData.getLong("Time", 0)
+        val leftTime =  inputData.getLong("Left", 0)
+        left = leftTime
+        setForeground(createForegroundInfo("Pomodoro Running"))
+        withContext(Dispatchers.IO) {
+            repeat((leftTime / 1000).toInt()) {
                 delay(1000)
                 left -= 1000
-                Log.e("left",left.toString())
-                val firstUpdate = workDataOf(Progress to  left )
-                setProgressAsync(firstUpdate)
+                Log.e("kalan", "${leftTime/60000} : ${(left%60000)/1000}")
+                setProgress(workDataOf("Left" to left.toFloat()/startTime.toFloat()))
             }
-
         }
+
         return Result.success()
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return super.getForegroundInfo()
     }
 
     private val notificationManager =
@@ -72,8 +78,9 @@ class WorkTimer(appContext: Context, workerParams: WorkerParameters):
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .build()
 
-        return ForegroundInfo(123,notification)
+        return ForegroundInfo(123, notification)
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel() {
         val name = "chanel1"
@@ -83,7 +90,27 @@ class WorkTimer(appContext: Context, workerParams: WorkerParameters):
         mChannel.description = descriptionText
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this
-        val notificationManager = applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(mChannel)
     }
+
+    private fun createTimer(time: Long) {
+        timer?.cancel()
+        timer = null
+        timer = Timer(time).start()
+
+    }
+    inner class Timer(private val time:Long) :CountDownTimer(time, 1000) {
+        override fun onTick(millisUntilFinished: Long) {
+            Log.e("kalan", "${millisUntilFinished/60000} : ${(millisUntilFinished%60000)/1000}")
+            LeftTime.value = millisUntilFinished.toFloat()/time.toFloat()
+        }
+
+        override fun onFinish() {
+            Log.e("kaln", "bitti")
+            LeftTime.value = 0f
+        }
+    }
+
 }
