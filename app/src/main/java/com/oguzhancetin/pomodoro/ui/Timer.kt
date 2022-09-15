@@ -216,24 +216,7 @@ fun StatelessTimer(
             modifier = Modifier.align(Alignment.Center),
             style = TextStyle(color =  textColor, fontSize = 40.sp)
         )
-        Row(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Icon(
 
-                Icons.Filled.Pause, "",
-                tint = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(35.dp)
-
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Icon(
-                Icons.Filled.Refresh, "",
-                tint = MaterialTheme.colorScheme.surface, modifier = Modifier.size(35.dp)
-            )
-        }
 
     }
 }
