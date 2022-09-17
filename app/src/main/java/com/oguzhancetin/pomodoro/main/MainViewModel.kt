@@ -28,7 +28,6 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         } else {
             startNewTime(currentTime)
         }
-
     }
     fun restart() {
         when (currentTime) {
