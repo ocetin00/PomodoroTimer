@@ -49,7 +49,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PomodoroApp() {
     val navController = rememberNavController()
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
