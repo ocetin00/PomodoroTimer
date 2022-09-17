@@ -48,12 +48,6 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PomodoroApp() {
-    val items = listOf(
-        Screen.Main,
-        Screen.Setting,
-        Screen.Report
-    )
-
     val navController = rememberNavController()
 
     Scaffold(
@@ -85,7 +79,6 @@ fun PomodoroApp() {
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-
         }
 
         //  containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
