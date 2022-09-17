@@ -45,7 +45,11 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         }
 
     }
-
+    fun updateCurrentTime(times: Times){
+        currentTime = times
+        workManager.cancelAllWork()
+        timerIsRunning = false
+    }
     fun startNewTime(times: Times) {
         workManager.cancelAllWork()
         val request = WorkRequestBuilders.timeRequest(times)
