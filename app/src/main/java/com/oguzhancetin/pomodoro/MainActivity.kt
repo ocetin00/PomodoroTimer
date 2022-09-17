@@ -61,7 +61,6 @@ fun PomodoroApp() {
                         imageVector = Icons.Filled.Menu,
                         contentDescription = "menu",
                         tint = MaterialTheme.colorScheme.onPrimary
-
                     )
                 },
                 actions = {
