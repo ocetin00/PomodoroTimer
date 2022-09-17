@@ -30,7 +30,6 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         }
 
     }
-
     fun restart() {
         when (currentTime) {
             is Times.LongTime -> {
