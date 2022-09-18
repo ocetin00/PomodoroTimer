@@ -41,7 +41,6 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
                 startNewTime(Times.PomodoroTime())
             }
         }
-
     }
     fun updateCurrentTime(times: Times){
         currentTime = times
