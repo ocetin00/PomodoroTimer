@@ -10,30 +10,32 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
-import com.oguzhancetin.pomodoro.ui.theme.*
+import com.oguzhancetin.pomodoro.ui.theme.SurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.light_SurfaceRedContainer
+import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.md_theme_light_tertiary
 import com.oguzhancetin.pomodoro.util.Times
-import java.sql.Time
-
-
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @SuppressLint("EnqueueWork")
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val currentTime = viewModel.currentTime
     Surface(
@@ -44,7 +46,10 @@ fun MainScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(35.dp))
-            TopButtons(onClickButton = {viewModel.updateCurrentTime(it)}, currentTimeType = currentTime)
+            TopButtons(
+                onClickButton = { viewModel.updateCurrentTime(it) },
+                currentTimeType = currentTime
+            )
             Spacer(modifier = Modifier.height(35.dp))
             TimerBody(viewModel)
             Spacer(modifier = Modifier.height(20.dp))
@@ -54,46 +59,68 @@ fun MainScreen(
 }
 
 @Composable
-private fun TopButtons(onClickButton:(Times)-> Unit,currentTimeType: Times = Times.PomodoroTime()) {
+private fun TopButtons(
+    onClickButton: (Times) -> Unit,
+    currentTimeType: Times = Times.PomodoroTime()
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         OutlinedButton(
             border = BorderStroke(1.dp, light_SurfaceRedContainer),
-            colors = if(currentTimeType is Times.LongTime){
-                ButtonDefaults.outlinedButtonColors(containerColor = light_onSurfaceRed, contentColor = MaterialTheme.colorScheme.primary )
+            colors = if (currentTimeType is Times.LongTime) {
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = light_onSurfaceRed,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
             } else {
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
                 onClickButton(Times.LongTime())
             }) {
-            Text("Long Break")
+            Text(
+                text = "Long Break",
+                color = if (currentTimeType is Times.LongTime) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+            )
         }
         OutlinedButton(
             border = BorderStroke(1.dp, light_SurfaceRedContainer),
-            colors = if(currentTimeType is Times.Short) {
-                ButtonDefaults.outlinedButtonColors(containerColor = light_onSurfaceRed, contentColor = MaterialTheme.colorScheme.primary )
-            } else{
+            colors = if (currentTimeType is Times.Short) {
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = light_onSurfaceRed,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            } else {
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
                 onClickButton(Times.Short())
             }) {
-            Text("Short Break")
+            Text(
+                text = "Short Break",
+                color = if (currentTimeType is Times.Short) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+            )
         }
         OutlinedButton(
             border = BorderStroke(1.dp, light_SurfaceRedContainer),
-            colors = if(currentTimeType is Times.PomodoroTime) {
-                ButtonDefaults.outlinedButtonColors(containerColor = light_onSurfaceRed, contentColor = MaterialTheme.colorScheme.primary )
-            } else{
+            colors = if (currentTimeType is Times.PomodoroTime) {
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = light_onSurfaceRed,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            } else {
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
                 onClickButton(Times.PomodoroTime())
             }) {
-            Text("Pomodoro")
+            Text(
+                text = "Pomodoro",
+                color = if (currentTimeType is Times.PomodoroTime) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+            )
+
         }
     }
 }
@@ -128,8 +155,7 @@ fun TimerBody(viewModel: MainViewModel) {
 
             IconButton(modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
-                .background(Color.White)
-                 ,onClick = { viewModel.pauseOrPlayTimer() }) {
+                .background(Color.White), onClick = { viewModel.pauseOrPlayTimer() }) {
                 Icon(
                     if (viewModel.timerIsRunning) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                     contentDescription = "",
@@ -142,7 +168,7 @@ fun TimerBody(viewModel: MainViewModel) {
 
             IconButton(modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
-                .background(Color.White),onClick = { viewModel.restart() }) {
+                .background(Color.White), onClick = { viewModel.restart() }) {
                 Icon(
                     Icons.Filled.Refresh, "",
                     tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp)
@@ -188,7 +214,11 @@ fun ImportantTask(modifier: Modifier = Modifier) {
                 contentDescription = "Dot"
             )
             Text("Deneme task")
-            Icon(imageVector = Icons.Filled.Star, contentDescription = "Dot",tint = md_theme_light_tertiary)
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = "Dot",
+                tint = md_theme_light_tertiary
+            )
         }
     }
 
@@ -197,19 +227,22 @@ fun ImportantTask(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun Deneme() {
-    val activeTime by remember{ mutableStateOf<Times>(Times.Short())}
+    val activeTime by remember { mutableStateOf<Times>(Times.Short()) }
     Surface(
         color = SurfaceRed
-    ){
-        Row{
+    ) {
+        Row {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 OutlinedButton(
                     border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if(activeTime is Times.LongTime){
-                        ButtonDefaults.outlinedButtonColors(containerColor = light_onSurfaceRed, contentColor = MaterialTheme.colorScheme.primary )
+                    colors = if (activeTime is Times.LongTime) {
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = light_onSurfaceRed,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
                     } else {
                         ButtonDefaults.outlinedButtonColors()
                     },
@@ -220,27 +253,33 @@ fun Deneme() {
                 }
                 OutlinedButton(
                     border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if(activeTime is Times.Short) {
-                        ButtonDefaults.outlinedButtonColors(containerColor = light_onSurfaceRed, contentColor = MaterialTheme.colorScheme.primary )
-                    } else{
+                    colors = if (activeTime is Times.Short) {
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = light_onSurfaceRed,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
                         ButtonDefaults.outlinedButtonColors()
                     },
                     onClick = {
 
                     }) {
-                    Text("Short Break", )
+                    Text("Short Break")
                 }
                 OutlinedButton(
                     border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if(activeTime is Times.PomodoroTime) {
-                        ButtonDefaults.outlinedButtonColors(containerColor = light_onSurfaceRed, contentColor = MaterialTheme.colorScheme.primary )
-                    } else{
+                    colors = if (activeTime is Times.PomodoroTime) {
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = light_onSurfaceRed,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
                         ButtonDefaults.outlinedButtonColors()
                     },
                     onClick = {
 
                     }) {
-                    Text("Pomodoro", )
+                    Text("Pomodoro")
                 }
             }
         }
