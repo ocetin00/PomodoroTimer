@@ -53,10 +53,16 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PomodoroApp() {
+    val screens = listOf(
+        DrawerScreens.Home,
+        DrawerScreens.Account,
+        DrawerScreens.Help
+    )
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val items = listOf(Icons.Default.Favorite, Icons.Default.Face, Icons.Default.Email)
+    val items = screens
     val selectedItem = remember { mutableStateOf(items[0]) }
 
 
@@ -67,12 +73,13 @@ fun PomodoroApp() {
                 Spacer(Modifier.height(12.dp))
                 items.forEach { item ->
                     NavigationDrawerItem(
-                        icon = { Icon(item, contentDescription = null) },
-                        label = { Text(item.name) },
+                        icon = {  },
+                        label = { Text(item.title) },
                         selected = item == selectedItem.value,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem.value = item
+                            navController.navigate(item.route)
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
@@ -120,33 +127,9 @@ fun PomodoroApp() {
 
 }
 
-sealed class DrawerScreens(val title: String) {
-    object Home : DrawerScreens("Home")
-    object Account : DrawerScreens("Account")
-    object Help : DrawerScreens( "Help")
+sealed class DrawerScreens(val title: String,val route:String) {
+    object Home : DrawerScreens("main","main")
+    object Account : DrawerScreens("report","report")
+    object Help : DrawerScreens( "setting","setting")
 }
-private val screens = listOf(
-    DrawerScreens.Home,
-    DrawerScreens.Account,
-    DrawerScreens.Help
-)
-@Composable
-fun Drawer(
-    modifier: Modifier = Modifier) {
-    Column(
-        modifier
-            .fillMaxSize()
-            .padding(start = 24.dp, top = 48.dp)
-    ) {
-        Image(
-            imageVector = Icons.Filled.More,""
-        )
-        screens.forEach { screen ->
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = screen.title,
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-    }
-}
+

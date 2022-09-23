@@ -5,8 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.work.OneTimeWorkRequest
-import com.oguzhancetin.pomodoro.main.MainScreen
+import com.oguzhancetin.pomodoro.screen.main.MainScreen
 
 
 @Composable

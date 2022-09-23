@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.main
+package com.oguzhancetin.pomodoro.screen.main
 
 import android.app.Application
 import androidx.compose.runtime.getValue
