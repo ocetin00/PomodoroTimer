@@ -4,11 +4,10 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,24 +19,66 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
-import com.oguzhancetin.pomodoro.ui.theme.SurfaceRed
-import com.oguzhancetin.pomodoro.ui.theme.light_SurfaceRedContainer
-import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
-import com.oguzhancetin.pomodoro.ui.theme.md_theme_light_tertiary
+import com.oguzhancetin.pomodoro.ui.theme.*
 import com.oguzhancetin.pomodoro.util.Times
-import androidx.hilt.navigation.compose.hiltViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("EnqueueWork")
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel(),
+    openDrawer: () -> Unit = {}
 ) {
     val currentTime = viewModel.currentTime
+
+    val topAppBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    Scaffold(
+        topBar = {
+            MainAppBar(openDrawer = openDrawer, topAppBarState = topAppBarState)
+        },
+        modifier = modifier,
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    //Todo
+                }) {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+            }
+        }
+    ) { innerPadding ->
+        val contentModifier = Modifier
+            .padding(innerPadding)
+
+        MainScreenContent(
+            modifier = contentModifier,
+            onTimeTypeChange = { viewModel.updateCurrentTime(it) },
+            currentTimeType = currentTime,
+            viewModel = viewModel
+        )
+
+
+    }
+
+
+}
+
+@Composable
+fun MainScreenContent(
+    modifier: Modifier = Modifier,
+    onTimeTypeChange: (Times) -> Unit,
+    currentTimeType: Times,
+    viewModel: MainViewModel
+) {
     Surface(
         color = SurfaceRed
     ) {
@@ -47,16 +88,19 @@ fun MainScreen(
         ) {
             Spacer(modifier = Modifier.height(35.dp))
             TopButtons(
-                onClickButton = { viewModel.updateCurrentTime(it) },
-                currentTimeType = currentTime
+                onClickButton = { onTimeTypeChange(it) },
+                currentTimeType = currentTimeType
             )
             Spacer(modifier = Modifier.height(35.dp))
             TimerBody(viewModel)
             Spacer(modifier = Modifier.height(20.dp))
             FavoriteTasks()
+
         }
+
     }
 }
+
 
 @Composable
 private fun TopButtons(
@@ -181,10 +225,15 @@ fun TimerBody(viewModel: MainViewModel) {
 
 
 @Composable
-fun FavoriteTasks() {
+fun FavoriteTasks(modifier: Modifier = Modifier) {
 
-    Column(Modifier.fillMaxWidth(0.7f), horizontalAlignment = Alignment.CenterHorizontally) {
-        repeat(3) {
+    Column(
+        modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxWidth(0.7f),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        repeat(4) {
             Spacer(modifier = Modifier.height(8.dp))
             ImportantTask()
         }
@@ -224,6 +273,73 @@ fun ImportantTask(modifier: Modifier = Modifier) {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainAppBar(
+    openDrawer: () -> Unit,
+    modifier: Modifier = Modifier,
+    topAppBarState: TopAppBarState = rememberTopAppBarState(),
+    scrollBehavior: TopAppBarScrollBehavior? =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState)
+) {
+    val title = stringResource(id = R.string.app_name)
+    CenterAlignedTopAppBar(
+        colors =  TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+        title = { Text(text = title,color =light_onSurfaceRed) },
+        navigationIcon = {
+            IconButton(onClick = openDrawer) {
+                Icon(
+                    imageVector = Icons.Filled.Menu,
+                    contentDescription = stringResource(R.string.cd_open_navigation_drawer),
+                    tint = light_onSurfaceRed
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { /* TODO: Open search */ }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.menu),
+                    tint = light_onSurfaceRed
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun MainAppBarPreview(){
+    MaterialTheme() {
+        CenterAlignedTopAppBar(
+            colors =  TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+            title = { Text("Pomdoro",color =light_onSurfaceRed) },
+            navigationIcon = {
+                IconButton(onClick = {
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = stringResource(R.string.cd_open_navigation_drawer),
+                        tint = light_onSurfaceRed
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = { /* TODO: Open search */ }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.menu),
+                        tint = light_onSurfaceRed
+                    )
+                }
+            }
+        )
+    }
+
+}
 @Preview
 @Composable
 fun Deneme() {

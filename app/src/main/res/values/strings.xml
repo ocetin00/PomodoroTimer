@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Pomodoro</string>
+    <string name="settings_title">Settings</string>
+    <string name="pomodoro_title">Pomodoro</string>
+    <string name="status_title">Status</string>
+    <string name="cd_open_navigation_drawer">open_navigation</string>
+    <string name="menu">menu</string>
 </resources>

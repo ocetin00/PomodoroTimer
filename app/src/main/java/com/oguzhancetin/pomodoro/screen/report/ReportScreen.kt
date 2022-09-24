@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ReportScreen(modifier: Modifier){
+fun ReportScreen(modifier: Modifier, openDrawer: ()-> Unit = {}){
     Column(modifier = modifier
         .fillMaxWidth()
         .fillMaxSize()) {
