@@ -18,7 +18,7 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
     private val workManager = WorkManager.getInstance(context)
     var timerIsRunning by mutableStateOf(false)
     var workInfo: LiveData<WorkInfo?>? = null
-    var currentTime: Times by mutableStateOf(Times.PomodoroTime())
+    var currentTime: Times by mutableStateOf(Times.Pomodoro)
 
     fun pauseOrPlayTimer() {
         if (timerIsRunning) {
@@ -31,14 +31,14 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
     }
     fun restart() {
         when (currentTime) {
-            is Times.LongTime -> {
-                startNewTime(Times.LongTime())
+            is Times.Long -> {
+                startNewTime(Times.Long)
             }
             is Times.Short -> {
-                startNewTime(Times.Short())
+                startNewTime(Times.Short)
             }
-            is Times.PomodoroTime -> {
-                startNewTime(Times.PomodoroTime())
+            is Times.Pomodoro -> {
+                startNewTime(Times.Pomodoro)
             }
         }
     }

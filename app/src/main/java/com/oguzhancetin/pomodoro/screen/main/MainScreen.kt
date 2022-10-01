@@ -105,7 +105,7 @@ fun MainScreenContent(
 @Composable
 private fun TopButtons(
     onClickButton: (Times) -> Unit,
-    currentTimeType: Times = Times.PomodoroTime()
+    currentTimeType: Times = Times.Pomodoro
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -113,7 +113,7 @@ private fun TopButtons(
     ) {
         OutlinedButton(
             border = BorderStroke(1.dp, light_SurfaceRedContainer),
-            colors = if (currentTimeType is Times.LongTime) {
+            colors = if (currentTimeType is Times.Long) {
                 ButtonDefaults.outlinedButtonColors(
                     containerColor = light_onSurfaceRed,
                     contentColor = MaterialTheme.colorScheme.primary
@@ -122,11 +122,11 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.LongTime())
+                onClickButton(Times.Long)
             }) {
             Text(
                 text = "Long Break",
-                color = if (currentTimeType is Times.LongTime) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+                color = if (currentTimeType is Times.Long) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
             )
         }
         OutlinedButton(
@@ -140,7 +140,7 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.Short())
+                onClickButton(Times.Short)
             }) {
             Text(
                 text = "Short Break",
@@ -149,7 +149,7 @@ private fun TopButtons(
         }
         OutlinedButton(
             border = BorderStroke(1.dp, light_SurfaceRedContainer),
-            colors = if (currentTimeType is Times.PomodoroTime) {
+            colors = if (currentTimeType is Times.Pomodoro) {
                 ButtonDefaults.outlinedButtonColors(
                     containerColor = light_onSurfaceRed,
                     contentColor = MaterialTheme.colorScheme.primary
@@ -158,11 +158,11 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.PomodoroTime())
+                onClickButton(Times.Pomodoro)
             }) {
             Text(
                 text = "Pomodoro",
-                color = if (currentTimeType is Times.PomodoroTime) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+                color = if (currentTimeType is Times.Pomodoro) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
             )
 
         }
@@ -343,7 +343,7 @@ fun MainAppBarPreview(){
 @Preview
 @Composable
 fun Deneme() {
-    val activeTime by remember { mutableStateOf<Times>(Times.Short()) }
+    val activeTime by remember { mutableStateOf<Times>(Times.Short) }
     Surface(
         color = SurfaceRed
     ) {
@@ -354,7 +354,7 @@ fun Deneme() {
             ) {
                 OutlinedButton(
                     border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if (activeTime is Times.LongTime) {
+                    colors = if (activeTime is Times.Long) {
                         ButtonDefaults.outlinedButtonColors(
                             containerColor = light_onSurfaceRed,
                             contentColor = MaterialTheme.colorScheme.primary
@@ -384,7 +384,7 @@ fun Deneme() {
                 }
                 OutlinedButton(
                     border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if (activeTime is Times.PomodoroTime) {
+                    colors = if (activeTime is Times.Pomodoro) {
                         ButtonDefaults.outlinedButtonColors(
                             containerColor = light_onSurfaceRed,
                             contentColor = MaterialTheme.colorScheme.primary

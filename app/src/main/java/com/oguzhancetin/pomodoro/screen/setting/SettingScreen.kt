@@ -1,5 +1,6 @@
 package com.oguzhancetin.pomodoro.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
@@ -7,7 +8,9 @@ import androidx.compose.material.Switch
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,20 +19,31 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.oguzhancetin.pomodoro.R
+import com.oguzhancetin.pomodoro.screen.setting.SettingViewModel
 import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.util.getMinute
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun SettingScreen(modifier: Modifier = Modifier, openDrawer: ()-> Unit = {}) {
-
+fun SettingScreen(
+    modifier: Modifier = Modifier,
+    openDrawer: () -> Unit = {},
+    viewModel: SettingViewModel = hiltViewModel()
+) {
+    val pomodoroTime by viewModel.pomodoroTime.collectAsState(initial = 0L)
+    val longTime by viewModel.longTime.collectAsState(initial = 0L)
+    val shortTime by viewModel.shortTime.collectAsState(initial = 0L)
+    Log.e("PomdoroTime",pomodoroTime.toString())
     Scaffold(
         topBar = {
             SettingAppBar(openDrawer = openDrawer)
@@ -41,6 +55,17 @@ fun SettingScreen(modifier: Modifier = Modifier, openDrawer: ()-> Unit = {}) {
 
         SettingScreenContent(
             modifier = contentModifier,
+            intervalSettingParameters = IntervalSettingParameters(
+                pomodoroTime = pomodoroTime,
+                longTime = longTime,
+                shortTime = shortTime,
+                onIncrease = { time ->
+                    viewModel.increaseTime(time)
+                },
+                onDecrease = {time ->
+                    viewModel.decreaseTime(time)
+                }
+            )
         )
 
 
@@ -50,12 +75,16 @@ fun SettingScreen(modifier: Modifier = Modifier, openDrawer: ()-> Unit = {}) {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun SettingScreenContent(modifier: Modifier = Modifier){
+fun SettingScreenContent(
+    modifier: Modifier = Modifier,
+    intervalSettingParameters: IntervalSettingParameters = IntervalSettingParameters()
+) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
+
     Surface(
         color = MaterialTheme.colorScheme.surface
-    ){
+    ) {
         Column(modifier = modifier) {
             TabRow(
                 modifier = Modifier.padding(paddingValues = PaddingValues(horizontal = 20.dp)),
@@ -73,14 +102,16 @@ fun SettingScreenContent(modifier: Modifier = Modifier){
                     )
                 }
             ) {
-                Tab(modifier= Modifier.wrapContentWidth(),
+                Tab(
+                    modifier = Modifier.wrapContentWidth(),
                     text = { Text("General Setting") },
                     selected = pagerState.currentPage == 0,
                     onClick = {
                         scope.launch { pagerState.scrollToPage(0) }
                     },
                 )
-                Tab(modifier= Modifier.wrapContentWidth(),
+                Tab(
+                    modifier = Modifier.wrapContentWidth(),
                     text = { Text("Interval Setting") },
                     selected = pagerState.currentPage == 1,
                     onClick = {
@@ -96,7 +127,9 @@ fun SettingScreenContent(modifier: Modifier = Modifier){
             ) { page ->
                 when (page) {
                     0 -> GeneralSetting()
-                    1 -> IntervalSetting()
+                    1 -> IntervalSetting(
+                        parameters = intervalSettingParameters
+                    )
                     else -> GeneralSetting()
                 }
             }
@@ -115,7 +148,8 @@ fun GeneralSetting() {
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
             Row(
                 modifier = Modifier
                     .height(55.dp)
@@ -134,7 +168,8 @@ fun GeneralSetting() {
 
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)
+        ) {
             Row(
                 modifier = Modifier
                     .height(55.dp)
@@ -152,7 +187,8 @@ fun GeneralSetting() {
         Spacer(modifier = Modifier.height(12.dp))
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
             Row(
                 modifier = Modifier
                     .height(55.dp)
@@ -170,7 +206,8 @@ fun GeneralSetting() {
         Spacer(modifier = Modifier.height(12.dp))
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
             Row(
                 modifier = Modifier
                     .height(55.dp)
@@ -190,9 +227,11 @@ fun GeneralSetting() {
     }
 }
 
-@Preview
+
 @Composable
-fun IntervalSetting() {
+fun IntervalSetting(
+    parameters: IntervalSettingParameters
+) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -200,10 +239,10 @@ fun IntervalSetting() {
     ) {
 
 
-
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
 
 
             Row(
@@ -215,17 +254,27 @@ fun IntervalSetting() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                   Text(text = "Pomodoro Time")
-                Row(horizontalArrangement = Arrangement.Center){
-                Icon(imageVector = Icons.Filled.Remove,"add")
-                Spacer(modifier = Modifier.width(2.dp))
-                Box(contentAlignment = Alignment.Center,modifier = Modifier
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .background(MaterialTheme.colorScheme.inverseOnSurface )){
-                Text("25",modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp))
-                }
-                Spacer(modifier = Modifier.width(2.dp))
-                Icon(imageVector = Icons.Filled.Add,"add")
+                Text(text = "Pomodoro Time")
+                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { parameters.onDecrease(Times.Pomodoro) }) {
+                        Icon(imageVector = Icons.Filled.Remove, "decrease")
+                    }
+
+                    Box(
+                        contentAlignment = Alignment.Center, modifier = Modifier
+                            .width(40.dp)
+                            .clip(shape = MaterialTheme.shapes.extraLarge)
+                            .background(MaterialTheme.colorScheme.inverseOnSurface)
+                    ) {
+                        Text(
+                            parameters.pomodoroTime.getMinute().toString(),
+                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
+                        )
+                    }
+
+                    IconButton(onClick = {parameters.onIncrease(Times.Pomodoro) }) {
+                        Icon(imageVector = Icons.Filled.Add, "increase")
+                    }
 
                 }
 
@@ -236,7 +285,8 @@ fun IntervalSetting() {
         Spacer(modifier = Modifier.height(12.dp))
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -247,16 +297,28 @@ fun IntervalSetting() {
             ) {
 
                 Text(text = "Short Time")
-                Row(horizontalArrangement = Arrangement.Center){
-                    Icon(imageVector = Icons.Filled.Remove,"add")
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Box(contentAlignment = Alignment.Center,modifier = Modifier
-                        .clip(shape = MaterialTheme.shapes.extraLarge)
-                        .background(MaterialTheme.colorScheme.inverseOnSurface )){
-                        Text("25",modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp))
+                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { parameters.onDecrease(Times.Short) }) {
+                        Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Icon(imageVector = Icons.Filled.Add,"add")
+
+
+                    Box(
+                        contentAlignment = Alignment.Center, modifier = Modifier
+                            .width(40.dp)
+                            .clip(shape = MaterialTheme.shapes.extraLarge)
+                            .background(MaterialTheme.colorScheme.inverseOnSurface)
+
+                    ) {
+                        Text(
+                            parameters.shortTime.getMinute().toString(),
+                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
+                        )
+                    }
+
+                    IconButton(onClick = {parameters.onIncrease(Times.Short) }) {
+                        Icon(imageVector = Icons.Filled.Add, "increase")
+                    }
 
                 }
 
@@ -267,7 +329,8 @@ fun IntervalSetting() {
         Spacer(modifier = Modifier.height(12.dp))
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface) {
+            contentColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -278,16 +341,25 @@ fun IntervalSetting() {
             ) {
 
                 Text(text = "Long Time")
-                Row(horizontalArrangement = Arrangement.Center){
-                    Icon(imageVector = Icons.Filled.Remove,"add")
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Box(contentAlignment = Alignment.Center,modifier = Modifier
-                        .clip(shape = MaterialTheme.shapes.extraLarge)
-                        .background(MaterialTheme.colorScheme.inverseOnSurface )){
-                        Text("25",modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp))
+                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { parameters.onDecrease(Times.Long) }) {
+                        Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Icon(imageVector = Icons.Filled.Add,"add")
+                    Box(
+                        contentAlignment = Alignment.Center, modifier = Modifier
+                            .width(40.dp)
+                            .clip(shape = MaterialTheme.shapes.extraLarge)
+                            .background(MaterialTheme.colorScheme.inverseOnSurface)
+                    ) {
+                        Text(
+                            parameters.longTime.getMinute().toString(),
+                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
+                        )
+                    }
+
+                    IconButton(onClick = {parameters.onIncrease(Times.Long) }) {
+                        Icon(imageVector = Icons.Filled.Add, "increase")
+                    }
 
                 }
 
@@ -308,8 +380,8 @@ fun SettingAppBar(
 ) {
     val title = stringResource(id = R.string.app_name)
     CenterAlignedTopAppBar(
-        colors =  TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title,color = light_onSurfaceRed) },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+        title = { Text(text = title, color = light_onSurfaceRed) },
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
@@ -322,3 +394,12 @@ fun SettingAppBar(
         modifier = modifier
     )
 }
+
+data class IntervalSettingParameters(
+    val pomodoroTime: Long = 0L,
+    val shortTime: Long = 0L,
+    val longTime: Long = 0L,
+    val onIncrease: (Times) -> Unit = {},
+    val onDecrease: (Times) -> Unit = {},
+
+    )

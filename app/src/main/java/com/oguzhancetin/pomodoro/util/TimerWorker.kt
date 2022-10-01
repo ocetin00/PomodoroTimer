@@ -95,22 +95,6 @@ class TimerWorker(
         notificationManager.createNotificationChannel(mChannel)
     }
 
-    private fun createTimer(time: Long) {
-        timer?.cancel()
-        timer = null
-        timer = Timer(time).start()
 
-    }
-    inner class Timer(private val time:Long) :CountDownTimer(time, 1000) {
-        override fun onTick(millisUntilFinished: Long) {
-            Log.e("kalan", "${millisUntilFinished/60000} : ${(millisUntilFinished%60000)/1000}")
-            LeftTime.value = millisUntilFinished.toFloat()/time.toFloat()
-        }
-
-        override fun onFinish() {
-            Log.e("kaln", "bitti")
-            LeftTime.value = 0f
-        }
-    }
 
 }
