@@ -19,6 +19,19 @@ const val MIN_MINUTE = 0
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(@ApplicationContext val context: Context) : ViewModel() {
+    var longTime:Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            preferences[Times.Long.getPrefKey()] ?: 0
+        }
+    var shortTime:Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            preferences[Times.Short.getPrefKey()] ?: 0
+        }
+    var pomodoroTime:Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            preferences[Times.Pomodoro.getPrefKey()] ?: 0
+        }
+
     fun increaseTime(time:Times) {
         viewModelScope.launch (Dispatchers.IO){
             context.dataStore.edit { settings->
@@ -40,19 +53,6 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
             }
         }
     }
-
-    var longTime:Flow<Long> = context.dataStore.data
-        .map { preferences ->
-            preferences[Times.Long.getPrefKey()] ?: 0
-        }
-    var shortTime:Flow<Long> = context.dataStore.data
-        .map { preferences ->
-            preferences[Times.Short.getPrefKey()] ?: 0
-        }
-    var pomodoroTime:Flow<Long> = context.dataStore.data
-        .map { preferences ->
-            preferences[Times.Pomodoro.getPrefKey()] ?: 0
-        }
 
 
 }

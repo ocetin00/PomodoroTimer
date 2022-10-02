@@ -10,15 +10,35 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.util.WorkRequestBuilders
+import com.oguzhancetin.pomodoro.util.preference.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(val context: Application) : AndroidViewModel(context) {
+    var longTime: Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            preferences[Times.Long.getPrefKey()] ?: Times.Long.time
+        }
+    var shortTime: Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            preferences[Times.Short.getPrefKey()] ?: Times.Short.time
+        }
+    var pomodoroTime: Flow<Long> = context.dataStore.data
+        .map { preferences ->
+            preferences[Times.Pomodoro.getPrefKey()] ?: Times.Pomodoro.time
+        }
+
+
     private val workManager = WorkManager.getInstance(context)
     var timerIsRunning by mutableStateOf(false)
     var workInfo: LiveData<WorkInfo?>? = null
     var currentTime: Times by mutableStateOf(Times.Pomodoro)
+
+
+
 
     fun pauseOrPlayTimer() {
         if (timerIsRunning) {
@@ -44,6 +64,7 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
     }
     fun updateCurrentTime(times: Times){
         currentTime = times
+        currentTime.left = times.time
         workManager.cancelAllWork()
         timerIsRunning = false
     }

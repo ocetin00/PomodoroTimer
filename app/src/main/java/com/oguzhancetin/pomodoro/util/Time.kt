@@ -3,7 +3,7 @@ package com.oguzhancetin.pomodoro.util
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.longPreferencesKey
 
-sealed class Times(val time: kotlin.Long, var left: kotlin.Long) {
+sealed class Times(var time: kotlin.Long, var left: kotlin.Long) {
     object Long : Times(900000, 900000) {
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("long_time")

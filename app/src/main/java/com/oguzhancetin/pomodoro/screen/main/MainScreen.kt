@@ -9,11 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
-import com.oguzhancetin.pomodoro.ui.theme.*
+import com.oguzhancetin.pomodoro.ui.theme.SurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.light_SurfaceRedContainer
+import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.md_theme_light_tertiary
 import com.oguzhancetin.pomodoro.util.Times
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +40,10 @@ fun MainScreen(
 
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    val long by viewModel.longTime.collectAsState(initial = Times.Long.time)
+    val short by viewModel.shortTime.collectAsState(initial = Times.Short.time)
+    val pomodoro by viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro.time)
 
     Scaffold(
         topBar = {
@@ -63,7 +67,12 @@ fun MainScreen(
             modifier = contentModifier,
             onTimeTypeChange = { viewModel.updateCurrentTime(it) },
             currentTimeType = currentTime,
-            viewModel = viewModel
+            viewModel = viewModel,
+            buttonTimes = ButtonTimes(
+                pomodoro = pomodoro,
+                long = long,
+                short = short
+            )
         )
 
 
@@ -77,7 +86,8 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     onTimeTypeChange: (Times) -> Unit,
     currentTimeType: Times,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    buttonTimes: ButtonTimes
 ) {
     Surface(
         color = SurfaceRed
@@ -89,7 +99,8 @@ fun MainScreenContent(
             Spacer(modifier = Modifier.height(35.dp))
             TopButtons(
                 onClickButton = { onTimeTypeChange(it) },
-                currentTimeType = currentTimeType
+                currentTimeType = currentTimeType,
+                buttonTimes = buttonTimes
             )
             Spacer(modifier = Modifier.height(35.dp))
             TimerBody(viewModel)
@@ -104,6 +115,7 @@ fun MainScreenContent(
 
 @Composable
 private fun TopButtons(
+    buttonTimes: ButtonTimes,
     onClickButton: (Times) -> Unit,
     currentTimeType: Times = Times.Pomodoro
 ) {
@@ -122,7 +134,7 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.Long)
+                onClickButton(Times.Long.also { it.time = buttonTimes.long })
             }) {
             Text(
                 text = "Long Break",
@@ -140,7 +152,7 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.Short)
+                onClickButton(Times.Short.also { it.time = buttonTimes.short })
             }) {
             Text(
                 text = "Short Break",
@@ -158,7 +170,7 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.Pomodoro)
+                onClickButton(Times.Pomodoro.also { it.time = buttonTimes.pomodoro })
             }) {
             Text(
                 text = "Pomodoro",
@@ -284,8 +296,8 @@ fun MainAppBar(
 ) {
     val title = stringResource(id = R.string.app_name)
     CenterAlignedTopAppBar(
-        colors =  TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title,color =light_onSurfaceRed) },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+        title = { Text(text = title, color = light_onSurfaceRed) },
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
@@ -312,11 +324,11 @@ fun MainAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun MainAppBarPreview(){
+fun MainAppBarPreview() {
     MaterialTheme() {
         CenterAlignedTopAppBar(
-            colors =  TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-            title = { Text("Pomdoro",color =light_onSurfaceRed) },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+            title = { Text("Pomdoro", color = light_onSurfaceRed) },
             navigationIcon = {
                 IconButton(onClick = {
                 }) {
@@ -340,6 +352,7 @@ fun MainAppBarPreview(){
     }
 
 }
+
 @Preview
 @Composable
 fun Deneme() {
@@ -404,5 +417,6 @@ fun Deneme() {
 
 }
 
+data class ButtonTimes(val long: Long, val short: Long, val pomodoro: Long)
 
 
