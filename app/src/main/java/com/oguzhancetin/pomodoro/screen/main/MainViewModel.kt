@@ -68,7 +68,8 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         workManager.cancelAllWork()
         timerIsRunning = false
     }
-    fun startNewTime(times: Times) {
+    
+    private fun startNewTime(times: Times) {
         workManager.cancelAllWork()
         val request = WorkRequestBuilders.timeRequest(times)
         workManager.enqueue(request)
