@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.work.WorkInfo
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
 import com.oguzhancetin.pomodoro.ui.theme.SurfaceRed
@@ -36,14 +37,31 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
     openDrawer: () -> Unit = {}
 ) {
-    val currentTime = viewModel.currentTime
 
     val topAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    val long by viewModel.longTime.collectAsState(initial = Times.Long.time)
-    val short by viewModel.shortTime.collectAsState(initial = Times.Short.time)
-    val pomodoro by viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro.time)
+    val long = viewModel.longTime.collectAsState(initial = Times.Long.time)
+    val short = viewModel.shortTime.collectAsState(initial = Times.Short.time)
+    val pomodoro = viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro.time)
+
+    val currentTime = viewModel.currentTime
+
+    /**
+     * if settings was changed new value update
+     */
+    when(currentTime.value){
+            Times.Pomodoro -> {
+                val pTime = Times.Pomodoro.apply { time = pomodoro.value;left = pomodoro.value }
+                viewModel.updateCurrentTime(pTime)
+            }
+            Times.Short -> {
+                viewModel.updateCurrentTime(Times.Short.also { it.time = short.value;it.left = short.value })
+            }
+            Times.Long -> {
+                viewModel.updateCurrentTime(Times.Long.also { it.time = long.value;it.left = long.value })
+            }
+        }
+
 
     Scaffold(
         topBar = {
@@ -66,19 +84,20 @@ fun MainScreen(
         MainScreenContent(
             modifier = contentModifier,
             onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-            currentTimeType = currentTime,
-            viewModel = viewModel,
+            currentTimeType = currentTime.value,
             buttonTimes = ButtonTimes(
-                pomodoro = pomodoro,
-                long = long,
-                short = short
-            )
+                pomodoro = pomodoro.value,
+                long = long.value,
+                short = short.value
+            ),
+            currentTime = currentTime.value,
+            updateCurrent = {viewModel.updateCurrentLeft(it)},
+            timerIsRunning = viewModel.timerIsRunning,
+            workInfo = viewModel.workInfo?.observeAsState()?.value,
+            pauseOrPlayTimer = {viewModel.pauseOrPlayTimer()},
+            restart = {viewModel.restart()}
         )
-
-
     }
-
-
 }
 
 @Composable
@@ -86,7 +105,12 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     onTimeTypeChange: (Times) -> Unit,
     currentTimeType: Times,
-    viewModel: MainViewModel,
+    currentTime: Times,
+    timerIsRunning: Boolean,
+    updateCurrent: (left: Float) -> Unit,
+    workInfo: WorkInfo?,
+    restart: ()-> Unit,
+    pauseOrPlayTimer: ()-> Unit,
     buttonTimes: ButtonTimes
 ) {
     Surface(
@@ -103,7 +127,14 @@ fun MainScreenContent(
                 buttonTimes = buttonTimes
             )
             Spacer(modifier = Modifier.height(35.dp))
-            TimerBody(viewModel)
+            TimerBody(
+                currentTime = currentTime,
+                timerIsRunning = timerIsRunning,
+                updateCurrent = updateCurrent,
+                workInfo = workInfo,
+                restart = restart,
+                pauseOrPlayTimer = pauseOrPlayTimer
+            )
             Spacer(modifier = Modifier.height(20.dp))
             FavoriteTasks()
 
@@ -181,23 +212,29 @@ private fun TopButtons(
     }
 }
 
+
 @Composable
-fun TimerBody(viewModel: MainViewModel) {
-    val time = viewModel.currentTime
-    if (viewModel.timerIsRunning) {
-        val workInfo = viewModel.workInfo?.observeAsState()
-        val left = workInfo?.value?.progress?.getFloat(
+fun TimerBody(
+    currentTime: Times,
+    timerIsRunning: Boolean,
+    updateCurrent: (left: Float) -> Unit,
+    workInfo: WorkInfo?,
+    restart: ()-> Unit,
+    pauseOrPlayTimer: ()-> Unit
+) {
+    if (timerIsRunning) {
+        val left = workInfo?.progress?.getFloat(
             "Left",
-            viewModel.currentTime.getCurrentPercentage()
+            currentTime.getCurrentPercentage()
         )
         left?.let {
-            viewModel.updateCurrent(it)
+            updateCurrent(it)
         }
     }
     Box() {
         StatelessTimer(
-            value = time.getCurrentPercentage(),
-            time = time.toString(),
+            value = currentTime.getCurrentPercentage(),
+            time = currentTime.toString(),
             textColor = light_onSurfaceRed,
             handleColor = Color.Green,
             inactiveBarColor = Color.White,
@@ -211,9 +248,9 @@ fun TimerBody(viewModel: MainViewModel) {
 
             IconButton(modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
-                .background(Color.White), onClick = { viewModel.pauseOrPlayTimer() }) {
+                .background(Color.White), onClick = { pauseOrPlayTimer() }) {
                 Icon(
-                    if (viewModel.timerIsRunning) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                    if (timerIsRunning) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                     contentDescription = "",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(30.dp)
@@ -224,7 +261,7 @@ fun TimerBody(viewModel: MainViewModel) {
 
             IconButton(modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
-                .background(Color.White), onClick = { viewModel.restart() }) {
+                .background(Color.White), onClick = { restart() }) {
                 Icon(
                     Icons.Filled.Refresh, "",
                     tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp)
@@ -238,7 +275,6 @@ fun TimerBody(viewModel: MainViewModel) {
 
 @Composable
 fun FavoriteTasks(modifier: Modifier = Modifier) {
-
     Column(
         modifier
             .verticalScroll(rememberScrollState())

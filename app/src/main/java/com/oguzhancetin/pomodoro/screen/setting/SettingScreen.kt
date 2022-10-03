@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    openDrawer: () -> Unit = {},
+    goBack: () -> Unit = {},
     viewModel: SettingViewModel = hiltViewModel()
 ) {
     val pomodoroTime by viewModel.pomodoroTime.collectAsState(initial = 0L)
@@ -46,7 +46,7 @@ fun SettingScreen(
     Log.e("PomdoroTime",pomodoroTime.toString())
     Scaffold(
         topBar = {
-            SettingAppBar(openDrawer = openDrawer)
+            SettingAppBar(openDrawer = goBack)
         },
         modifier = modifier
     ) { innerPadding ->

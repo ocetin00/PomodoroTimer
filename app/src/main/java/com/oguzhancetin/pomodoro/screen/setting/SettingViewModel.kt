@@ -36,7 +36,7 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
         viewModelScope.launch (Dispatchers.IO){
             context.dataStore.edit { settings->
                 val currentValue = settings[time.getPrefKey()] ?: 0
-                if(currentValue <= MAX_MINUTE){
+                if(currentValue.div(60000) <= MAX_MINUTE){
                     settings[time.getPrefKey()] = currentValue + 60000
                 }
 

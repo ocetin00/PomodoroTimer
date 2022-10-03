@@ -1,19 +1,25 @@
 package com.oguzhancetin.pomodoro.screen.main
 
 import android.app.Application
+import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.util.WorkRequestBuilders
 import com.oguzhancetin.pomodoro.util.preference.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,10 +41,7 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
     private val workManager = WorkManager.getInstance(context)
     var timerIsRunning by mutableStateOf(false)
     var workInfo: LiveData<WorkInfo?>? = null
-    var currentTime: Times by mutableStateOf(Times.Pomodoro)
-
-
-
+    val currentTime: MutableState<Times> = mutableStateOf(Times.Pomodoro)
 
     fun pauseOrPlayTimer() {
         if (timerIsRunning) {
@@ -46,12 +49,12 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
             workManager.cancelAllWork()
             timerIsRunning = false
         } else {
-            startNewTime(currentTime)
+            startNewTime(currentTime.value)
         }
     }
 
     fun restart() {
-        when (currentTime) {
+        when (currentTime.value) {
             is Times.Long -> {
                 startNewTime(Times.Long)
             }
@@ -64,8 +67,8 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         }
     }
     fun updateCurrentTime(times: Times){
-        currentTime = times
-        currentTime.left = times.time
+        currentTime.value = times
+        currentTime.value.left = times.left
         workManager.cancelAllWork()
         timerIsRunning = false
     }
@@ -76,7 +79,7 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         workManager.enqueue(request)
         workInfo = WorkManager.getInstance(context)
             .getWorkInfoByIdLiveData(request.id)
-        currentTime = times
+        currentTime.value = times
         timerIsRunning = true
         // workManager.enqueueUniqueWork("TimerWork",ExistingWorkPolicy.REPLACE,request)
     }
@@ -84,12 +87,12 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
     private fun saveLeftTime() {
         val percentageTime = workInfo?.value?.progress?.getFloat("Left", 0f)
         percentageTime?.let { leftPercentage ->
-            currentTime.left = (leftPercentage * currentTime.time).toLong()
+            currentTime.value.left = (leftPercentage * currentTime.value.time).toLong()
         }
     }
 
-    fun updateCurrent(left:Float){
-        currentTime.left = (left * currentTime.time).toLong()
+    fun updateCurrentLeft(left:Float){
+        currentTime.value.left = (left * currentTime.value.time).toLong()
     }
 
 

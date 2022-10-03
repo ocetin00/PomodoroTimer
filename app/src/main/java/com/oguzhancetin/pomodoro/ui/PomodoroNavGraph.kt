@@ -30,7 +30,7 @@ fun PomodoroNavGraph(
                 ReportScreen(modifier = modifier, openDrawer = openDrawer)
             }
             composable(PomodoroDestinations.SETTING_ROUTE) {
-                SettingScreen(modifier = modifier, openDrawer = openDrawer)
+                SettingScreen(modifier = modifier, goBack = openDrawer)
             }
         }
     }
