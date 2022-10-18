@@ -26,6 +26,7 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.screen.setting.SettingViewModel
+import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.util.getMinute
@@ -43,32 +44,38 @@ fun SettingScreen(
     val pomodoroTime by viewModel.pomodoroTime.collectAsState(initial = 0L)
     val longTime by viewModel.longTime.collectAsState(initial = 0L)
     val shortTime by viewModel.shortTime.collectAsState(initial = 0L)
-    Log.e("PomdoroTime",pomodoroTime.toString())
-    Scaffold(
-        topBar = {
-            SettingAppBar(openDrawer = goBack)
-        },
-        modifier = modifier
-    ) { innerPadding ->
-        val contentModifier = Modifier
-            .padding(innerPadding)
+    Log.e("PomdoroTime", pomodoroTime.toString())
 
-        SettingScreenContent(
-            modifier = contentModifier,
-            intervalSettingParameters = IntervalSettingParameters(
-                pomodoroTime = pomodoroTime,
-                longTime = longTime,
-                shortTime = shortTime,
-                onIncrease = { time ->
-                    viewModel.increaseTime(time)
-                },
-                onDecrease = {time ->
-                    viewModel.decreaseTime(time)
-                }
+    PomodoroTheme(darkTheme = viewModel.isDarkTheme.collectAsState(initial = false).value) {
+
+        Scaffold(
+            topBar = {
+                SettingAppBar(openDrawer = goBack)
+            },
+            modifier = modifier
+        ) { innerPadding ->
+            val contentModifier = Modifier
+                .padding(innerPadding)
+
+            SettingScreenContent(
+                modifier = contentModifier,
+                intervalSettingParameters = IntervalSettingParameters(
+                    pomodoroTime = pomodoroTime,
+                    longTime = longTime,
+                    shortTime = shortTime,
+                    onIncrease = { time ->
+                        viewModel.increaseTime(time)
+                    },
+                    onDecrease = { time ->
+                        viewModel.decreaseTime(time)
+                    },
+                    toggleTheme = { viewModel.ToggleAppTheme() },
+                    themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value
+                )
             )
-        )
 
 
+        }
     }
 
 }
@@ -77,14 +84,16 @@ fun SettingScreen(
 @Composable
 fun SettingScreenContent(
     modifier: Modifier = Modifier,
-    intervalSettingParameters: IntervalSettingParameters = IntervalSettingParameters()
+    intervalSettingParameters: IntervalSettingParameters
 ) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
 
+
     Surface(
-        color = MaterialTheme.colorScheme.surface
-    ) {
+        color = MaterialTheme.colorScheme.surface,
+
+        ) {
         Column(modifier = modifier) {
             TabRow(
                 modifier = Modifier.padding(paddingValues = PaddingValues(horizontal = 20.dp)),
@@ -97,8 +106,6 @@ fun SettingScreenContent(
                             .wrapContentWidth()
                             .pagerTabIndicatorOffset(pagerState, tabPositions)
                             .padding(horizontal = 50.dp)
-
-
                     )
                 }
             ) {
@@ -126,11 +133,17 @@ fun SettingScreenContent(
                 state = pagerState,
             ) { page ->
                 when (page) {
-                    0 -> GeneralSetting()
+                    0 -> GeneralSetting(
+                        toggleTheme = intervalSettingParameters.toggleTheme,
+                        themeToogleState = intervalSettingParameters.themeToogleState
+                    )
                     1 -> IntervalSetting(
                         parameters = intervalSettingParameters
                     )
-                    else -> GeneralSetting()
+                    else -> GeneralSetting(
+                        toggleTheme = intervalSettingParameters.toggleTheme,
+                        themeToogleState = intervalSettingParameters.themeToogleState
+                    )
                 }
             }
         }
@@ -138,9 +151,12 @@ fun SettingScreenContent(
 
 }
 
-@Preview
+
 @Composable
-fun GeneralSetting() {
+fun GeneralSetting(
+    toggleTheme: () -> Unit,
+    themeToogleState: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -159,8 +175,9 @@ fun GeneralSetting() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Dark Theme")
-                var checkedState by remember { mutableStateOf<Boolean>(false) }
-                Switch(checked = checkedState, onCheckedChange = { checkedState = !checkedState })
+                Switch(
+                    checked = themeToogleState,
+                    onCheckedChange = {toggleTheme()})
             }
 
         }
@@ -255,7 +272,10 @@ fun IntervalSetting(
             ) {
 
                 Text(text = "Pomodoro Time")
-                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     IconButton(onClick = { parameters.onDecrease(Times.Pomodoro) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
@@ -272,7 +292,7 @@ fun IntervalSetting(
                         )
                     }
 
-                    IconButton(onClick = {parameters.onIncrease(Times.Pomodoro) }) {
+                    IconButton(onClick = { parameters.onIncrease(Times.Pomodoro) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
 
@@ -297,7 +317,10 @@ fun IntervalSetting(
             ) {
 
                 Text(text = "Short Time")
-                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     IconButton(onClick = { parameters.onDecrease(Times.Short) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
@@ -316,7 +339,7 @@ fun IntervalSetting(
                         )
                     }
 
-                    IconButton(onClick = {parameters.onIncrease(Times.Short) }) {
+                    IconButton(onClick = { parameters.onIncrease(Times.Short) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
 
@@ -341,7 +364,10 @@ fun IntervalSetting(
             ) {
 
                 Text(text = "Long Time")
-                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     IconButton(onClick = { parameters.onDecrease(Times.Long) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
@@ -357,7 +383,7 @@ fun IntervalSetting(
                         )
                     }
 
-                    IconButton(onClick = {parameters.onIncrease(Times.Long) }) {
+                    IconButton(onClick = { parameters.onIncrease(Times.Long) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
 
@@ -401,5 +427,6 @@ data class IntervalSettingParameters(
     val longTime: Long = 0L,
     val onIncrease: (Times) -> Unit = {},
     val onDecrease: (Times) -> Unit = {},
-
-    )
+    val toggleTheme: () -> Unit = {},
+    val themeToogleState: Boolean
+)

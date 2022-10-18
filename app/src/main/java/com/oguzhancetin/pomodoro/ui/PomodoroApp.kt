@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 fun PomodoroApp() {
     PomodoroTheme {
         val navController = rememberNavController()
-        val navigationsActions = remember(navController) {
+        val navigationActions = remember(navController) {
             PomodoroNavigationActions(navController)
         }
 
@@ -36,15 +36,16 @@ fun PomodoroApp() {
             drawerContent = {
                 AppDrawer(
                     currentRoute = currentRoute,
-                    navigateToMain = navigationsActions.navigateToMain,
-                    navigateToSetting = navigationsActions.navigateToSetting,
-                    navigateToStatus = navigationsActions.navigateToSetting,
+                    navigateToMain = navigationActions.navigateToMain,
+                    navigateToSetting = navigationActions.navigateToSetting,
+                    navigateToStatus = navigationActions.navigateToSetting,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } })
             }) {
             Row {
                 PomodoroNavGraph(
                     navController = navController,
-                    openDrawer = { coroutineScope.launch { drawerState.open() } })
+                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                    navigateFirstScreen = {navigationActions.navigateToMain})
             }
         }
     }

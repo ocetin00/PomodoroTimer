@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.util.preference.IS_DARK_MODE_KEY
 import com.oguzhancetin.pomodoro.util.preference.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,6 +33,12 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
             preferences[Times.Pomodoro.getPrefKey()] ?: 0
         }
 
+    var isDarkTheme:Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[IS_DARK_MODE_KEY] ?: false
+        }
+
+
     fun increaseTime(time:Times) {
         viewModelScope.launch (Dispatchers.IO){
             context.dataStore.edit { settings->
@@ -50,6 +57,15 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
                 if(currentValue > MIN_MINUTE){
                     settings[time.getPrefKey()] = currentValue - 60000
                 }
+            }
+        }
+    }
+
+    fun ToggleAppTheme(){
+        viewModelScope.launch (Dispatchers.IO){
+            context.dataStore.edit { settings->
+                val isDarkTheme = settings[IS_DARK_MODE_KEY] ?: false
+                settings[IS_DARK_MODE_KEY] = !isDarkTheme
             }
         }
     }

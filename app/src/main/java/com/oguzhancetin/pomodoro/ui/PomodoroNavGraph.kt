@@ -15,6 +15,7 @@ fun PomodoroNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     openDrawer: () -> Unit = {},
+    navigateFirstScreen: ()-> Unit,
     startDestination: String = PomodoroDestinations.MAIN_ROUTE,
 
     ) {
@@ -30,7 +31,7 @@ fun PomodoroNavGraph(
                 ReportScreen(modifier = modifier, openDrawer = openDrawer)
             }
             composable(PomodoroDestinations.SETTING_ROUTE) {
-                SettingScreen(modifier = modifier, goBack = openDrawer)
+                SettingScreen(modifier = modifier, goBack = navigateFirstScreen)
             }
         }
     }
