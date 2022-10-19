@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.oguzhancetin.pomodoro.screen.main.MainScreen
+import com.oguzhancetin.pomodoro.screen.task.TaskScreen
 
 
 @Composable
@@ -15,9 +16,7 @@ fun PomodoroNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     openDrawer: () -> Unit = {},
-    navigateFirstScreen: ()-> Unit,
-    startDestination: String = PomodoroDestinations.MAIN_ROUTE,
-
+    startDestination: String = PomodoroDestinations.MAIN_ROUTE
     ) {
     Surface(
         color = MaterialTheme.colorScheme.primary
@@ -31,7 +30,10 @@ fun PomodoroNavGraph(
                 ReportScreen(modifier = modifier, openDrawer = openDrawer)
             }
             composable(PomodoroDestinations.SETTING_ROUTE) {
-                SettingScreen(modifier = modifier, goBack = navigateFirstScreen)
+                SettingScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
+            }
+            composable(PomodoroDestinations.TASK_ROUTE) {
+                TaskScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
             }
         }
     }

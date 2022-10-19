@@ -9,6 +9,7 @@ object PomodoroDestinations{
     const val MAIN_ROUTE = "main"
     const val SETTING_ROUTE = "setting"
     const val STATUS_ROUTE = "status"
+    const val TASK_ROUTE = "task"
 }
 
 class PomodoroNavigationActions(navController: NavHostController){
@@ -38,6 +39,17 @@ class PomodoroNavigationActions(navController: NavHostController){
     }
     val navigateToStatus: ()-> Unit = {
         navController.navigate(PomodoroDestinations.STATUS_ROUTE){
+            popUpTo(navController.graph.findStartDestination().id){
+                saveState = true
+            }
+
+            launchSingleTop = true
+            restoreState = true
+        }
+
+    }
+    val navigateToTask: ()-> Unit = {
+        navController.navigate(PomodoroDestinations.TASK_ROUTE){
             popUpTo(navController.graph.findStartDestination().id){
                 saveState = true
             }

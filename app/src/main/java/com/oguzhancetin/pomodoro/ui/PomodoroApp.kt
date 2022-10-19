@@ -39,13 +39,14 @@ fun PomodoroApp() {
                     navigateToMain = navigationActions.navigateToMain,
                     navigateToSetting = navigationActions.navigateToSetting,
                     navigateToStatus = navigationActions.navigateToSetting,
+                    navigateToTask = navigationActions.navigateToTask,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } })
             }) {
             Row {
                 PomodoroNavGraph(
                     navController = navController,
-                    openDrawer = { coroutineScope.launch { drawerState.open() } },
-                    navigateFirstScreen = {navigationActions.navigateToMain})
+                    openDrawer = { coroutineScope.launch { drawerState.open() } }
+                  )
             }
         }
     }

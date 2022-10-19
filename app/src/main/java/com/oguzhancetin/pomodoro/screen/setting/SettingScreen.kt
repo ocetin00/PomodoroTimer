@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    goBack: () -> Unit = {},
+    onBack: () -> Unit = {},
     viewModel: SettingViewModel = hiltViewModel()
 ) {
     val pomodoroTime by viewModel.pomodoroTime.collectAsState(initial = 0L)
@@ -50,7 +50,7 @@ fun SettingScreen(
 
         Scaffold(
             topBar = {
-                SettingAppBar(openDrawer = goBack)
+                SettingAppBar(onBack = onBack)
             },
             modifier = modifier
         ) { innerPadding ->
@@ -401,7 +401,7 @@ fun IntervalSetting(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingAppBar(
-    openDrawer: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val title = stringResource(id = R.string.app_name)
@@ -409,7 +409,7 @@ fun SettingAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
         title = { Text(text = title, color = light_onSurfaceRed) },
         navigationIcon = {
-            IconButton(onClick = openDrawer) {
+            IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_open_navigation_drawer),

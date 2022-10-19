@@ -5,4 +5,6 @@
     <string name="status_title">Status</string>
     <string name="cd_open_navigation_drawer">open_navigation</string>
     <string name="menu">menu</string>
+    <string name="add_task">add task</string>
+    <string name="Task">Task</string>
 </resources>

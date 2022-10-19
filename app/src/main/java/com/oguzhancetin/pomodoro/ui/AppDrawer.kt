@@ -20,6 +20,7 @@ fun AppDrawer(
     navigateToSetting: () -> Unit,
     navigateToStatus: () -> Unit,
     closeDrawer: () -> Unit,
+    navigateToTask: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ModalDrawerSheet(modifier, drawerContentColor = MaterialTheme.colorScheme.onSurface) {
@@ -48,6 +49,13 @@ fun AppDrawer(
             label = { Text(stringResource(R.string.status_title)) },
             selected = currentRoute == PomodoroDestinations.STATUS_ROUTE,
             onClick = { navigateToStatus();closeDrawer() },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+        NavigationDrawerItem(
+            icon = { },
+            label = { Text(stringResource(R.string.Task)) },
+            selected = currentRoute == PomodoroDestinations.TASK_ROUTE,
+            onClick = { navigateToTask();closeDrawer() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
