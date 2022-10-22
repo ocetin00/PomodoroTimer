@@ -1,7 +1,6 @@
 package com.oguzhancetin.pomodoro.screen.main
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,19 +10,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.util.WorkRequestBuilders
 import com.oguzhancetin.pomodoro.util.preference.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(val context: Application) : AndroidViewModel(context) {
+class MainViewModel @Inject constructor(private val context: Application,private val mainRepository: MainRepository) : AndroidViewModel(context) {
+    val favoriteTaskItems = mainRepository.getFavoriteTaskItems()
+
     var longTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
             preferences[Times.Long.getPrefKey()] ?: Times.Long.time
@@ -66,7 +67,8 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
             }
         }
     }
-    fun updateCurrentTime(times: Times){
+
+    fun updateCurrentTime(times: Times) {
         currentTime.value = times
         currentTime.value.left = times.left
         workManager.cancelAllWork()
@@ -91,8 +93,13 @@ class MainViewModel @Inject constructor(val context: Application) : AndroidViewM
         }
     }
 
-    fun updateCurrentLeft(left:Float){
+    fun updateCurrentLeft(left: Float) {
         currentTime.value.left = (left * currentTime.value.time).toLong()
+    }
+    fun updateTask(taskItem: TaskItem){
+        viewModelScope.launch (Dispatchers.IO){
+            mainRepository.updateTask(taskItem = taskItem)
+        }
     }
 
 
