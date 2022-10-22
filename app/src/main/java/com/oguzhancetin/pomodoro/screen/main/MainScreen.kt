@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.WorkInfo
 import com.oguzhancetin.pomodoro.R
+import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
 import com.oguzhancetin.pomodoro.ui.theme.SurfaceRed
 import com.oguzhancetin.pomodoro.ui.theme.light_SurfaceRedContainer
@@ -46,21 +48,27 @@ fun MainScreen(
 
     val currentTime = viewModel.currentTime
 
+    val favoriteTaskItems by viewModel.favoriteTaskItems.collectAsState(initial = listOf())
+
     /**
      * if settings was changed new value update
      */
-    when(currentTime.value){
-            Times.Pomodoro -> {
-                val pTime = Times.Pomodoro.apply { time = pomodoro.value;left = pomodoro.value }
-                viewModel.updateCurrentTime(pTime)
-            }
-            Times.Short -> {
-                viewModel.updateCurrentTime(Times.Short.also { it.time = short.value;it.left = short.value })
-            }
-            Times.Long -> {
-                viewModel.updateCurrentTime(Times.Long.also { it.time = long.value;it.left = long.value })
-            }
+    when (currentTime.value) {
+        Times.Pomodoro -> {
+            val pTime = Times.Pomodoro.apply { time = pomodoro.value;left = pomodoro.value }
+            viewModel.updateCurrentTime(pTime)
         }
+        Times.Short -> {
+            viewModel.updateCurrentTime(Times.Short.also {
+                it.time = short.value;it.left = short.value
+            })
+        }
+        Times.Long -> {
+            viewModel.updateCurrentTime(Times.Long.also {
+                it.time = long.value;it.left = long.value
+            })
+        }
+    }
 
 
     Scaffold(
@@ -68,15 +76,16 @@ fun MainScreen(
             MainAppBar(openDrawer = openDrawer, topAppBarState = topAppBarState)
         },
         modifier = modifier,
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    //Todo
-                }) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
-            }
-        }
+        floatingActionButtonPosition = FabPosition.End
+        /* ,
+         floatingActionButton = {
+             FloatingActionButton(
+                 onClick = {
+                     //Todo
+                 }) {
+                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+             }
+         }*/
     ) { innerPadding ->
         val contentModifier = Modifier
             .padding(innerPadding)
@@ -91,11 +100,13 @@ fun MainScreen(
                 short = short.value
             ),
             currentTime = currentTime.value,
-            updateCurrent = {viewModel.updateCurrentLeft(it)},
+            updateCurrent = { viewModel.updateCurrentLeft(it) },
             timerIsRunning = viewModel.timerIsRunning,
             workInfo = viewModel.workInfo?.observeAsState()?.value,
-            pauseOrPlayTimer = {viewModel.pauseOrPlayTimer()},
-            restart = {viewModel.restart()}
+            pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+            restart = { viewModel.restart() },
+            favoriteTaskItems = favoriteTaskItems,
+            onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) }
         )
     }
 }
@@ -109,9 +120,11 @@ fun MainScreenContent(
     timerIsRunning: Boolean,
     updateCurrent: (left: Float) -> Unit,
     workInfo: WorkInfo?,
-    restart: ()-> Unit,
-    pauseOrPlayTimer: ()-> Unit,
-    buttonTimes: ButtonTimes
+    restart: () -> Unit,
+    pauseOrPlayTimer: () -> Unit,
+    buttonTimes: ButtonTimes,
+    favoriteTaskItems: List<TaskItem>,
+    onItemFavorite: (taskItem: TaskItem) -> Unit
 ) {
     Surface(
         color = SurfaceRed
@@ -136,7 +149,7 @@ fun MainScreenContent(
                 pauseOrPlayTimer = pauseOrPlayTimer
             )
             Spacer(modifier = Modifier.height(20.dp))
-            FavoriteTasks()
+            FavoriteTasks(favoriteTaskItems = favoriteTaskItems, onItemFavorite = onItemFavorite)
 
         }
 
@@ -219,8 +232,8 @@ fun TimerBody(
     timerIsRunning: Boolean,
     updateCurrent: (left: Float) -> Unit,
     workInfo: WorkInfo?,
-    restart: ()-> Unit,
-    pauseOrPlayTimer: ()-> Unit
+    restart: () -> Unit,
+    pauseOrPlayTimer: () -> Unit
 ) {
     if (timerIsRunning) {
         val left = workInfo?.progress?.getFloat(
@@ -274,23 +287,32 @@ fun TimerBody(
 
 
 @Composable
-fun FavoriteTasks(modifier: Modifier = Modifier) {
+fun FavoriteTasks(
+    modifier: Modifier = Modifier,
+    favoriteTaskItems: List<TaskItem>,
+    onItemFavorite: (taskItem: TaskItem) -> Unit
+) {
     Column(
         modifier
             .verticalScroll(rememberScrollState())
             .fillMaxWidth(0.7f),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        repeat(4) {
+        favoriteTaskItems.forEach {
             Spacer(modifier = Modifier.height(8.dp))
-            ImportantTask()
+            ImportantTask(modifier = Modifier, taskItem = it, onItemFavorite = onItemFavorite)
         }
+
     }
 }
 
 
 @Composable
-fun ImportantTask(modifier: Modifier = Modifier) {
+fun ImportantTask(
+    modifier: Modifier = Modifier,
+    taskItem: TaskItem,
+    onItemFavorite: (taskItem: TaskItem) -> Unit
+) {
     Card(
         colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
         shape = MaterialTheme.shapes.large,
@@ -298,6 +320,7 @@ fun ImportantTask(modifier: Modifier = Modifier) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
+                .height(58.dp)
                 .padding(horizontal = 10.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -310,14 +333,18 @@ fun ImportantTask(modifier: Modifier = Modifier) {
                 painter = painterResource(id = R.drawable.dot),
                 contentDescription = "Dot"
             )
-            Text("Deneme task")
-            Icon(
-                imageVector = Icons.Filled.Star,
-                contentDescription = "Dot",
-                tint = md_theme_light_tertiary
-            )
+            Text(text = taskItem.description ?: "")
+            IconButton(onClick = {
+                onItemFavorite(taskItem.copy(isFavorite = !taskItem.isFavorite))
+            }) {
+                Icon(
+                    imageVector = if (taskItem.isFavorite) Icons.Filled.Star else Icons.Outlined.Grade,
+                    contentDescription = stringResource(R.string.add_task)
+                )
+            }
         }
     }
+
 
 }
 
