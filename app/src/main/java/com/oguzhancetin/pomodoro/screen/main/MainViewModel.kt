@@ -102,5 +102,11 @@ class MainViewModel @Inject constructor(private val context: Application,private
         }
     }
 
+    fun updateTaskItem(taskItem: TaskItem){
+        viewModelScope.launch(Dispatchers.IO) {
+            mainRepository.updateTask(taskItem)
+        }
+    }
+
 
 }

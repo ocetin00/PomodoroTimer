@@ -26,14 +26,14 @@ fun PomodoroNavGraph(
             composable(PomodoroDestinations.MAIN_ROUTE) {
                 MainScreen(modifier = modifier, openDrawer = openDrawer)
             }
-            composable(PomodoroDestinations.STATUS_ROUTE) {
-                ReportScreen(modifier = modifier, openDrawer = openDrawer)
-            }
             composable(PomodoroDestinations.SETTING_ROUTE) {
                 SettingScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
             }
             composable(PomodoroDestinations.TASK_ROUTE) {
                 TaskScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
+            }
+            composable(PomodoroDestinations.STATUS_ROUTE) {
+                StatusScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
             }
         }
     }

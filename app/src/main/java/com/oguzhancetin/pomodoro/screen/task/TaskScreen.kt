@@ -129,8 +129,11 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
 
             val textFieldModifier = Modifier
                 .fillMaxWidth()
-            OutlinedTextField(modifier = textFieldModifier, value = text, onValueChange = {
-                text = it
+            OutlinedTextField(
+                singleLine = true,
+                modifier = textFieldModifier,
+                value = text, onValueChange = {
+                    if (it.text.length <= 23) text = it
             }, placeholder = {
                 Text(text = "Bir görev ekle")
             }, trailingIcon = {

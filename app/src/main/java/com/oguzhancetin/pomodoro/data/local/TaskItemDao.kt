@@ -10,7 +10,7 @@ interface TaskItemDao {
     @Query("SELECT * FROM task_item WHERE is_finished = 0")
     fun tasKItems(): Flow<List<TaskItem>>
 
-    @Query("SELECT * FROM task_item WHERE is_favorite = 1 AND is_finished = 0")
+    @Query("SELECT * FROM task_item WHERE is_favorite = 1 AND is_finished = 0 ORDER BY create_date DESC")
     fun favoriteTaskItems(): Flow<List<TaskItem>>
 
     @Delete

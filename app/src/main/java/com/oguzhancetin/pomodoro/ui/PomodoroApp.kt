@@ -38,7 +38,7 @@ fun PomodoroApp() {
                     currentRoute = currentRoute,
                     navigateToMain = navigationActions.navigateToMain,
                     navigateToSetting = navigationActions.navigateToSetting,
-                    navigateToStatus = navigationActions.navigateToSetting,
+                    navigateToStatus = navigationActions.navigateToStatus,
                     navigateToTask = navigationActions.navigateToTask,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } })
             }) {

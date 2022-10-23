@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Grade
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -16,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -106,7 +107,8 @@ fun MainScreen(
             pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
             restart = { viewModel.restart() },
             favoriteTaskItems = favoriteTaskItems,
-            onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) }
+            onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+            onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) }
         )
     }
 }
@@ -124,7 +126,8 @@ fun MainScreenContent(
     pauseOrPlayTimer: () -> Unit,
     buttonTimes: ButtonTimes,
     favoriteTaskItems: List<TaskItem>,
-    onItemFavorite: (taskItem: TaskItem) -> Unit
+    onItemFavorite: (taskItem: TaskItem) -> Unit,
+    onItemFinish: (taskItem: TaskItem) -> Unit = {}
 ) {
     Surface(
         color = SurfaceRed
@@ -149,7 +152,11 @@ fun MainScreenContent(
                 pauseOrPlayTimer = pauseOrPlayTimer
             )
             Spacer(modifier = Modifier.height(20.dp))
-            FavoriteTasks(favoriteTaskItems = favoriteTaskItems, onItemFavorite = onItemFavorite)
+            FavoriteTasks(
+                favoriteTaskItems = favoriteTaskItems,
+                onItemFavorite = onItemFavorite,
+                onItemFinish = onItemFinish
+            )
 
         }
 
@@ -290,17 +297,24 @@ fun TimerBody(
 fun FavoriteTasks(
     modifier: Modifier = Modifier,
     favoriteTaskItems: List<TaskItem>,
-    onItemFavorite: (taskItem: TaskItem) -> Unit
+    onItemFavorite: (taskItem: TaskItem) -> Unit,
+    onItemFinish: (taskItem: TaskItem) -> Unit = {}
 ) {
     Column(
         modifier
             .verticalScroll(rememberScrollState())
-            .fillMaxWidth(0.7f),
+            .fillMaxWidth(0.7f)
+            .padding(bottom = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         favoriteTaskItems.forEach {
             Spacer(modifier = Modifier.height(8.dp))
-            ImportantTask(modifier = Modifier, taskItem = it, onItemFavorite = onItemFavorite)
+            ImportantTask(
+                modifier = Modifier,
+                taskItem = it,
+                onItemFavorite = onItemFavorite,
+                onItemFinish = onItemFinish
+            )
         }
 
     }
@@ -311,7 +325,8 @@ fun FavoriteTasks(
 fun ImportantTask(
     modifier: Modifier = Modifier,
     taskItem: TaskItem,
-    onItemFavorite: (taskItem: TaskItem) -> Unit
+    onItemFavorite: (taskItem: TaskItem) -> Unit = {},
+    onItemFinish: (taskItem: TaskItem) -> Unit = {}
 ) {
     Card(
         colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
@@ -325,15 +340,24 @@ fun ImportantTask(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(2.dp),
-                tint = MaterialTheme.colorScheme.onPrimary,
-                painter = painterResource(id = R.drawable.dot),
-                contentDescription = "Dot"
+
+            IconButton(onClick = {
+
+                onItemFinish(taskItem.copy(isFinished = true))
+            }) {
+                Icon(
+
+                    imageVector = Icons.Outlined.RadioButtonUnchecked,
+                    contentDescription = stringResource(R.string.add_task)
+                )
+            }
+
+
+            Text(
+                text = taskItem.description ?: "",
+                modifier = Modifier.padding(horizontal = 3.dp),
+                style = TextStyle(fontSize = MaterialTheme.typography.labelMedium.fontSize)
             )
-            Text(text = taskItem.description ?: "")
             IconButton(onClick = {
                 onItemFavorite(taskItem.copy(isFavorite = !taskItem.isFavorite))
             }) {

@@ -125,7 +125,7 @@ fun Timer(
                 listOf(Offset(center.x + a, center.y + b)),
                 pointMode = PointMode.Points,
                 color = handleColor,
-                strokeWidth = (strokeWidth * 3f).toPx(),
+                strokeWidth = (strokeWidth * 2f).toPx(),
                 cap = StrokeCap.Round
             )
         }
@@ -198,7 +198,7 @@ fun StatelessTimer(
                 size = Size(size.width.toFloat(), size.height.toFloat()),
                 style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round)
             )
-          /*  val center = Offset(size.width / 2f, size.height / 2f)
+            val center = Offset(size.width / 2f, size.height / 2f)
             val beta = (250f * value + 145f) * (PI / 180f).toFloat()
             val r = size.width / 2f
             val a = cos(beta) * r
@@ -206,10 +206,10 @@ fun StatelessTimer(
             drawPoints(
                 listOf(Offset(center.x + a, center.y + b)),
                 pointMode = PointMode.Points,
-                color = handleColor,
-                strokeWidth = (strokeWidth * 3f).toPx(),
+                color = activeBarColor,
+                strokeWidth = (strokeWidth * 2f).toPx(),
                 cap = StrokeCap.Round
-            )*/
+            )
         }
         Text(
             text = time,
