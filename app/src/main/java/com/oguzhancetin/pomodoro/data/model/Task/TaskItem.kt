@@ -11,6 +11,8 @@ data class TaskItem(
     val description: String?,
     @ColumnInfo(name = "create_date")
     val createdDate: Long,
+    @ColumnInfo(name = "done_date")
+    val doneDate: Long?,
     @ColumnInfo(name = "is_favorite")
     val isFavorite: Boolean = false,
     @ColumnInfo(name = "is_finished")

@@ -203,13 +203,13 @@ fun StatelessTimer(
             val r = size.width / 2f
             val a = cos(beta) * r
             val b = sin(beta) * r
-            drawPoints(
+       /*     drawPoints(
                 listOf(Offset(center.x + a, center.y + b)),
                 pointMode = PointMode.Points,
                 color = activeBarColor,
                 strokeWidth = (strokeWidth * 2f).toPx(),
                 cap = StrokeCap.Round
-            )
+            )*/
         }
         Text(
             text = time,

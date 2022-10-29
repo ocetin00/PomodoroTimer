@@ -7,54 +7,85 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.oguzhancetin.pomodoro.R
+import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
+import com.oguzhancetin.pomodoro.screen.report.ReportUIState
+import com.oguzhancetin.pomodoro.screen.report.ReportViewModal
 import com.oguzhancetin.pomodoro.screen.task.TasKAppBar
-import com.oguzhancetin.pomodoro.screen.task.TaskScreenContent
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
-import com.github.mikephil.charting.data.Entry
+import com.oguzhancetin.pomodoro.util.removeDetails
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatusScreen(modifier: Modifier, onBack: () -> Unit) {
+fun StatusScreen(
+    modifier: Modifier,
+    onBack: () -> Unit,
+    viewModel: ReportViewModal = hiltViewModel()
+) {
 
-    PomodoroTheme() {
-        Scaffold(
-            topBar = {
-                TasKAppBar(openDrawer = onBack)
-            },
-            modifier = modifier
-        ) { innerPadding ->
+    val reportUIState by viewModel.doneTaskItems.collectAsState()
 
-            val contentModifier = Modifier
-                .padding(innerPadding)
-            StatusScreenContent(
-               modifier = contentModifier
-            )
+    when(reportUIState){
+       is ReportUIState.Success -> {
+           PomodoroTheme() {
+               Scaffold(
+                   topBar = {
+                       TasKAppBar(openDrawer = onBack)
+                   },
+                   modifier = modifier
+               ) { innerPadding ->
+
+                   val contentModifier = Modifier
+                       .padding(innerPadding)
+                   StatusScreenContent(
+                       modifier = contentModifier,
+                       taskItems = (reportUIState as ReportUIState.Success).taskItems
+                   )
+               }
+           }
+        }
+        is ReportUIState.Loading ->{
+
+        }
+        is ReportUIState.Error -> {
+
         }
     }
 
 
+
+
 }
 
+
+@Preview
 @Composable
-fun StatusScreenContent(modifier:Modifier = Modifier) {
-    val entries = arrayListOf<Entry>()
-    entries.add(Entry(1f,1f))
-    entries.add(Entry(2f,2f))
-    entries.add(Entry(3f,3f))
-    entries.add(Entry(4f,1f))
-    entries.add(Entry(5f,5f))
-    entries.add(Entry(6f,1f))
-    entries.add(Entry(7f,8f))
-    val lineDataSet = LineDataSet(entries,"task_items")
+fun StatusScreenContent(
+    modifier: Modifier = Modifier,
+    taskItems: List<TaskItem> = listOf()
+) {
+
+
+    val entries = convertEntryList(taskItems)
+
+    val lineDataSet = LineDataSet(entries, "task_items")
+
+
     lineDataSet.setDrawValues(false);
     lineDataSet.setDrawCircles(false);
     lineDataSet.setDrawFilled(true);
@@ -62,11 +93,9 @@ fun StatusScreenContent(modifier:Modifier = Modifier) {
     lineDataSet.cubicIntensity = 0.2f;
     val lineData = LineData(lineDataSet)
 
-
     Column(
         modifier = modifier
     ) {
-
         AndroidView(factory = { context ->
             LineChart(context).apply {
                 layoutParams = LinearLayout.LayoutParams(
@@ -76,6 +105,14 @@ fun StatusScreenContent(modifier:Modifier = Modifier) {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                 )
                 data = lineData
+                axisRight.isEnabled = false
+                xAxis.setDrawGridLines(true)
+                setTouchEnabled(false)
+                xAxis.axisMaximum = 6.5f
+                xAxis.granularity = 1f
+                axisLeft.axisMinimum = 0f
+                axisLeft.axisMaximum = 10f
+                xAxis.yOffset = 13f
             }
         }, modifier = Modifier
             .wrapContentSize()
@@ -84,6 +121,42 @@ fun StatusScreenContent(modifier:Modifier = Modifier) {
                 it.invalidate()
             })
     }
+}
+
+fun convertEntryList(sortedTaskItems: List<TaskItem>) :List<Entry> {
+    val calendar = Calendar.getInstance()
+    val entries = mutableListOf<Entry>()
+    val daysValue = mutableMapOf<Long, Int>()
+
+    //add week days
+    repeat(7) {
+        calendar.removeDetails()
+        daysValue.put(
+            calendar.timeInMillis, 0
+        )
+        calendar.add(Calendar.DAY_OF_WEEK, 1)
+    }
+
+
+    //sorted to obtain which day and added to days hasMap
+    sortedTaskItems.forEach { taskItem ->
+        daysValue.keys.forEach { key ->
+            if(taskItem.doneDate == key){
+                val currentValue = daysValue[key] ?: 0
+                daysValue[key] = currentValue+1
+            }
+        }
+    }
+
+    var tempCounter = 0
+    daysValue.forEach {
+        entries.add(Entry(tempCounter.toFloat(),it.value.toFloat()))
+        tempCounter++
+    }
+
+    return entries
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

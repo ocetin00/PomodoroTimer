@@ -20,6 +20,7 @@ class TaskViewModel @Inject constructor(private val taskItemRepository: TaskItem
         }
 
     }
+
     fun updateTask(taskItem: TaskItem){
         viewModelScope.launch (Dispatchers.IO){
             taskItemRepository.updateTask(taskItem = taskItem)
@@ -27,3 +28,4 @@ class TaskViewModel @Inject constructor(private val taskItemRepository: TaskItem
     }
 
 }
+

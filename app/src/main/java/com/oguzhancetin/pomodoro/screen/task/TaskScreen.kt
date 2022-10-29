@@ -25,6 +25,8 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.util.removeDetails
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +59,8 @@ fun TaskScreen(
     }
 
 }
+
+
 
 @Preview
 @Composable
@@ -101,6 +105,7 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
     ) {
         var text by remember { mutableStateOf(TextFieldValue("")) }
 
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,7 +120,8 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                         id = null,
                         description = text.text,
                         createdDate = System.currentTimeMillis(),
-                        isFavorite = false
+                        isFavorite = false,
+                        doneDate = null
                     )
                 )
                 text = TextFieldValue()
@@ -134,16 +140,16 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                 modifier = textFieldModifier,
                 value = text, onValueChange = {
                     if (it.text.length <= 23) text = it
-            }, placeholder = {
-                Text(text = "Bir görev ekle")
-            }, trailingIcon = {
+                }, placeholder = {
+                    Text(text = "Bir görev ekle")
+                }, trailingIcon = {
 
-            }, colors = TextFieldDefaults.outlinedTextFieldColors(
-                errorBorderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent,
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent
-            )
+                }, colors = TextFieldDefaults.outlinedTextFieldColors(
+                    errorBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent
+                )
             )
             IconButton(onClick = {
                 text = TextFieldValue("")
@@ -165,6 +171,7 @@ fun TaskItemContent(
     onItemFinish: (taskItem: TaskItem) -> Unit,
     onItemFavorite: (taskItem: TaskItem) -> Unit
 ) {
+    val calendar: Calendar = Calendar.getInstance()
 
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -181,7 +188,7 @@ fun TaskItemContent(
 
             IconButton(onClick = {
 
-                onItemFinish(taskItem.copy(isFinished = true))
+                onItemFinish(taskItem.copy(isFinished = true, doneDate = calendar.timeInMillis))
             }) {
                 Icon(
                     imageVector = Icons.Outlined.RadioButtonUnchecked,

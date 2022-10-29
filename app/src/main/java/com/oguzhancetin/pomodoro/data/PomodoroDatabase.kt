@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.oguzhancetin.pomodoro.data.local.TaskItemDao
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 
-@Database(entities = [TaskItem::class], exportSchema = true, version = 3)
+@Database(entities = [TaskItem::class], exportSchema = true, version = 4)
 abstract class PomodoroDatabase: RoomDatabase() {
     abstract fun taskItemDao(): TaskItemDao
 }
