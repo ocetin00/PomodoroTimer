@@ -41,7 +41,7 @@ fun TaskScreen(
     PomodoroTheme() {
         Scaffold(
             topBar = {
-                TasKAppBar(openDrawer = onBack)
+                TaskAppBar(openDrawer = onBack)
             },
             modifier = modifier
         ) { innerPadding ->
@@ -59,7 +59,6 @@ fun TaskScreen(
     }
 
 }
-
 
 
 @Preview
@@ -172,7 +171,7 @@ fun TaskItemContent(
     onItemFavorite: (taskItem: TaskItem) -> Unit
 ) {
     val calendar: Calendar = Calendar.getInstance()
-
+    calendar.removeDetails()
     Card(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier.padding(horizontal = 10.dp)
@@ -215,7 +214,7 @@ fun TaskItemContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasKAppBar(
+fun TaskAppBar(
     openDrawer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.WorkInfo
@@ -47,14 +46,14 @@ fun MainScreen(
     val short = viewModel.shortTime.collectAsState(initial = Times.Short.time)
     val pomodoro = viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro.time)
 
-    val currentTime = viewModel.currentTime
+    val currentSelectedTime = viewModel.currentTime
 
     val favoriteTaskItems by viewModel.favoriteTaskItems.collectAsState(initial = listOf())
 
     /**
      * if settings was changed new value update
      */
-    when (currentTime.value) {
+    when (currentSelectedTime.value) {
         Times.Pomodoro -> {
             val pTime = Times.Pomodoro.apply { time = pomodoro.value;left = pomodoro.value }
             viewModel.updateCurrentTime(pTime)
@@ -77,16 +76,17 @@ fun MainScreen(
             MainAppBar(openDrawer = openDrawer, topAppBarState = topAppBarState)
         },
         modifier = modifier,
-        floatingActionButtonPosition = FabPosition.End
-        /* ,
+        floatingActionButtonPosition = FabPosition.End,
          floatingActionButton = {
-             FloatingActionButton(
-                 onClick = {
-                     //Todo
-                 }) {
-                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+             if(favoriteTaskItems.isNotEmpty()){
+                 FloatingActionButton(
+                     onClick = {
+                         //TODO: navigate task screen
+                     }) {
+                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+                 }
              }
-         }*/
+         }
     ) { innerPadding ->
         val contentModifier = Modifier
             .padding(innerPadding)
@@ -94,13 +94,13 @@ fun MainScreen(
         MainScreenContent(
             modifier = contentModifier,
             onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-            currentTimeType = currentTime.value,
+            currentTimeType = currentSelectedTime.value,
             buttonTimes = ButtonTimes(
                 pomodoro = pomodoro.value,
                 long = long.value,
                 short = short.value
             ),
-            currentTime = currentTime.value,
+            currentTime = currentSelectedTime.value,
             updateCurrent = { viewModel.updateCurrentLeft(it) },
             timerIsRunning = viewModel.timerIsRunning,
             workInfo = viewModel.workInfo?.observeAsState()?.value,
@@ -309,7 +309,7 @@ fun FavoriteTasks(
     ) {
         favoriteTaskItems.forEach {
             Spacer(modifier = Modifier.height(8.dp))
-            ImportantTask(
+            FavoriteTask(
                 modifier = Modifier,
                 taskItem = it,
                 onItemFavorite = onItemFavorite,
@@ -320,9 +320,8 @@ fun FavoriteTasks(
     }
 }
 
-
 @Composable
-fun ImportantTask(
+fun FavoriteTask(
     modifier: Modifier = Modifier,
     taskItem: TaskItem,
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
@@ -393,116 +392,21 @@ fun MainAppBar(
                     tint = light_onSurfaceRed
                 )
             }
-        },
+        }/*,
         actions = {
-            IconButton(onClick = { /* TODO: Open search */ }) {
+            IconButton(onClick = { *//* TODO: Open search *//* }) {
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
                     contentDescription = stringResource(R.string.menu),
                     tint = light_onSurfaceRed
                 )
             }
-        },
+        }*/,
         scrollBehavior = scrollBehavior,
         modifier = modifier
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun MainAppBarPreview() {
-    MaterialTheme() {
-        CenterAlignedTopAppBar(
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-            title = { Text("Pomdoro", color = light_onSurfaceRed) },
-            navigationIcon = {
-                IconButton(onClick = {
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                        tint = light_onSurfaceRed
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = { /* TODO: Open search */ }) {
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = stringResource(R.string.menu),
-                        tint = light_onSurfaceRed
-                    )
-                }
-            }
-        )
-    }
-
-}
-
-@Preview
-@Composable
-fun Deneme() {
-    val activeTime by remember { mutableStateOf<Times>(Times.Short) }
-    Surface(
-        color = SurfaceRed
-    ) {
-        Row {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                OutlinedButton(
-                    border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if (activeTime is Times.Long) {
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = light_onSurfaceRed,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        ButtonDefaults.outlinedButtonColors()
-                    },
-                    onClick = {
-
-                    }) {
-                    Text("Long Break")
-                }
-                OutlinedButton(
-                    border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if (activeTime is Times.Short) {
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = light_onSurfaceRed,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        ButtonDefaults.outlinedButtonColors()
-                    },
-                    onClick = {
-
-                    }) {
-                    Text("Short Break")
-                }
-                OutlinedButton(
-                    border = BorderStroke(1.dp, light_SurfaceRedContainer),
-                    colors = if (activeTime is Times.Pomodoro) {
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = light_onSurfaceRed,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        ButtonDefaults.outlinedButtonColors()
-                    },
-                    onClick = {
-
-                    }) {
-                    Text("Pomodoro")
-                }
-            }
-        }
-    }
-
-
-}
 
 data class ButtonTimes(val long: Long, val short: Long, val pomodoro: Long)
 

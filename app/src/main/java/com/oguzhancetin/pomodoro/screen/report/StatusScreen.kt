@@ -1,5 +1,6 @@
 package com.oguzhancetin.pomodoro.ui
 
+import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.foundation.layout.*
@@ -7,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -24,9 +25,10 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.screen.report.ReportUIState
 import com.oguzhancetin.pomodoro.screen.report.ReportViewModal
-import com.oguzhancetin.pomodoro.screen.task.TasKAppBar
+import com.oguzhancetin.pomodoro.screen.task.TaskAppBar
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.util.chart.XAxisValueFormatter
 import com.oguzhancetin.pomodoro.util.removeDetails
 import java.util.*
 
@@ -45,7 +47,7 @@ fun StatusScreen(
            PomodoroTheme() {
                Scaffold(
                    topBar = {
-                       TasKAppBar(openDrawer = onBack)
+                       TaskAppBar(openDrawer = onBack)
                    },
                    modifier = modifier
                ) { innerPadding ->
@@ -106,13 +108,20 @@ fun StatusScreenContent(
                 )
                 data = lineData
                 axisRight.isEnabled = false
-                xAxis.setDrawGridLines(true)
+                xAxis.setDrawGridLines(false)
+                axisLeft.setDrawGridLines(false)
                 setTouchEnabled(false)
                 xAxis.axisMaximum = 6.5f
                 xAxis.granularity = 1f
                 axisLeft.axisMinimum = 0f
                 axisLeft.axisMaximum = 10f
-                xAxis.yOffset = 13f
+                xAxis.apply {
+                    valueFormatter = XAxisValueFormatter()
+                    position = XAxis.XAxisPosition.BOTTOM;
+                    textSize = 10f;
+                    textColor = Color.RED;
+                   //.setValueFormatter(new MyCustomFormatter());
+                }
             }
         }, modifier = Modifier
             .wrapContentSize()
@@ -127,14 +136,15 @@ fun convertEntryList(sortedTaskItems: List<TaskItem>) :List<Entry> {
     val calendar = Calendar.getInstance()
     val entries = mutableListOf<Entry>()
     val daysValue = mutableMapOf<Long, Int>()
+    calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+    calendar.removeDetails()
 
     //add week days
     repeat(7) {
-        calendar.removeDetails()
         daysValue.put(
             calendar.timeInMillis, 0
         )
-        calendar.add(Calendar.DAY_OF_WEEK, 1)
+        calendar.add(Calendar.DATE, 1)
     }
 
 
