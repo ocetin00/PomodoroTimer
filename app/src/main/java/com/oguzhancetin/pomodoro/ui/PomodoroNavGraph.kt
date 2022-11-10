@@ -18,9 +18,7 @@ fun PomodoroNavGraph(
     openDrawer: () -> Unit = {},
     startDestination: String = PomodoroDestinations.MAIN_ROUTE
     ) {
-    Surface(
-        color = MaterialTheme.colorScheme.primary
-    ) {
+
 
         NavHost(navController = navController, startDestination = startDestination) {
             composable(PomodoroDestinations.MAIN_ROUTE) {
@@ -36,5 +34,5 @@ fun PomodoroNavGraph(
                 StatusScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
             }
         }
-    }
+
 }

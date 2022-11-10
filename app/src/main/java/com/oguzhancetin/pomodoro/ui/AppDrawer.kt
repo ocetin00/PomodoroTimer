@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oguzhancetin.pomodoro.R
-import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

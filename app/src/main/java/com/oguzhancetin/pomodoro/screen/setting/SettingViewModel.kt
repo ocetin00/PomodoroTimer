@@ -23,6 +23,7 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
     var longTime:Flow<Long> = context.dataStore.data
         .map { preferences ->
             preferences[Times.Long.getPrefKey()] ?: 0
+            
         }
     var shortTime:Flow<Long> = context.dataStore.data
         .map { preferences ->

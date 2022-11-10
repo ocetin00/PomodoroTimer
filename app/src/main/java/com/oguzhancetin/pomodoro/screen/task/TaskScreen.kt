@@ -24,7 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
-import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.util.removeDetails
 import java.util.*
 
@@ -221,13 +221,13 @@ fun TaskAppBar(
     val title = stringResource(id = R.string.app_name)
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title, color = light_onSurfaceRed) },
+        title = { Text(text = title, color = light_onRedBackground) },
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                    tint = light_onSurfaceRed
+                    tint = light_onRedBackground
                 )
             }
         },

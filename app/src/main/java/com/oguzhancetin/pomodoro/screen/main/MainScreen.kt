@@ -3,11 +3,14 @@ package com.oguzhancetin.pomodoro.screen.main
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.*
@@ -16,19 +19,20 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.WorkInfo
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
-import com.oguzhancetin.pomodoro.ui.theme.SurfaceRed
-import com.oguzhancetin.pomodoro.ui.theme.light_SurfaceRedContainer
-import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
-import com.oguzhancetin.pomodoro.ui.theme.md_theme_light_tertiary
+import com.oguzhancetin.pomodoro.ui.theme.*
 import com.oguzhancetin.pomodoro.util.Times
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,40 +81,50 @@ fun MainScreen(
         },
         modifier = modifier,
         floatingActionButtonPosition = FabPosition.End,
-         floatingActionButton = {
-             if(favoriteTaskItems.isNotEmpty()){
-                 FloatingActionButton(
-                     onClick = {
-                         //TODO: navigate task screen
-                     }) {
-                     Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
-                 }
-             }
-         }
+        floatingActionButton = {
+
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        //TODO: navigate task screen
+                    }) {
+                    Row(horizontalArrangement = Arrangement.SpaceAround){
+                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Add")
+                        Text("Task")
+                    }
+
+                }
+
+        }
     ) { innerPadding ->
         val contentModifier = Modifier
             .padding(innerPadding)
 
-        MainScreenContent(
-            modifier = contentModifier,
-            onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-            currentTimeType = currentSelectedTime.value,
-            buttonTimes = ButtonTimes(
-                pomodoro = pomodoro.value,
-                long = long.value,
-                short = short.value
-            ),
-            currentTime = currentSelectedTime.value,
-            updateCurrent = { viewModel.updateCurrentLeft(it) },
-            timerIsRunning = viewModel.timerIsRunning,
-            workInfo = viewModel.workInfo?.observeAsState()?.value,
-            pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-            restart = { viewModel.restart() },
-            favoriteTaskItems = favoriteTaskItems,
-            onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-            onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) }
-        )
-    }
+
+            MainScreenContent(
+                modifier = contentModifier,
+                onTimeTypeChange = { viewModel.updateCurrentTime(it) },
+                currentTimeType = currentSelectedTime.value,
+                buttonTimes = ButtonTimes(
+                    pomodoro = pomodoro.value,
+                    long = long.value,
+                    short = short.value
+                ),
+                currentTime = currentSelectedTime.value,
+                updateCurrent = { viewModel.updateCurrentLeft(it) },
+                timerIsRunning = viewModel.timerIsRunning,
+                workInfo = viewModel.workInfo?.observeAsState()?.value,
+                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+                restart = { viewModel.restart() },
+                favoriteTaskItems = favoriteTaskItems,
+                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+                onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) }
+
+            )
+
+        }
+
+
+
 }
 
 @Composable
@@ -130,10 +144,12 @@ fun MainScreenContent(
     onItemFinish: (taskItem: TaskItem) -> Unit = {}
 ) {
     Surface(
-        color = SurfaceRed
+        color = RedBackground
     ) {
         Column(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(35.dp))
@@ -151,7 +167,19 @@ fun MainScreenContent(
                 restart = restart,
                 pauseOrPlayTimer = pauseOrPlayTimer
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(15.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Manage your time well!",
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
+                )
+
+            }
+            Spacer(modifier = Modifier.width(15.dp))
             FavoriteTasks(
                 favoriteTaskItems = favoriteTaskItems,
                 onItemFavorite = onItemFavorite,
@@ -175,10 +203,10 @@ private fun TopButtons(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         OutlinedButton(
-            border = BorderStroke(1.dp, light_SurfaceRedContainer),
+            border = BorderStroke(1.dp, light_RedBackgroundContainer),
             colors = if (currentTimeType is Times.Long) {
                 ButtonDefaults.outlinedButtonColors(
-                    containerColor = light_onSurfaceRed,
+                    containerColor = light_onRedBackground,
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             } else {
@@ -193,10 +221,10 @@ private fun TopButtons(
             )
         }
         OutlinedButton(
-            border = BorderStroke(1.dp, light_SurfaceRedContainer),
+            border = BorderStroke(1.dp, light_RedBackgroundContainer),
             colors = if (currentTimeType is Times.Short) {
                 ButtonDefaults.outlinedButtonColors(
-                    containerColor = light_onSurfaceRed,
+                    containerColor = light_onRedBackground,
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             } else {
@@ -211,10 +239,10 @@ private fun TopButtons(
             )
         }
         OutlinedButton(
-            border = BorderStroke(1.dp, light_SurfaceRedContainer),
+            border = BorderStroke(1.dp, light_RedBackgroundContainer),
             colors = if (currentTimeType is Times.Pomodoro) {
                 ButtonDefaults.outlinedButtonColors(
-                    containerColor = light_onSurfaceRed,
+                    containerColor = light_onRedBackground,
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             } else {
@@ -255,19 +283,21 @@ fun TimerBody(
         StatelessTimer(
             value = currentTime.getCurrentPercentage(),
             time = currentTime.toString(),
-            textColor = light_onSurfaceRed,
+            textColor = md_theme_light_onPrimary,
             handleColor = Color.Green,
-            inactiveBarColor = Color.White,
-            activeBarColor = md_theme_light_tertiary,
+            inactiveBarColor = light_RedBackgroundContainer,
+            activeBarColor = Color.White,
             modifier = Modifier.size(230.dp)
         )
+
         Row(
             modifier = Modifier.align(Alignment.BottomCenter),
             horizontalArrangement = Arrangement.Center,
         ) {
 
             IconButton(modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
+                .shadow(10.dp, MaterialTheme.shapes.large)
+                .clip(MaterialTheme.shapes.large)
                 .background(Color.White), onClick = { pauseOrPlayTimer() }) {
                 Icon(
                     if (timerIsRunning) Icons.Filled.Pause else Icons.Filled.PlayArrow,
@@ -278,10 +308,11 @@ fun TimerBody(
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
-
             IconButton(modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
-                .background(Color.White), onClick = { restart() }) {
+                .shadow(10.dp, MaterialTheme.shapes.large)
+                .clip(MaterialTheme.shapes.large)
+                .background(Color.White), onClick = { restart() })
+            {
                 Icon(
                     Icons.Filled.Refresh, "",
                     tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp)
@@ -289,6 +320,7 @@ fun TimerBody(
             }
 
         }
+
     }
 }
 
@@ -302,21 +334,56 @@ fun FavoriteTasks(
 ) {
     Column(
         modifier
-            .verticalScroll(rememberScrollState())
             .fillMaxWidth(0.7f)
             .padding(bottom = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        favoriteTaskItems.forEach {
-            Spacer(modifier = Modifier.height(8.dp))
-            FavoriteTask(
-                modifier = Modifier,
-                taskItem = it,
-                onItemFavorite = onItemFavorite,
-                onItemFinish = onItemFinish
-            )
+
+        if (favoriteTaskItems.isNotEmpty()) {
+
+            favoriteTaskItems.forEach {
+                Spacer(modifier = Modifier.height(8.dp))
+                FavoriteTask(
+                    modifier = Modifier,
+                    taskItem = it,
+                    onItemFavorite = onItemFavorite,
+                    onItemFinish = onItemFinish
+                )
+            }
+            Spacer(modifier = Modifier.height(60.dp))
+        } else {
+            AddTaskButton()
         }
 
+
+    }
+}
+
+@Composable
+fun AddTaskButton(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(58.dp)
+                .padding(horizontal = 10.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            IconButton(onClick = {
+            }) {
+                Icon(
+                    imageVector = Icons.Outlined.AddCircle,
+                    contentDescription = stringResource(R.string.add_task)
+                )
+            }
+            Text("Task Ekle")
+        }
     }
 }
 
@@ -328,8 +395,8 @@ fun FavoriteTask(
     onItemFinish: (taskItem: TaskItem) -> Unit = {}
 ) {
     Card(
-        colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
-        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(light_task_color.copy(alpha = 0.2f)),
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Row(
             modifier = modifier
@@ -345,7 +412,7 @@ fun FavoriteTask(
                 onItemFinish(taskItem.copy(isFinished = true))
             }) {
                 Icon(
-
+                    tint = light_onRedBackground,
                     imageVector = Icons.Outlined.RadioButtonUnchecked,
                     contentDescription = stringResource(R.string.add_task)
                 )
@@ -355,12 +422,16 @@ fun FavoriteTask(
             Text(
                 text = taskItem.description ?: "",
                 modifier = Modifier.padding(horizontal = 3.dp),
-                style = TextStyle(fontSize = MaterialTheme.typography.labelMedium.fontSize)
+                style = TextStyle(
+                    color = light_onRedBackground,
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize
+                )
             )
             IconButton(onClick = {
                 onItemFavorite(taskItem.copy(isFavorite = !taskItem.isFavorite))
             }) {
                 Icon(
+                    tint = light_onRedBackground,
                     imageVector = if (taskItem.isFavorite) Icons.Filled.Star else Icons.Outlined.Grade,
                     contentDescription = stringResource(R.string.add_task)
                 )
@@ -383,13 +454,13 @@ fun MainAppBar(
     val title = stringResource(id = R.string.app_name)
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title, color = light_onSurfaceRed) },
+        title = { Text(text = title, color = light_onRedBackground) },
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                    tint = light_onSurfaceRed
+                    tint = light_onRedBackground
                 )
             }
         }/*,

@@ -27,7 +27,7 @@ import com.oguzhancetin.pomodoro.screen.report.ReportUIState
 import com.oguzhancetin.pomodoro.screen.report.ReportViewModal
 import com.oguzhancetin.pomodoro.screen.task.TaskAppBar
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
-import com.oguzhancetin.pomodoro.ui.theme.light_onSurfaceRed
+import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.util.chart.XAxisValueFormatter
 import com.oguzhancetin.pomodoro.util.removeDetails
 import java.util.*
@@ -178,13 +178,13 @@ fun StatusAppBar(
     val title = stringResource(id = R.string.app_name)
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title, color = light_onSurfaceRed) },
+        title = { Text(text = title, color = light_onRedBackground) },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                    tint = light_onSurfaceRed
+                    tint = light_onRedBackground
                 )
             }
         },
