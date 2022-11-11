@@ -1,12 +1,11 @@
 package com.oguzhancetin.pomodoro.screen.main
 
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -21,11 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.WorkInfo
@@ -36,12 +33,13 @@ import com.oguzhancetin.pomodoro.ui.theme.*
 import com.oguzhancetin.pomodoro.util.Times
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("EnqueueWork")
+@SuppressLint("EnqueueWork", "SuspiciousIndentation")
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel(),
-    openDrawer: () -> Unit = {}
+    openDrawer: () -> Unit = {},
+    openTaskScreen: () -> Unit = {}
 ) {
 
     val topAppBarState = rememberTopAppBarState()
@@ -74,34 +72,38 @@ fun MainScreen(
         }
     }
 
-
+/*
     Scaffold(
+
         topBar = {
             MainAppBar(openDrawer = openDrawer, topAppBarState = topAppBarState)
         },
         modifier = modifier,
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
+                if (favoriteTaskItems.isNotEmpty()){
 
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        //TODO: navigate task screen
-                    }) {
-                    Row(horizontalArrangement = Arrangement.SpaceAround){
-                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Add")
-                        Text("Task")
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            openTaskScreen()
+                        }) {
+                        Row(horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically){
+                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Add")
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("Add Task")
+                        }
+
                     }
-
                 }
 
         }
-    ) { innerPadding ->
+    ) {
         val contentModifier = Modifier
-            .padding(innerPadding)
+            .padding(innerPadding)*/
 
 
             MainScreenContent(
-                modifier = contentModifier,
+                modifier = modifier,
                 onTimeTypeChange = { viewModel.updateCurrentTime(it) },
                 currentTimeType = currentSelectedTime.value,
                 buttonTimes = ButtonTimes(
@@ -121,7 +123,7 @@ fun MainScreen(
 
             )
 
-        }
+        //}
 
 
 
@@ -179,7 +181,7 @@ fun MainScreenContent(
                 )
 
             }
-            Spacer(modifier = Modifier.width(15.dp))
+            Spacer(modifier = Modifier.height(15.dp))
             FavoriteTasks(
                 favoriteTaskItems = favoriteTaskItems,
                 onItemFavorite = onItemFavorite,
@@ -378,11 +380,12 @@ fun AddTaskButton(
             IconButton(onClick = {
             }) {
                 Icon(
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     imageVector = Icons.Outlined.AddCircle,
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
-            Text("Task Ekle")
+            Text("Add Task", color = MaterialTheme.colorScheme.onPrimary,)
         }
     }
 }
@@ -394,6 +397,7 @@ fun FavoriteTask(
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {}
 ) {
+    val song: MediaPlayer = MediaPlayer.create(LocalContext.current,com.oguzhancetin.pomodoro.R.raw.done_sound)
     Card(
         colors = CardDefaults.cardColors(light_task_color.copy(alpha = 0.2f)),
         shape = MaterialTheme.shapes.extraLarge,
@@ -408,7 +412,7 @@ fun FavoriteTask(
         ) {
 
             IconButton(onClick = {
-
+                song.start()
                 onItemFinish(taskItem.copy(isFinished = true))
             }) {
                 Icon(
@@ -448,20 +452,33 @@ fun MainAppBar(
     openDrawer: () -> Unit,
     modifier: Modifier = Modifier,
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
+    canNavigateBack: Boolean,
     scrollBehavior: TopAppBarScrollBehavior? =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState)
+        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState),
+    navigateUp: () -> Unit,
+    currentRoute: String
 ) {
-    val title = stringResource(id = R.string.app_name)
+    val title = currentRoute
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
         title = { Text(text = title, color = light_onRedBackground) },
         navigationIcon = {
-            IconButton(onClick = openDrawer) {
-                Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                    tint = light_onRedBackground
-                )
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }else{
+                IconButton(onClick = openDrawer) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Menu"
+                    )
+                }
             }
         }/*,
         actions = {

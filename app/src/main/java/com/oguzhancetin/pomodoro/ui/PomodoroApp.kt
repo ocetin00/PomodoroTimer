@@ -1,18 +1,24 @@
 package com.oguzhancetin.pomodoro.ui
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.rememberDrawerState
+import android.R
+import android.media.MediaPlayer
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.oguzhancetin.pomodoro.screen.main.MainAppBar
+import com.oguzhancetin.pomodoro.ui.commonUI.UpperFirstChar
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +37,8 @@ fun PomodoroApp() {
 
         val drawerState = rememberDrawerState(DrawerValue.Closed)
 
+
+
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -40,15 +48,48 @@ fun PomodoroApp() {
                     navigateToSetting = navigationActions.navigateToSetting,
                     navigateToStatus = navigationActions.navigateToStatus,
                     navigateToTask = navigationActions.navigateToTask,
-                    closeDrawer = { coroutineScope.launch { drawerState.close() } })
+                    closeDrawer = { coroutineScope.launch { delay(250); drawerState.close() } })
             }) {
-            Row {
-                PomodoroNavGraph(
-                    navController = navController,
-                    openDrawer = { coroutineScope.launch { drawerState.open() } }
-                  )
+
+            Scaffold(
+
+                topBar = {
+                    MainAppBar(
+                        currentRoute = currentRoute.UpperFirstChar(),
+                        openDrawer = {coroutineScope.launch { drawerState.open()}},
+                        canNavigateBack = navController.previousBackStackEntry != null,
+                        navigateUp = { navController.navigateUp()} )
+                },
+                floatingActionButtonPosition = FabPosition.End,
+              /*  floatingActionButton = {
+                    if (favoriteTaskItems.isNotEmpty()){
+
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                openTaskScreen()
+                            }) {
+                            Row(horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically){
+                                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Add")
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text("Add Task")
+                            }
+
+                        }
+                    }
+
+                }*/
+            ) { innerPadding ->
+                Row {
+                    PomodoroNavGraph(
+                        modifier = Modifier.padding(innerPadding),
+                        navController = navController,
+                        openDrawer = { coroutineScope.launch { drawerState.open() } }
+                    )
+                }
             }
-        }
+            }
+
+
     }
 
 }

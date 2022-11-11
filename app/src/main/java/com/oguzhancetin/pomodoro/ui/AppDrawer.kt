@@ -32,7 +32,9 @@ fun AppDrawer(
             icon = { },
             label = { Text(stringResource(R.string.pomodoro_title)) },
             selected = currentRoute == PomodoroDestinations.MAIN_ROUTE,
-            onClick = { navigateToMain();closeDrawer() },
+            onClick = {
+                closeDrawer();navigateToMain()
+                      },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         Spacer(Modifier.height(12.dp))
@@ -40,7 +42,7 @@ fun AppDrawer(
             icon = { },
             label = { Text(stringResource(R.string.settings_title)) },
             selected = currentRoute == PomodoroDestinations.SETTING_ROUTE,
-            onClick = { navigateToSetting();closeDrawer() },
+            onClick = { closeDrawer();navigateToSetting() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         Spacer(Modifier.height(12.dp))
@@ -48,14 +50,14 @@ fun AppDrawer(
             icon = { },
             label = { Text(stringResource(R.string.status_title)) },
             selected = currentRoute == PomodoroDestinations.STATUS_ROUTE,
-            onClick = { navigateToStatus();closeDrawer() },
+            onClick = { closeDrawer();navigateToStatus() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             icon = { },
             label = { Text(stringResource(R.string.Task)) },
             selected = currentRoute == PomodoroDestinations.TASK_ROUTE,
-            onClick = { navigateToTask();closeDrawer() },
+            onClick = { closeDrawer();navigateToTask(); },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }

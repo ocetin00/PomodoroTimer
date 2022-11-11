@@ -6,24 +6,28 @@ import androidx.navigation.NavHostController
 
 
 object PomodoroDestinations{
-    const val MAIN_ROUTE = "main"
+    const val MAIN_ROUTE = "pomodoro"
     const val SETTING_ROUTE = "setting"
     const val STATUS_ROUTE = "status"
     const val TASK_ROUTE = "task"
 }
 
 class PomodoroNavigationActions(navController: NavHostController){
+
+
     val navigateToMain: ()-> Unit = {
-        navController.navigate(PomodoroDestinations.MAIN_ROUTE){
-            popUpTo(navController.graph.findStartDestination().id){
-                saveState = true
+        navController.navigate(PomodoroDestinations.SETTING_ROUTE){
+            navController.currentDestination?.route?.let {
+                popUpTo(it){
+                    saveState = true
+                    inclusive = true
+                }
             }
-            /**
-             * avoid multiple same destination when select again same item
-             */
+
             launchSingleTop = true
             restoreState = true
         }
+
 
     }
     val navigateToSetting: ()-> Unit = {

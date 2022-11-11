@@ -22,7 +22,10 @@ fun PomodoroNavGraph(
 
         NavHost(navController = navController, startDestination = startDestination) {
             composable(PomodoroDestinations.MAIN_ROUTE) {
-                MainScreen(modifier = modifier, openDrawer = openDrawer)
+                MainScreen(
+                    modifier = modifier,
+                    openDrawer = openDrawer,
+                    openTaskScreen = {navController.navigate(PomodoroDestinations.TASK_ROUTE)})
             }
             composable(PomodoroDestinations.SETTING_ROUTE) {
                 SettingScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})

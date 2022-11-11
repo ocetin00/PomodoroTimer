@@ -25,7 +25,6 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.screen.report.ReportUIState
 import com.oguzhancetin.pomodoro.screen.report.ReportViewModal
-import com.oguzhancetin.pomodoro.screen.task.TaskAppBar
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.util.chart.XAxisValueFormatter
@@ -44,22 +43,13 @@ fun StatusScreen(
 
     when(reportUIState){
        is ReportUIState.Success -> {
-           PomodoroTheme() {
-               Scaffold(
-                   topBar = {
-                       TaskAppBar(openDrawer = onBack)
-                   },
-                   modifier = modifier
-               ) { innerPadding ->
 
-                   val contentModifier = Modifier
-                       .padding(innerPadding)
                    StatusScreenContent(
-                       modifier = contentModifier,
+                       modifier = modifier,
                        taskItems = (reportUIState as ReportUIState.Success).taskItems
                    )
-               }
-           }
+
+
         }
         is ReportUIState.Loading ->{
 

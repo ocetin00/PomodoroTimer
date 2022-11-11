@@ -37,26 +37,13 @@ fun TaskScreen(
 ) {
 
     val taskItems = viewModel.taskItems.collectAsState(initial = listOf<TaskItem>())
-    Log.e("items", taskItems.value.toString())
-    PomodoroTheme() {
-        Scaffold(
-            topBar = {
-                TaskAppBar(openDrawer = onBack)
-            },
-            modifier = modifier
-        ) { innerPadding ->
-
-            val contentModifier = Modifier
-                .padding(innerPadding)
             TaskScreenContent(
-                modifier = contentModifier,
+                modifier = modifier,
                 taskItems = taskItems.value,
                 onAddItem = { taskItem -> viewModel.addTask(taskItem) },
                 onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
                 onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) }
             )
-        }
-    }
 
 }
 
@@ -212,25 +199,4 @@ fun TaskItemContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TaskAppBar(
-    openDrawer: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val title = stringResource(id = R.string.app_name)
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title, color = light_onRedBackground) },
-        navigationIcon = {
-            IconButton(onClick = openDrawer) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                    tint = light_onRedBackground
-                )
-            }
-        },
-        modifier = modifier
-    )
-}
+
