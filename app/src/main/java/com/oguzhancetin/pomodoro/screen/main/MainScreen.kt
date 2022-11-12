@@ -3,11 +3,8 @@ package com.oguzhancetin.pomodoro.screen.main
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import androidx.compose.animation.*
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AddCircle
@@ -39,7 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("EnqueueWork", "SuspiciousIndentation")
+@SuppressLint("EnqueueWork", "SuspiciousIndentation", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
@@ -75,27 +72,31 @@ fun MainScreen(
         }
     }
 
-    MainScreenContent(
-        modifier = modifier,
-        onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-        currentTimeType = currentSelectedTime.value,
-        buttonTimes = ButtonTimes(
-            pomodoro = pomodoro.value,
-            long = long.value,
-            short = short.value
-        ),
-        currentTime = currentSelectedTime.value,
-        updateCurrent = { viewModel.updateCurrentLeft(it) },
-        timerIsRunning = viewModel.timerIsRunning,
-        workInfo = viewModel.workInfo?.observeAsState()?.value,
-        pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-        restart = { viewModel.restart() },
-        favoriteTaskItems = favoriteTaskItems,
-        onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-        onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
-        onAddTaskButtonClicked = onAddTaskButtonClicked
+    Surface(){
 
-    )
+        MainScreenContent(
+            modifier = modifier,
+            onTimeTypeChange = { viewModel.updateCurrentTime(it) },
+            currentTimeType = currentSelectedTime.value,
+            buttonTimes = ButtonTimes(
+                pomodoro = pomodoro.value,
+                long = long.value,
+                short = short.value
+            ),
+            currentTime = currentSelectedTime.value,
+            updateCurrent = { viewModel.updateCurrentLeft(it) },
+            timerIsRunning = viewModel.timerIsRunning,
+            workInfo = viewModel.workInfo?.observeAsState()?.value,
+            pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+            restart = { viewModel.restart() },
+            favoriteTaskItems = favoriteTaskItems,
+            onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+            onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
+            onAddTaskButtonClicked = onAddTaskButtonClicked
+
+        )
+    }
+
 }
 
 @Composable
@@ -131,11 +132,9 @@ fun MainScreenContent(
                 buttonTimes = buttonTimes
             )
             Spacer(modifier = Modifier.height(35.dp))
-            TimerBody(
+            TimerBody2(
                 currentTime = currentTime,
                 timerIsRunning = timerIsRunning,
-                updateCurrent = updateCurrent,
-                workInfo = workInfo,
                 restart = restart,
                 pauseOrPlayTimer = pauseOrPlayTimer
             )
@@ -295,6 +294,58 @@ fun TimerBody(
     }
 }
 
+@Composable
+fun TimerBody2(
+    currentTime: Times,
+    timerIsRunning: Boolean,
+    restart: () -> Unit,
+    pauseOrPlayTimer: () -> Unit,
+) {
+
+    Box() {
+        StatelessTimer(
+            value = currentTime.getCurrentPercentage(),
+            time = currentTime.toString(),
+            textColor = md_theme_light_onPrimary,
+            handleColor = Color.Green,
+            inactiveBarColor = light_RedBackgroundContainer,
+            activeBarColor = Color.White,
+            modifier = Modifier.size(230.dp)
+        )
+
+        Row(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+
+            IconButton(modifier = Modifier
+                .shadow(10.dp, MaterialTheme.shapes.large)
+                .clip(MaterialTheme.shapes.large)
+                .background(Color.White), onClick = { pauseOrPlayTimer() }) {
+                Icon(
+                    if (timerIsRunning) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(30.dp)
+
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            IconButton(modifier = Modifier
+                .shadow(10.dp, MaterialTheme.shapes.large)
+                .clip(MaterialTheme.shapes.large)
+                .background(Color.White), onClick = { restart() })
+            {
+                Icon(
+                    Icons.Filled.Refresh, "",
+                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp)
+                )
+            }
+
+        }
+
+    }
+}
 
 @Composable
 fun FavoriteTasks(
@@ -348,23 +399,26 @@ fun AddTaskButton(
             modifier = modifier
                 .fillMaxWidth()
                 .height(58.dp)
-                .padding(horizontal = 10.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .clickable {
+                    onAddTaskButtonClicked()
+                },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            IconButton(onClick = {
-                onAddTaskButtonClicked()
-            }) {
                 Icon(
                     tint = MaterialTheme.colorScheme.onPrimary,
                     imageVector = Icons.Outlined.AddCircle,
                     contentDescription = stringResource(R.string.add_task)
                 )
-            }
+            Spacer(modifier = Modifier.width(10.dp))
+
             Text("Add Task", color = MaterialTheme.colorScheme.onTertiaryContainer)
         }
     }
 }
+
+
 
 @Composable
 fun FavoriteTask(

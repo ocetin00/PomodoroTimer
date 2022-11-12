@@ -46,19 +46,11 @@ fun SettingScreen(
     val shortTime by viewModel.shortTime.collectAsState(initial = 0L)
     Log.e("PomdoroTime", pomodoroTime.toString())
 
-    PomodoroTheme(darkTheme = viewModel.isDarkTheme.collectAsState(initial = false).value) {
 
-        Scaffold(
-            topBar = {
-                SettingAppBar(onBack = onBack)
-            },
-            modifier = modifier
-        ) { innerPadding ->
-            val contentModifier = Modifier
-                .padding(innerPadding)
+
 
             SettingScreenContent(
-                modifier = contentModifier,
+                modifier = modifier,
                 intervalSettingParameters = IntervalSettingParameters(
                     pomodoroTime = pomodoroTime,
                     longTime = longTime,
@@ -75,8 +67,6 @@ fun SettingScreen(
             )
 
 
-        }
-    }
 
 }
 
