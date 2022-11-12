@@ -15,17 +15,14 @@ import com.oguzhancetin.pomodoro.screen.task.TaskScreen
 fun PomodoroNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    openDrawer: () -> Unit = {},
     startDestination: String = PomodoroDestinations.MAIN_ROUTE
     ) {
-
 
         NavHost(navController = navController, startDestination = startDestination) {
             composable(PomodoroDestinations.MAIN_ROUTE) {
                 MainScreen(
                     modifier = modifier,
-                    openDrawer = openDrawer,
-                    openTaskScreen = {navController.navigate(PomodoroDestinations.TASK_ROUTE)})
+                    onAddTaskButtonClicked = {navController.navigate(PomodoroDestinations.TASK_ROUTE)})
             }
             composable(PomodoroDestinations.SETTING_ROUTE) {
                 SettingScreen(modifier = modifier, onBack = { navController.navigate(PomodoroDestinations.MAIN_ROUTE)})

@@ -2,6 +2,7 @@ package com.oguzhancetin.pomodoro.screen.main
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
+import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,16 +22,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.work.WorkInfo
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
 import com.oguzhancetin.pomodoro.ui.theme.*
 import com.oguzhancetin.pomodoro.util.Times
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("EnqueueWork", "SuspiciousIndentation")
@@ -38,11 +44,8 @@ import com.oguzhancetin.pomodoro.util.Times
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel(),
-    openDrawer: () -> Unit = {},
-    openTaskScreen: () -> Unit = {}
+    onAddTaskButtonClicked: () -> Unit = {}
 ) {
-
-    val topAppBarState = rememberTopAppBarState()
 
     val long = viewModel.longTime.collectAsState(initial = Times.Long.time)
     val short = viewModel.shortTime.collectAsState(initial = Times.Short.time)
@@ -72,61 +75,27 @@ fun MainScreen(
         }
     }
 
-/*
-    Scaffold(
-
-        topBar = {
-            MainAppBar(openDrawer = openDrawer, topAppBarState = topAppBarState)
-        },
+    MainScreenContent(
         modifier = modifier,
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-                if (favoriteTaskItems.isNotEmpty()){
+        onTimeTypeChange = { viewModel.updateCurrentTime(it) },
+        currentTimeType = currentSelectedTime.value,
+        buttonTimes = ButtonTimes(
+            pomodoro = pomodoro.value,
+            long = long.value,
+            short = short.value
+        ),
+        currentTime = currentSelectedTime.value,
+        updateCurrent = { viewModel.updateCurrentLeft(it) },
+        timerIsRunning = viewModel.timerIsRunning,
+        workInfo = viewModel.workInfo?.observeAsState()?.value,
+        pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+        restart = { viewModel.restart() },
+        favoriteTaskItems = favoriteTaskItems,
+        onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+        onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
+        onAddTaskButtonClicked = onAddTaskButtonClicked
 
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            openTaskScreen()
-                        }) {
-                        Row(horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically){
-                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Add")
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("Add Task")
-                        }
-
-                    }
-                }
-
-        }
-    ) {
-        val contentModifier = Modifier
-            .padding(innerPadding)*/
-
-
-            MainScreenContent(
-                modifier = modifier,
-                onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-                currentTimeType = currentSelectedTime.value,
-                buttonTimes = ButtonTimes(
-                    pomodoro = pomodoro.value,
-                    long = long.value,
-                    short = short.value
-                ),
-                currentTime = currentSelectedTime.value,
-                updateCurrent = { viewModel.updateCurrentLeft(it) },
-                timerIsRunning = viewModel.timerIsRunning,
-                workInfo = viewModel.workInfo?.observeAsState()?.value,
-                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-                restart = { viewModel.restart() },
-                favoriteTaskItems = favoriteTaskItems,
-                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-                onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) }
-
-            )
-
-        //}
-
-
-
+    )
 }
 
 @Composable
@@ -143,7 +112,8 @@ fun MainScreenContent(
     buttonTimes: ButtonTimes,
     favoriteTaskItems: List<TaskItem>,
     onItemFavorite: (taskItem: TaskItem) -> Unit,
-    onItemFinish: (taskItem: TaskItem) -> Unit = {}
+    onItemFinish: (taskItem: TaskItem) -> Unit = {},
+    onAddTaskButtonClicked: () -> Unit,
 ) {
     Surface(
         color = RedBackground
@@ -185,15 +155,14 @@ fun MainScreenContent(
             FavoriteTasks(
                 favoriteTaskItems = favoriteTaskItems,
                 onItemFavorite = onItemFavorite,
-                onItemFinish = onItemFinish
+                onItemFinish = onItemFinish,
+                onAddTaskButtonClicked = onAddTaskButtonClicked
             )
 
         }
 
     }
 }
-
-
 @Composable
 private fun TopButtons(
     buttonTimes: ButtonTimes,
@@ -332,8 +301,11 @@ fun FavoriteTasks(
     modifier: Modifier = Modifier,
     favoriteTaskItems: List<TaskItem>,
     onItemFavorite: (taskItem: TaskItem) -> Unit,
-    onItemFinish: (taskItem: TaskItem) -> Unit = {}
+    onItemFinish: (taskItem: TaskItem) -> Unit = {},
+    onAddTaskButtonClicked: () -> Unit
 ) {
+
+
     Column(
         modifier
             .fillMaxWidth(0.7f)
@@ -352,9 +324,11 @@ fun FavoriteTasks(
                     onItemFinish = onItemFinish
                 )
             }
+
+
             Spacer(modifier = Modifier.height(60.dp))
         } else {
-            AddTaskButton()
+            AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
         }
 
 
@@ -363,7 +337,8 @@ fun FavoriteTasks(
 
 @Composable
 fun AddTaskButton(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddTaskButtonClicked: () -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
@@ -378,6 +353,7 @@ fun AddTaskButton(
             horizontalArrangement = Arrangement.Start
         ) {
             IconButton(onClick = {
+                onAddTaskButtonClicked()
             }) {
                 Icon(
                     tint = MaterialTheme.colorScheme.onPrimary,
@@ -385,7 +361,7 @@ fun AddTaskButton(
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
-            Text("Add Task", color = MaterialTheme.colorScheme.onPrimary,)
+            Text("Add Task", color = MaterialTheme.colorScheme.onTertiaryContainer)
         }
     }
 }
@@ -395,9 +371,13 @@ fun FavoriteTask(
     modifier: Modifier = Modifier,
     taskItem: TaskItem,
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
-    onItemFinish: (taskItem: TaskItem) -> Unit = {}
+    onItemFinish: (taskItem: TaskItem) -> Unit = {},
 ) {
-    val song: MediaPlayer = MediaPlayer.create(LocalContext.current,com.oguzhancetin.pomodoro.R.raw.done_sound)
+
+
+    val song: MediaPlayer =
+        MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
+
     Card(
         colors = CardDefaults.cardColors(light_task_color.copy(alpha = 0.2f)),
         shape = MaterialTheme.shapes.extraLarge,
@@ -414,6 +394,7 @@ fun FavoriteTask(
             IconButton(onClick = {
                 song.start()
                 onItemFinish(taskItem.copy(isFinished = true))
+
             }) {
                 Icon(
                     tint = light_onRedBackground,
@@ -440,61 +421,11 @@ fun FavoriteTask(
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
+
+
         }
     }
-
-
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MainAppBar(
-    openDrawer: () -> Unit,
-    modifier: Modifier = Modifier,
-    topAppBarState: TopAppBarState = rememberTopAppBarState(),
-    canNavigateBack: Boolean,
-    scrollBehavior: TopAppBarScrollBehavior? =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState),
-    navigateUp: () -> Unit,
-    currentRoute: String
-) {
-    val title = currentRoute
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title, color = light_onRedBackground) },
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            }else{
-                IconButton(onClick = openDrawer) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = "Menu"
-                    )
-                }
-            }
-        }/*,
-        actions = {
-            IconButton(onClick = { *//* TODO: Open search *//* }) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = stringResource(R.string.menu),
-                    tint = light_onSurfaceRed
-                )
-            }
-        }*/,
-        scrollBehavior = scrollBehavior,
-        modifier = modifier
-    )
-}
-
 
 data class ButtonTimes(val long: Long, val short: Long, val pomodoro: Long)
 

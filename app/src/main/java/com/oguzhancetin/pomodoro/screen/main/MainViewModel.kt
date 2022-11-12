@@ -38,7 +38,6 @@ class MainViewModel @Inject constructor(private val context: Application,private
             preferences[Times.Pomodoro.getPrefKey()] ?: Times.Pomodoro.time
         }
 
-
     private val workManager = WorkManager.getInstance(context)
     var timerIsRunning by mutableStateOf(false)
     var workInfo: LiveData<WorkInfo?>? = null
