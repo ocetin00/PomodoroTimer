@@ -1,11 +1,10 @@
 package com.oguzhancetin.pomodoro.screen.task
 
-import android.util.Log
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AddCircle
@@ -23,20 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
-import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
-import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.util.removeDetails
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit,
     viewModel: TaskViewModel = hiltViewModel()
 ) {
-
-    val taskItems = viewModel.taskItems.collectAsState(initial = listOf<TaskItem>())
+    val taskItems = viewModel.taskItems.collectAsState(initial = listOf())
             TaskScreenContent(
                 modifier = modifier,
                 taskItems = taskItems.value,
@@ -44,7 +38,6 @@ fun TaskScreen(
                 onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
                 onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) }
             )
-
 }
 
 
@@ -91,7 +84,6 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
     ) {
         var text by remember { mutableStateOf(TextFieldValue("")) }
 
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,7 +109,6 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
-
 
             val textFieldModifier = Modifier
                 .fillMaxWidth()
@@ -146,8 +137,6 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                 )
             }
         }
-
-
     }
 }
 
@@ -184,8 +173,6 @@ fun TaskItemContent(
 
             Text(text = taskItem.description ?: "")
 
-
-
             IconButton(onClick = {
                 onItemFavorite(taskItem.copy(isFavorite = !taskItem.isFavorite))
             }) {
@@ -198,5 +185,3 @@ fun TaskItemContent(
         }
     }
 }
-
-

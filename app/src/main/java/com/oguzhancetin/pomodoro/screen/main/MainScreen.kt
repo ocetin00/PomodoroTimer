@@ -2,6 +2,7 @@ package com.oguzhancetin.pomodoro.screen.main
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -48,14 +49,14 @@ fun MainScreen(
     val short = viewModel.shortTime.collectAsState(initial = Times.Short.time)
     val pomodoro = viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro.time)
 
-    val currentSelectedTime = viewModel.currentTime
+    val currentTime by viewModel.currentTime.collectAsState()
 
     val favoriteTaskItems by viewModel.favoriteTaskItems.collectAsState(initial = listOf())
 
     /**
      * if settings was changed new value update
      */
-    when (currentSelectedTime.value) {
+    /*when (currentTime) {
         Times.Pomodoro -> {
             val pTime = Times.Pomodoro.apply { time = pomodoro.value;left = pomodoro.value }
             viewModel.updateCurrentTime(pTime)
@@ -70,6 +71,18 @@ fun MainScreen(
                 it.time = long.value;it.left = long.value
             })
         }
+        else -> {}
+    }*/
+    val timerIsRunning by viewModel.timerIsRunning
+    Log.e("lefP",currentTime.getCurrentPercentage().toString())
+    val workResult =  viewModel.workInfo.observeAsState()
+
+    val progress = workResult.value?.progress?.getFloat(
+        "Left",
+        currentTime.getCurrentPercentage()) ?: currentTime.getCurrentPercentage()
+
+    currentTime.also {
+        it.left =  (progress * it.time).toLong()
     }
 
     Surface(){
@@ -77,16 +90,14 @@ fun MainScreen(
         MainScreenContent(
             modifier = modifier,
             onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-            currentTimeType = currentSelectedTime.value,
+            currentTimeType = currentTime ,
             buttonTimes = ButtonTimes(
                 pomodoro = pomodoro.value,
                 long = long.value,
                 short = short.value
             ),
-            currentTime = currentSelectedTime.value,
-            updateCurrent = { viewModel.updateCurrentLeft(it) },
-            timerIsRunning = viewModel.timerIsRunning,
-            workInfo = viewModel.workInfo?.observeAsState()?.value,
+            currentTime = currentTime,
+            timerIsRunning = timerIsRunning,
             pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
             restart = { viewModel.restart() },
             favoriteTaskItems = favoriteTaskItems,
@@ -106,8 +117,6 @@ fun MainScreenContent(
     currentTimeType: Times,
     currentTime: Times,
     timerIsRunning: Boolean,
-    updateCurrent: (left: Float) -> Unit,
-    workInfo: WorkInfo?,
     restart: () -> Unit,
     pauseOrPlayTimer: () -> Unit,
     buttonTimes: ButtonTimes,
@@ -418,8 +427,6 @@ fun AddTaskButton(
     }
 }
 
-
-
 @Composable
 fun FavoriteTask(
     modifier: Modifier = Modifier,
@@ -427,7 +434,6 @@ fun FavoriteTask(
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
 ) {
-
 
     val song: MediaPlayer =
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
@@ -475,12 +481,8 @@ fun FavoriteTask(
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
-
-
         }
     }
 }
 
 data class ButtonTimes(val long: Long, val short: Long, val pomodoro: Long)
-
-

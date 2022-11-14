@@ -5,25 +5,41 @@ import androidx.datastore.preferences.core.longPreferencesKey
 
 sealed class Times(var time: kotlin.Long, var left: kotlin.Long) {
     object Long : Times(900000, 900000) {
+        override fun refresh() {
+            time = 900000
+            left = 900000
+        }
+
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("long_time")
     }
 
     object Short : Times(300000, 300000) {
+        override fun refresh() {
+            time = 300000
+            left = 300000
+        }
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("short_time")
 
     }
 
     object Pomodoro : Times(1500000, 1500000) {
+        override fun refresh() {
+            time = 1500000
+            left = 1500000
+        }
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("pomodoro_time")
 
     }
 
+    abstract fun refresh()
+
     fun getCurrentPercentage(): Float {
         return this.left.toFloat().div(this.time)
     }
+
 
     override fun toString(): String {
         val timeMillis = (getCurrentPercentage() * time).toLong()
