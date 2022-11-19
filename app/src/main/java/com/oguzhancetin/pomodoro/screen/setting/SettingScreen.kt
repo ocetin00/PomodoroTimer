@@ -28,8 +28,8 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.screen.setting.SettingViewModel
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
+import com.oguzhancetin.pomodoro.util.Time.getMinute
 import com.oguzhancetin.pomodoro.util.Times
-import com.oguzhancetin.pomodoro.util.getMinute
 import kotlinx.coroutines.launch
 
 

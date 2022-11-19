@@ -32,6 +32,8 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
 import com.oguzhancetin.pomodoro.ui.StatelessTimer
 import com.oguzhancetin.pomodoro.ui.theme.*
+import com.oguzhancetin.pomodoro.util.Time.WorkUtil
+import com.oguzhancetin.pomodoro.util.Time.WorkUtil.selectedTimeType
 import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -49,8 +51,10 @@ fun MainScreen(
     val short = viewModel.shortTime.collectAsState(initial = Times.Short.time)
     val pomodoro = viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro.time)
 
-    val currentTime by viewModel.currentTime.collectAsState()
+    val currentTime by WorkUtil.leftTime.observeAsState()
+    val currentTimeType by WorkUtil.selectedTimeType
 
+    Log.e("current",currentTime.toString())
     val favoriteTaskItems by viewModel.favoriteTaskItems.collectAsState(initial = listOf())
 
     /**
@@ -74,38 +78,43 @@ fun MainScreen(
         else -> {}
     }*/
     val timerIsRunning by viewModel.timerIsRunning
-    Log.e("lefP",currentTime.getCurrentPercentage().toString())
-    val workResult =  viewModel.workInfo.observeAsState()
 
-    val progress = workResult.value?.progress?.getFloat(
-        "Left",
-        currentTime.getCurrentPercentage()) ?: currentTime.getCurrentPercentage()
 
-    currentTime.also {
-        it.left =  (progress * it.time).toLong()
-    }
+    /*   Log.e("lefP",currentTime.getCurrentPercentage().toString())
+       val workResult =  viewModel.workInfo.observeAsState()
+       Log.e("current",currentTime.left.toString())
 
-    Surface(){
+       val progress = workResult.value?.progress?.getFloat(
+           "Left",
+           currentTime.getCurrentPercentage()) ?: currentTime.getCurrentPercentage()
+
+       currentTime.also {
+           it.left =  (progress * it.time).toLong()
+       }*/
+
+    Surface() {
+
 
         MainScreenContent(
             modifier = modifier,
             onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-            currentTimeType = currentTime ,
+            currentTimeType = currentTimeType ,
             buttonTimes = ButtonTimes(
                 pomodoro = pomodoro.value,
                 long = long.value,
                 short = short.value
             ),
-            currentTime = currentTime,
+            currentTime = currentTime ?: 1f ,
             timerIsRunning = timerIsRunning,
             pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-            restart = { viewModel.restart() },
+            restart = { },
             favoriteTaskItems = favoriteTaskItems,
             onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
             onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
             onAddTaskButtonClicked = onAddTaskButtonClicked
 
         )
+
     }
 
 }
@@ -115,7 +124,7 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     onTimeTypeChange: (Times) -> Unit,
     currentTimeType: Times,
-    currentTime: Times,
+    currentTime: Float,
     timerIsRunning: Boolean,
     restart: () -> Unit,
     pauseOrPlayTimer: () -> Unit,
@@ -142,7 +151,8 @@ fun MainScreenContent(
             )
             Spacer(modifier = Modifier.height(35.dp))
             TimerBody2(
-                currentTime = currentTime,
+                progress = currentTime,
+                timeType = currentTimeType,
                 timerIsRunning = timerIsRunning,
                 restart = restart,
                 pauseOrPlayTimer = pauseOrPlayTimer
@@ -171,6 +181,7 @@ fun MainScreenContent(
 
     }
 }
+
 @Composable
 private fun TopButtons(
     buttonTimes: ButtonTimes,
@@ -305,16 +316,17 @@ fun TimerBody(
 
 @Composable
 fun TimerBody2(
-    currentTime: Times,
+    progress: Float,
+    timeType: Times,
     timerIsRunning: Boolean,
     restart: () -> Unit,
     pauseOrPlayTimer: () -> Unit,
 ) {
-
+    val timeText = timeType.getText(progress)
     Box() {
         StatelessTimer(
-            value = currentTime.getCurrentPercentage(),
-            time = currentTime.toString(),
+            value = progress,
+            time = timeText,
             textColor = md_theme_light_onPrimary,
             handleColor = Color.Green,
             inactiveBarColor = light_RedBackgroundContainer,
@@ -415,11 +427,11 @@ fun AddTaskButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-                Icon(
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    imageVector = Icons.Outlined.AddCircle,
-                    contentDescription = stringResource(R.string.add_task)
-                )
+            Icon(
+                tint = MaterialTheme.colorScheme.onPrimary,
+                imageVector = Icons.Outlined.AddCircle,
+                contentDescription = stringResource(R.string.add_task)
+            )
             Spacer(modifier = Modifier.width(10.dp))
 
             Text("Add Task", color = MaterialTheme.colorScheme.onTertiaryContainer)
