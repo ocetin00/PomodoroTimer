@@ -49,7 +49,7 @@ fun SettingScreen(
 
 
 
-            SettingScreenContent(
+         /*   SettingScreenContent(
                 modifier = modifier,
                 intervalSettingParameters = IntervalSettingParameters(
                     pomodoroTime = pomodoroTime,
@@ -64,11 +64,12 @@ fun SettingScreen(
                     toggleTheme = { viewModel.ToggleAppTheme() },
                     themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value
                 )
-            )
+            )*/
 
 
 
 }
+/*
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -419,4 +420,4 @@ data class IntervalSettingParameters(
     val onDecrease: (Times) -> Unit = {},
     val toggleTheme: () -> Unit = {},
     val themeToogleState: Boolean
-)
+)*/
