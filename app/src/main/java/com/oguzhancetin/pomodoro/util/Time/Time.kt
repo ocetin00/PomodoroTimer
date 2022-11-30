@@ -52,6 +52,7 @@ sealed class Times(open var time: kotlin.Long) {
         return this.left?.toFloat()?.div(this.time) ?: 1f
     }
 
+
      fun getText(progress:Float): String {
         val timeMillis = (progress * time).toLong()
         var minute = (timeMillis / 60000).toString()

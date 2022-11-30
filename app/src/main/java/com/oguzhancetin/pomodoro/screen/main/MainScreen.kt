@@ -24,6 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.work.WorkInfo
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
@@ -35,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
@@ -42,15 +45,10 @@ fun MainScreen(
     onAddTaskButtonClicked: () -> Unit = {}
 ) {
 
-    val long = viewModel.longTime.collectAsState(initial = Times.Long().time)
-    val short = viewModel.shortTime.collectAsState(initial = Times.Short().time)
-    val pomodoro = viewModel.pomodoroTime.collectAsState(initial = Times.Pomodoro().time)
-
-    val time by viewModel.leftTime.observeAsState(Times.Pomodoro())
-
-    val favoriteTaskItems by viewModel.favoriteTaskItems.collectAsState(initial = listOf())
-
-    val timerIsRunning = viewModel.timerIsRunning
+    val uiState by viewModel.mainUiState.collectAsStateWithLifecycle()
+    val long = uiState.timePreferencesState.long
+    val short = uiState.timePreferencesState.short
+    val pomodoro = uiState.timePreferencesState.pomodoro
 
 
     Surface() {
