@@ -21,7 +21,9 @@ object WorkUtil {
     var timerIsRunning = MutableStateFlow(false)
     var runningTimeType: MutableStateFlow<Times> = MutableStateFlow(Times.Pomodoro())
 
-    var cachedTime: Long? = null
+    var cachedTime: Long? = runningTimeType.value.time
+    private val cachedTimePercentage
+        get() = cachedTime?.toFloat()?.div(runningTimeType.value.time.toFloat())
 
     //var currentTime = MediatorLiveData(selectedTimeType)
 
@@ -33,8 +35,7 @@ object WorkUtil {
 
 
     fun stopTimer(context: Application) {
-        cachedTime =
-            (runningTimeType.value.time.times(runningTimeType.value.time.toFloat())).toLong()
+        cachedTime = (progress.value?.times(runningTimeType.value.time))?.toLong()
         request?.id?.let {
             WorkManager.getInstance(context).cancelAllWork()
         }
@@ -42,24 +43,24 @@ object WorkUtil {
     }
 
     fun restart(context: Application) {
-        stopTimer(context)
-        runningTimeType.value.left = runningTimeType.value.time
-        startTime(context = context, cachedTime)
+        cachedTime = runningTimeType.value.time
+        request?.id?.let {
+            WorkManager.getInstance(context).cancelAllWork()
+        }
+        startTime(context = context)
     }
 
     /**
      * Start timer according to selected timer
      */
-    fun startTime(context: Application, left: Long? = null) {
+    fun startTime(context: Application) {
         timerIsRunning.value = true
-        stopTimer(context)
         request = workRequestBuilder.setInputData(
             workDataOf(
                 "Time" to runningTimeType.value.time,
-                "Left" to (left ?: runningTimeType.value.time)
+                "Left" to (cachedTime ?: runningTimeType.value.time)
             )
         ).build()
-        timerIsRunning.value = true
         request?.let { request ->
 
             WorkManager.getInstance(context).enqueue(request)
@@ -71,23 +72,29 @@ object WorkUtil {
                 when (workInfo.state) {
                     WorkInfo.State.ENQUEUED -> {
                         timerIsRunning.value = true
-                        return@switchMap MutableLiveData(1f)
+                        return@switchMap MutableLiveData(cachedTimePercentage)
                     }
                     WorkInfo.State.RUNNING -> {
+
                         val progress = workInfo?.progress?.getFloat(
-                            "Left", 1f
-                        ) ?: 1f
+                            "Left",
+                            cachedTimePercentage ?: 1f
+
+                        )
+
                         return@switchMap MutableLiveData(progress)
                     }
                     WorkInfo.State.SUCCEEDED -> {
                         val progress = workInfo?.progress?.getFloat(
                             "Left", 1f
-                        ) ?: 1f
+                        ) ?: -1f
                         timerIsRunning.value = false
                         return@switchMap MutableLiveData(progress)
                     }
                     else -> {
-                        return@switchMap MutableLiveData(1f)
+                        return@switchMap MutableLiveData(
+                            cachedTimePercentage
+                        )
                     }
                 }
             }
@@ -136,6 +143,8 @@ object WorkUtil {
     fun changeCurrentTime(time: Times, context: Application) {
         stopTimer(context)
         runningTimeType.value = time
+        cachedTime = runningTimeType.value.time
+
     }
 
 

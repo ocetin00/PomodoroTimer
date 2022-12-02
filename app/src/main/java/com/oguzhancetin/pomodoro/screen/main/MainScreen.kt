@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -51,29 +52,33 @@ fun MainScreen(
     val pomodoro = uiState.timePreferencesState.pomodoro
 
 
+
     Surface() {
 
+            if(long != null && short != null && pomodoro != null ){
+                MainScreenContent(
+                    modifier = modifier,
+                    onTimeTypeChange = { viewModel.updateCurrentTime(it) },
+                    left = uiState.leftTime,
+                    selectedTimeType = uiState.runningTimeType,
+                    buttonTimes = ButtonTimes(
+                        pomodoro = pomodoro,
+                        long = long,
+                        short = short
+                    ),
+                    progress = uiState.timeProgress,
+                    timerIsRunning = uiState.timerIsRunning,
+                    pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+                    restart = { viewModel.restart() },
+                    favoriteTaskItems = uiState.favouriteTasks,
+                    onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+                    onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
+                    onAddTaskButtonClicked = onAddTaskButtonClicked
+
+                )
+            }
 
 
-            MainScreenContent(
-                modifier = modifier,
-                onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-                time = time,
-                selectedTimeType = time,
-                buttonTimes = ButtonTimes(
-                    pomodoro = pomodoro.value,
-                    long = long.value,
-                    short = short.value
-                ),
-                timerIsRunning = timerIsRunning.value,
-                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-                restart = { viewModel.restart() },
-                favoriteTaskItems = favoriteTaskItems,
-                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-                onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
-                onAddTaskButtonClicked = onAddTaskButtonClicked
-
-            )
         }
 
 
@@ -84,7 +89,8 @@ fun MainScreen(
 fun MainScreenContent(
     modifier: Modifier = Modifier,
     onTimeTypeChange: (Times) -> Unit,
-    time: Times,
+    left: String ,
+    progress:Float,
     selectedTimeType: Times,
     timerIsRunning: Boolean,
     restart: () -> Unit,
@@ -112,7 +118,8 @@ fun MainScreenContent(
             )
             Spacer(modifier = Modifier.height(35.dp))
             TimerBody2(
-                time = time,
+                left = left,
+                progress = progress,
                 timerIsRunning = timerIsRunning,
                 restart = restart,
                 pauseOrPlayTimer = pauseOrPlayTimer
@@ -211,18 +218,20 @@ private fun TopButtons(
     }
 }
 
+@Preview
 @Composable
 fun TimerBody2(
-    time: Times,
-    timerIsRunning: Boolean,
-    restart: () -> Unit,
-    pauseOrPlayTimer: () -> Unit,
+    left: String = "25 : 00",
+    progress:Float = 1f,
+    timerIsRunning: Boolean = false,
+    restart: () -> Unit = {},
+    pauseOrPlayTimer: () -> Unit = {},
 ) {
 
     Box() {
         StatelessTimer(
-            value = time.getCurrentPercentage(),
-            time = time.toString(),
+            value = progress,
+            time = left,
             textColor = md_theme_light_onPrimary,
             handleColor = Color.Green,
             inactiveBarColor = light_RedBackgroundContainer,

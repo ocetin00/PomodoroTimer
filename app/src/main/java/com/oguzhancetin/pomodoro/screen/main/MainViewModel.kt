@@ -1,6 +1,7 @@
 package com.oguzhancetin.pomodoro.screen.main
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
@@ -25,11 +26,8 @@ data class MainUiState(
     val timePreferencesState: PreferencesState = PreferencesState()
 )
 
-data class PreferencesState(
-    val short: Long? = null,
-    val long: Long? = null,
-    val pomodoro: Long? = null,
-)
+
+
 
 
 @HiltViewModel
@@ -74,13 +72,16 @@ class MainViewModel @Inject constructor(
             timerIsRunning,
             runningTimeType
         ) { timePreferencesState, favoriteTaskItems, progress, timerIsRunning, runningTimeType ->
+            Log.d("progress",progress.toString())
             MainUiState().copy(
                 timePreferencesState = timePreferencesState,
                 favouriteTasks = favoriteTaskItems,
                 timeProgress = progress,
                 timerIsRunning = timerIsRunning,
+                leftTime = runningTimeType.getText(progress),
                 runningTimeType = runningTimeType,
-                isLoading = false
+                isLoading = false,
+                userMessage = null,
             )
         }
             .stateIn(
@@ -96,6 +97,7 @@ class MainViewModel @Inject constructor(
                 stopTimer(context)
             }
         } else {
+            WorkUtil.stopTimer(context)
             WorkUtil.startTime(context)
 
         }
@@ -106,7 +108,7 @@ class MainViewModel @Inject constructor(
         WorkUtil.restart(context)
 
     fun updateCurrentTime(time: Times) =
-        WorkUtil.c(time, context)
+        WorkUtil.changeCurrentTime(time, context)
 
     fun updateTask(taskItem: TaskItem) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -121,3 +123,9 @@ class MainViewModel @Inject constructor(
     }
 
 }
+
+data class PreferencesState(
+    val short: Long? = null,
+    val long: Long? = null,
+    val pomodoro: Long? = null,
+)
