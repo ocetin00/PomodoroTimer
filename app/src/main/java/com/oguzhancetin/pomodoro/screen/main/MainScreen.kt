@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AddCircle
@@ -20,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,33 +58,79 @@ fun MainScreen(
 
     Surface() {
 
-            if(long != null && short != null && pomodoro != null ){
-                MainScreenContent(
-                    modifier = modifier,
-                    onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-                    left = uiState.leftTime,
-                    selectedTimeType = uiState.runningTimeType,
-                    buttonTimes = ButtonTimes(
-                        pomodoro = pomodoro,
-                        long = long,
-                        short = short
-                    ),
-                    progress = uiState.timeProgress,
-                    timerIsRunning = uiState.timerIsRunning,
-                    pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-                    restart = { viewModel.restart() },
-                    favoriteTaskItems = uiState.favouriteTasks,
-                    onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-                    onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
-                    onAddTaskButtonClicked = onAddTaskButtonClicked
+        if (long != null && short != null && pomodoro != null) {
+            MainScreenContent(
+                modifier = modifier,
+                onTimeTypeChange = { viewModel.updateCurrentTime(it) },
+                left = uiState.leftTime,
+                selectedTimeType = uiState.runningTimeType,
+                buttonTimes = ButtonTimes(
+                    pomodoro = pomodoro,
+                    long = long,
+                    short = short
+                ),
+                progress = uiState.timeProgress,
+                timerIsRunning = uiState.timerIsRunning,
+                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+                restart = { viewModel.restart() },
+                favoriteTaskItems = uiState.favouriteTasks,
+                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+                onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
+                onAddTaskButtonClicked = onAddTaskButtonClicked
 
-                )
-            }
-
-
+            )
         }
 
 
+    }
+
+
+}
+
+@Composable
+fun BreakBody(time: Times) {
+
+    if (time is Times.Long) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "How About Some Relaxation?",
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
+            )
+
+        }
+        Spacer(modifier = Modifier.height(15.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .padding(bottom = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(painter = painterResource(id = R.drawable.long_break), "long", alpha = 0.5f)
+        }
+    } else if (time is Times.Short) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "How About A Coffee Break?",
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
+            )
+
+        }
+        Spacer(modifier = Modifier.height(15.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .padding(bottom = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(painter = painterResource(id = R.drawable.short_break), "long", alpha = 0.5f)
+        }
+    }
 
 }
 
@@ -89,8 +138,8 @@ fun MainScreen(
 fun MainScreenContent(
     modifier: Modifier = Modifier,
     onTimeTypeChange: (Times) -> Unit,
-    left: String ,
-    progress:Float,
+    left: String,
+    progress: Float,
     selectedTimeType: Times,
     timerIsRunning: Boolean,
     restart: () -> Unit,
@@ -107,10 +156,11 @@ fun MainScreenContent(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            //  .verticalScroll(rememberScrollState())
+            ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(35.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             TopButtons(
                 onClickButton = { onTimeTypeChange(it) },
                 currentTimeType = selectedTimeType,
@@ -125,25 +175,20 @@ fun MainScreenContent(
                 pauseOrPlayTimer = pauseOrPlayTimer
             )
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Manage your time well!",
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
+
+            if (selectedTimeType !is Times.Pomodoro) {
+                BreakBody(time = selectedTimeType)
+            } else {
+                FavoriteTasks(
+                    favoriteTaskItems = favoriteTaskItems,
+                    onItemFavorite = onItemFavorite,
+                    onItemFinish = onItemFinish,
+                    onAddTaskButtonClicked = onAddTaskButtonClicked
                 )
-
             }
-            Spacer(modifier = Modifier.height(15.dp))
-            FavoriteTasks(
-                favoriteTaskItems = favoriteTaskItems,
-                onItemFavorite = onItemFavorite,
-                onItemFinish = onItemFinish,
-                onAddTaskButtonClicked = onAddTaskButtonClicked
-            )
+
 
         }
 
@@ -160,9 +205,10 @@ private fun TopButtons(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+
         OutlinedButton(
             border = BorderStroke(1.dp, light_RedBackgroundContainer),
-            colors = if (currentTimeType is Times.Long) {
+            colors = if (currentTimeType is Times.Pomodoro) {
                 ButtonDefaults.outlinedButtonColors(
                     containerColor = light_onRedBackground,
                     contentColor = MaterialTheme.colorScheme.primary
@@ -171,12 +217,13 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.Long().also { it.time = buttonTimes.long })
+                onClickButton(Times.Pomodoro().also { it.time = buttonTimes.pomodoro })
             }) {
             Text(
-                text = "Long Break",
-                color = if (currentTimeType is Times.Long) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+                text = "Pomodoro",
+                color = if (currentTimeType is Times.Pomodoro) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
             )
+
         }
         OutlinedButton(
             border = BorderStroke(1.dp, light_RedBackgroundContainer),
@@ -198,7 +245,7 @@ private fun TopButtons(
         }
         OutlinedButton(
             border = BorderStroke(1.dp, light_RedBackgroundContainer),
-            colors = if (currentTimeType is Times.Pomodoro) {
+            colors = if (currentTimeType is Times.Long) {
                 ButtonDefaults.outlinedButtonColors(
                     containerColor = light_onRedBackground,
                     contentColor = MaterialTheme.colorScheme.primary
@@ -207,14 +254,14 @@ private fun TopButtons(
                 ButtonDefaults.outlinedButtonColors()
             },
             onClick = {
-                onClickButton(Times.Pomodoro().also { it.time = buttonTimes.pomodoro })
+                onClickButton(Times.Long().also { it.time = buttonTimes.long })
             }) {
             Text(
-                text = "Pomodoro",
-                color = if (currentTimeType is Times.Pomodoro) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+                text = "Long Break",
+                color = if (currentTimeType is Times.Long) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
             )
-
         }
+
     }
 }
 
@@ -222,7 +269,7 @@ private fun TopButtons(
 @Composable
 fun TimerBody2(
     left: String = "25 : 00",
-    progress:Float = 1f,
+    progress: Float = 1f,
     timerIsRunning: Boolean = false,
     restart: () -> Unit = {},
     pauseOrPlayTimer: () -> Unit = {},
@@ -282,8 +329,18 @@ fun FavoriteTasks(
     onAddTaskButtonClicked: () -> Unit
 ) {
 
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            "Manage your time well!",
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
+        )
 
-    Column(
+    }
+    Spacer(modifier = Modifier.height(15.dp))
+    LazyColumn(
         modifier
             .fillMaxWidth(0.7f)
             .padding(bottom = 10.dp),
@@ -291,23 +348,25 @@ fun FavoriteTasks(
     ) {
 
         if (favoriteTaskItems.isNotEmpty()) {
-
-            favoriteTaskItems.forEach {
+            items(
+                items = favoriteTaskItems,
+                key = { task -> task.id }
+            ) { task ->
                 Spacer(modifier = Modifier.height(8.dp))
+
                 FavoriteTask(
                     modifier = Modifier,
-                    taskItem = it,
+                    taskItem = task,
                     onItemFavorite = onItemFavorite,
                     onItemFinish = onItemFinish
                 )
+
             }
-
-
-            Spacer(modifier = Modifier.height(60.dp))
         } else {
-            AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
+            item {
+                AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
+            }
         }
-
 
     }
 }
@@ -325,7 +384,7 @@ fun AddTaskButton(
             modifier = modifier
                 .fillMaxWidth()
                 .height(58.dp)
-                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .padding(horizontal = 15.dp, vertical = 10.dp)
                 .clickable {
                     onAddTaskButtonClicked()
                 },
@@ -339,7 +398,7 @@ fun AddTaskButton(
             )
             Spacer(modifier = Modifier.width(10.dp))
 
-            Text("Add Task", color = MaterialTheme.colorScheme.onTertiaryContainer)
+            Text("Add Task", color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }
@@ -398,8 +457,10 @@ fun FavoriteTask(
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
+
         }
     }
 }
 
 data class ButtonTimes(val long: Long, val short: Long, val pomodoro: Long)
+

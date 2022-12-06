@@ -1,5 +1,6 @@
 package com.oguzhancetin.pomodoro.util.Time
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -23,6 +24,7 @@ class TimerWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
+    var notificationBuilder: NotificationCompat.Builder? = null
     companion object {
         private var timer: CountDownTimer? = null
     }
@@ -40,10 +42,23 @@ class TimerWorker(
                 left -= 1000
                 Log.e("kalan", "${leftTime / 60000} : ${(left % 60000) / 1000}")
                 setProgress(workDataOf("Left" to left.toFloat() / startTime.toFloat()))
+                notificationBuilder?.let {
+                    it.setContentTitle("${getLeftTime(left)}");
+                    notificationManager.notify(123, it.build());
+                }
+
+
             }
         }
 
         return Result.success()
+    }
+    private fun getLeftTime(left:Long):String {
+        var minute = (left / 60000).toString()
+        var second = ((left % 60000) / 1000).toString()
+        if (minute.length == 1) minute = "0${minute}"
+        if (second.length == 1) second = "0${second}"
+        return "$minute : $second"
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -84,7 +99,7 @@ class TimerWorker(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-        val notification = NotificationCompat.Builder(applicationContext, id)
+            notificationBuilder = NotificationCompat.Builder(applicationContext, id)
             .setSilent(true)
             .setContentTitle(title)
             .setTicker(title)
@@ -96,9 +111,9 @@ class TimerWorker(
             // be used to cancel the worker
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .setContentIntent(pendingIntent)
-            .build()
 
-        return ForegroundInfo(123, notification)
+
+        return ForegroundInfo(123, notificationBuilder!!.build())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

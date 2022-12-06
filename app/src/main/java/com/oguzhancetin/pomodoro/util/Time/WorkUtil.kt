@@ -21,12 +21,23 @@ object WorkUtil {
     var timerIsRunning = MutableStateFlow(false)
     var runningTimeType: MutableStateFlow<Times> = MutableStateFlow(Times.Pomodoro())
 
+    /**
+     * Time is cached when timer is stop, if timer type change or restart same time type
+     * cached will be cleared
+     */
     var cachedTime: Long? = runningTimeType.value.time
+
+    /**
+     * Get percentage version of cached time
+     * Ex 5_000 / 15_000 => 0.3f
+     */
     private val cachedTimePercentage
         get() = cachedTime?.toFloat()?.div(runningTimeType.value.time.toFloat())
 
-    //var currentTime = MediatorLiveData(selectedTimeType)
 
+    /**
+     * Hold progress between (0.0f - 1.0f)
+     */
     var progress = MediatorLiveData(1f)
 
 
@@ -65,7 +76,6 @@ object WorkUtil {
 
             WorkManager.getInstance(context).enqueue(request)
 
-
             val translatedProgress: LiveData<Float> = Transformations.switchMap(
                 WorkManager.getInstance(context).getWorkInfoByIdLiveData(request.id)
             ) { workInfo ->
@@ -99,54 +109,18 @@ object WorkUtil {
                 }
             }
 
-            progress.addSource(translatedProgress) { translatedProgress ->
-                Log.e("Time", translatedProgress.toString())
-                progress.value = translatedProgress
-
+            progress.addSource(translatedProgress) {
+                Log.e("Time", it.toString())
+                progress.value = it
             }
-
-            /*val translatedProgress: LiveData<Times> = Transformations.switchMap(
-                WorkManager.getInstance(context)
-                    .getWorkInfoByIdLiveData(request.id)
-            ) { workInfo ->
-                when (workInfo.state) {
-                    WorkInfo.State.RUNNING -> {
-                        val progress = workInfo?.progress?.getFloat(
-                            "Left",
-                            selectedTimeType.getCurrentPercentage()
-                        ) ?: selectedTimeType.getCurrentPercentage()
-                        return@switchMap MutableLiveData(selectedTimeType.also { it.setLeft(progress) })
-                    }
-                    WorkInfo.State.SUCCEEDED -> {
-                        val progress = workInfo?.progress?.getFloat(
-                            "Left",
-                            selectedTimeType.getCurrentPercentage()
-                        ) ?: selectedTimeType.getCurrentPercentage()
-                        timerIsRunning.value = false
-                        return@switchMap MutableLiveData(selectedTimeType.also { it.setLeft(progress) })
-                    }
-                    else -> {
-                        return@switchMap MutableLiveData(selectedTimeType)
-                    }
-                }
-            }
-
-            currentTime.addSource(translatedProgress) { updatedTime ->
-                Log.e("Time", updatedTime.toString())
-                currentTime.value = updatedTime*/
-
-
         }
     }
-
 
     fun changeCurrentTime(time: Times, context: Application) {
         stopTimer(context)
         runningTimeType.value = time
         cachedTime = runningTimeType.value.time
-
     }
-
 
     fun Long.getMinute(): Long {
         return this / 60000

@@ -26,8 +26,11 @@ data class MainUiState(
     val timePreferencesState: PreferencesState = PreferencesState()
 )
 
-
-
+data class PreferencesState(
+    val short: Long? = null,
+    val long: Long? = null,
+    val pomodoro: Long? = null,
+)
 
 
 @HiltViewModel
@@ -55,9 +58,9 @@ class MainViewModel @Inject constructor(
             preferences[Times.Pomodoro().getPrefKey()] ?: Times.Pomodoro().time
         }
 
-    var timerIsRunning = WorkUtil.timerIsRunning
-    var runningTimeType = WorkUtil.runningTimeType
-    var progress = WorkUtil.progress.asFlow()
+    private var _timerIsRunning = WorkUtil.timerIsRunning
+    private var _runningTimeType = WorkUtil.runningTimeType
+    private var _progress = WorkUtil.progress.asFlow()
 
     private val _timePreferencesState =
         combine(_longTime, _pomodoroTime, _shortTime) { longTime, pomodoroTime, shortTime ->
@@ -68,11 +71,11 @@ class MainViewModel @Inject constructor(
         combine(
             _timePreferencesState,
             _favoriteTaskItems,
-            progress,
-            timerIsRunning,
-            runningTimeType
+            _progress,
+            _timerIsRunning,
+            _runningTimeType
         ) { timePreferencesState, favoriteTaskItems, progress, timerIsRunning, runningTimeType ->
-            Log.d("progress",progress.toString())
+            Log.d("progress", progress.toString())
             MainUiState().copy(
                 timePreferencesState = timePreferencesState,
                 favouriteTasks = favoriteTaskItems,
@@ -92,7 +95,7 @@ class MainViewModel @Inject constructor(
 
 
     fun pauseOrPlayTimer() {
-        if (timerIsRunning.value) {
+        if (_timerIsRunning.value) {
             WorkUtil.apply {
                 stopTimer(context)
             }
@@ -124,8 +127,3 @@ class MainViewModel @Inject constructor(
 
 }
 
-data class PreferencesState(
-    val short: Long? = null,
-    val long: Long? = null,
-    val pomodoro: Long? = null,
-)

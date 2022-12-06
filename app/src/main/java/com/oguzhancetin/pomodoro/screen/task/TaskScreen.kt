@@ -95,7 +95,7 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
             IconButton(onClick = {
                 onAddItem(
                     TaskItem(
-                        id = null,
+                        id = UUID.randomUUID(),
                         description = text.text,
                         createdDate = System.currentTimeMillis(),
                         isFavorite = false,
