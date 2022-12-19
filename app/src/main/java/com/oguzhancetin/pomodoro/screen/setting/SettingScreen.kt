@@ -28,6 +28,7 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.screen.setting.SettingViewModel
 import com.oguzhancetin.pomodoro.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
+import com.oguzhancetin.pomodoro.util.Time.WorkUtil.getMinute
 import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.launch
 
@@ -48,7 +49,7 @@ fun SettingScreen(
 
 
 
-         /*   SettingScreenContent(
+            SettingScreenContent(
                 modifier = modifier,
                 intervalSettingParameters = IntervalSettingParameters(
                     pomodoroTime = pomodoroTime,
@@ -63,12 +64,12 @@ fun SettingScreen(
                     toggleTheme = { viewModel.ToggleAppTheme() },
                     themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value
                 )
-            )*/
+            )
 
 
 
 }
-/*
+
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -266,7 +267,7 @@ fun IntervalSetting(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { parameters.onDecrease(Times.Pomodoro) }) {
+                    IconButton(onClick = { parameters.onDecrease(Times.Pomodoro()) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
 
@@ -282,7 +283,7 @@ fun IntervalSetting(
                         )
                     }
 
-                    IconButton(onClick = { parameters.onIncrease(Times.Pomodoro) }) {
+                    IconButton(onClick = { parameters.onIncrease(Times.Pomodoro()) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
 
@@ -311,7 +312,7 @@ fun IntervalSetting(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { parameters.onDecrease(Times.Short) }) {
+                    IconButton(onClick = { parameters.onDecrease(Times.Short()) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
 
@@ -329,7 +330,7 @@ fun IntervalSetting(
                         )
                     }
 
-                    IconButton(onClick = { parameters.onIncrease(Times.Short) }) {
+                    IconButton(onClick = { parameters.onIncrease(Times.Short()) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
 
@@ -358,7 +359,7 @@ fun IntervalSetting(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { parameters.onDecrease(Times.Long) }) {
+                    IconButton(onClick = { parameters.onDecrease(Times.Long()) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
                     Box(
@@ -373,7 +374,7 @@ fun IntervalSetting(
                         )
                     }
 
-                    IconButton(onClick = { parameters.onIncrease(Times.Long) }) {
+                    IconButton(onClick = { parameters.onIncrease(Times.Long()) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
 
@@ -419,4 +420,4 @@ data class IntervalSettingParameters(
     val onDecrease: (Times) -> Unit = {},
     val toggleTheme: () -> Unit = {},
     val themeToogleState: Boolean
-)*/
+)
