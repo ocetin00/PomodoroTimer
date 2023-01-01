@@ -99,6 +99,7 @@ object WorkUtil {
                             "Left", 1f
                         ) ?: -1f
                         timerIsRunning.value = false
+                        showFinishNotification()
                         return@switchMap MutableLiveData(progress)
                     }
                     else -> {
@@ -116,6 +117,10 @@ object WorkUtil {
         }
     }
 
+    private fun showFinishNotification() {
+
+    }
+
     fun changeCurrentTime(time: Times, context: Application) {
         stopTimer(context)
         runningTimeType.value = time
@@ -125,4 +130,5 @@ object WorkUtil {
     fun Long.getMinute(): Long {
         return this / 60000
     }
+
 }

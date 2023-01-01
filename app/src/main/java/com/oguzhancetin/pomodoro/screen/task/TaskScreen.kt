@@ -79,7 +79,7 @@ fun TaskScreenContent(
 @Composable
 fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -> Unit = {}) {
     Card(
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.extraLarge,
         modifier = modifier.padding(horizontal = 10.dp)
     ) {
         var text by remember { mutableStateOf(TextFieldValue("")) }
@@ -93,15 +93,17 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             IconButton(onClick = {
-                onAddItem(
-                    TaskItem(
-                        id = UUID.randomUUID(),
-                        description = text.text,
-                        createdDate = System.currentTimeMillis(),
-                        isFavorite = false,
-                        doneDate = null
+                if(text.text.isNotBlank()){
+                    onAddItem(
+                        TaskItem(
+                            id = UUID.randomUUID(),
+                            description = text.text,
+                            createdDate = System.currentTimeMillis(),
+                            isFavorite = false,
+                            doneDate = null
+                        )
                     )
-                )
+                }
                 text = TextFieldValue()
             }) {
                 Icon(
@@ -118,7 +120,7 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                 value = text, onValueChange = {
                     if (it.text.length <= 23) text = it
                 }, placeholder = {
-                    Text(text = "Bir görev ekle")
+                    Text(text = "Add a task")
                 }, trailingIcon = {
 
                 }, colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -149,7 +151,7 @@ fun TaskItemContent(
     val calendar: Calendar = Calendar.getInstance()
     calendar.removeDetails()
     Card(
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.extraLarge,
         modifier = modifier.padding(horizontal = 10.dp)
     ) {
         Row(
@@ -160,7 +162,6 @@ fun TaskItemContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             IconButton(onClick = {
 
                 onItemFinish(taskItem.copy(isFinished = true, doneDate = calendar.timeInMillis))

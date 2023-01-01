@@ -378,7 +378,7 @@ fun AddTaskButton(
 ) {
     Card(
         colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Row(
             modifier = modifier
@@ -421,7 +421,7 @@ fun FavoriteTask(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .height(58.dp)
+                .height(50.dp)
                 .padding(horizontal = 10.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
