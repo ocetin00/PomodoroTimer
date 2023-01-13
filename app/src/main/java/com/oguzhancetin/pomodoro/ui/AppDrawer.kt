@@ -11,6 +11,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.ui.theme.light_onRedBackground
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,7 +24,7 @@ fun AppDrawer(
     navigateToStatus: () -> Unit,
     closeDrawer: () -> Unit,
     navigateToTask: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ModalDrawerSheet(modifier, drawerContentColor = MaterialTheme.colorScheme.onSurface) {
         DrawerSheetHeader(
@@ -42,7 +45,7 @@ fun AppDrawer(
             icon = { },
             label = { Text(stringResource(R.string.settings_title)) },
             selected = currentRoute == PomodoroDestinations.SETTING_ROUTE,
-            onClick = { closeDrawer();navigateToSetting() },
+            onClick = { navigateToSetting() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         Spacer(Modifier.height(12.dp))
@@ -50,14 +53,14 @@ fun AppDrawer(
             icon = { },
             label = { Text(stringResource(R.string.status_title)) },
             selected = currentRoute == PomodoroDestinations.STATUS_ROUTE,
-            onClick = { closeDrawer();navigateToStatus() },
+            onClick = { navigateToStatus() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         NavigationDrawerItem(
             icon = { },
             label = { Text(stringResource(R.string.Task)) },
             selected = currentRoute == PomodoroDestinations.TASK_ROUTE,
-            onClick = { closeDrawer();navigateToTask(); },
+            onClick = { navigateToTask() },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }

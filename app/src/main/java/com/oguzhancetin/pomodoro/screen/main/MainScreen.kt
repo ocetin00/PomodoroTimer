@@ -1,19 +1,33 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.oguzhancetin.pomodoro.screen.main
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.*
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -21,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -30,21 +46,32 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.work.WorkInfo
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
-import com.oguzhancetin.pomodoro.ui.StatelessTimer
+import com.oguzhancetin.pomodoro.screen.util.ToggleTab
+import com.oguzhancetin.pomodoro.ui.*
+import com.oguzhancetin.pomodoro.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.ui.theme.*
 import com.oguzhancetin.pomodoro.util.Time.WorkUtil
 import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.util.withNotNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
+@OptIn(
+    ExperimentalLifecycleComposeApi::class, ExperimentalMaterialApi::class,
+    ExperimentalMaterialApi::class, ExperimentalMaterialApi::class, ExperimentalMaterialApi::class,
+    ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class
+)
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    navController: NavHostController,
     viewModel: MainViewModel = hiltViewModel(),
     onAddTaskButtonClicked: () -> Unit = {}
 ) {
@@ -54,42 +81,148 @@ fun MainScreen(
     val short = uiState.timePreferencesState.short
     val pomodoro = uiState.timePreferencesState.pomodoro
 
+    val scope = rememberCoroutineScope()
+    val scaffoldState = rememberBottomSheetScaffoldState()
 
 
-    Surface() {
+    val navigationActions = remember(navController) {
+        PomodoroNavigationActions(navController)
+    }
 
-        if (long != null && short != null && pomodoro != null) {
-            MainScreenContent(
-                modifier = modifier,
-                onTimeTypeChange = { viewModel.updateCurrentTime(it) },
-                left = uiState.leftTime,
-                selectedTimeType = uiState.runningTimeType,
-                buttonTimes = ButtonTimes(
-                    pomodoro = pomodoro,
-                    long = long,
-                    short = short
-                ),
-                progress = uiState.timeProgress,
-                timerIsRunning = uiState.timerIsRunning,
-                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-                restart = { viewModel.restart() },
+    BottomSheetScaffold(
+        drawerContent = {
+            AppDrawer(
+                currentRoute = PomodoroDestinations.MAIN_ROUTE,
+                navigateToMain = {
+                    scope.launch {
+                        scaffoldState.drawerState.close()
+                        navigationActions.navigateToMain.invoke()
+                    }
+
+                },
+                navigateToSetting = {
+                    scope.launch {
+                        scaffoldState.drawerState.close()
+                        navigationActions.navigateToSetting.invoke()
+                    }
+
+                },
+                navigateToStatus = {
+                    scope.launch {
+                        scaffoldState.drawerState.close()
+                        navigationActions.navigateToStatus.invoke()
+                    }
+                },
+                navigateToTask = {
+                    scope.launch {
+                        scaffoldState.drawerState.close()
+                        navigationActions.navigateToTask.invoke()
+                    }
+
+
+                },
+                closeDrawer = { scope.launch { scaffoldState.drawerState.close() } })
+        },
+        topBar = {
+            MainAppBar(
+                currentRoute = "Pomodoro",
+                openDrawer = { scope.launch { scaffoldState.drawerState.open() } })
+        },
+        sheetShape = RoundedCornerShape(16.dp, 16.dp),
+        sheetContent = {
+            SheetContent(
                 favoriteTaskItems = uiState.favouriteTasks,
                 onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
                 onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
-                onAddTaskButtonClicked = onAddTaskButtonClicked
-
+                onAddTaskButtonClicked = onAddTaskButtonClicked,
+            )
+        },
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 50.dp,
+    ) { innerPadding ->
+        Surface() {
+            MainScreenContent(
+                modifier = modifier.padding(innerPadding),
+                onTimeTypeChange = { timeType ->
+                    withNotNull(long, short, pomodoro) { long, short, pomodoro ->
+                        viewModel.updateCurrentTime(
+                            timeType.also {
+                                when (it) {
+                                    is Times.Long -> it.time = long
+                                    is Times.Short -> it.time = short
+                                    is Times.Pomodoro -> it.time = pomodoro
+                                    else -> {}
+                                }
+                            }
+                        )
+                    }
+                },
+                left = uiState.leftTime,
+                selectedTimeType = uiState.runningTimeType,
+                progress = uiState.timeProgress,
+                timerIsRunning = uiState.timerIsRunning,
+                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+                restart = { viewModel.restart() }
             )
         }
-
-
     }
+}
 
+@Composable
+fun SheetContent(
+    favoriteTaskItems: List<TaskItem>,
+    onItemFavorite: (taskItem: TaskItem) -> Unit,
+    onItemFinish: (taskItem: TaskItem) -> Unit = {},
+    onAddTaskButtonClicked: () -> Unit,
+) {
+
+    Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            modifier = Modifier.height(30.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(ShapeDefaults.ExtraLarge)
+                    .height(8.dp)
+                    .width(65.dp)
+                    .background(Color.Gray)
+            )
+        }
+        Spacer(modifier = Modifier.height(15.dp))
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (favoriteTaskItems.isNotEmpty()) {
+                items(
+                    items = favoriteTaskItems,
+                    key = { task -> task.id }
+                ) { task ->
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    FavoriteTask(
+                        modifier = Modifier.fillMaxSize(),
+                        taskItem = task,
+                        onItemFavorite = onItemFavorite,
+                        onItemFinish = onItemFinish
+                    )
+                }
+            } else {
+                item {
+                    AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
+                }
+            }
+        }
+    }
 
 }
 
 @Composable
 fun BreakBody(time: Times) {
-
     if (time is Times.Long) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -143,13 +276,10 @@ fun MainScreenContent(
     selectedTimeType: Times,
     timerIsRunning: Boolean,
     restart: () -> Unit,
-    pauseOrPlayTimer: () -> Unit,
-    buttonTimes: ButtonTimes,
-    favoriteTaskItems: List<TaskItem>,
-    onItemFavorite: (taskItem: TaskItem) -> Unit,
-    onItemFinish: (taskItem: TaskItem) -> Unit = {},
-    onAddTaskButtonClicked: () -> Unit,
+    pauseOrPlayTimer: () -> Unit
 ) {
+
+
     Surface(
         color = RedBackground
     ) {
@@ -164,7 +294,6 @@ fun MainScreenContent(
             TopButtons(
                 onClickButton = { onTimeTypeChange(it) },
                 currentTimeType = selectedTimeType,
-                buttonTimes = buttonTimes
             )
             Spacer(modifier = Modifier.height(35.dp))
             TimerBody2(
@@ -180,13 +309,6 @@ fun MainScreenContent(
 
             if (selectedTimeType !is Times.Pomodoro) {
                 BreakBody(time = selectedTimeType)
-            } else {
-                FavoriteTasks(
-                    favoriteTaskItems = favoriteTaskItems,
-                    onItemFavorite = onItemFavorite,
-                    onItemFinish = onItemFinish,
-                    onAddTaskButtonClicked = onAddTaskButtonClicked
-                )
             }
 
 
@@ -197,7 +319,6 @@ fun MainScreenContent(
 
 @Composable
 private fun TopButtons(
-    buttonTimes: ButtonTimes,
     onClickButton: (Times) -> Unit,
     currentTimeType: Times
 ) {
@@ -205,63 +326,25 @@ private fun TopButtons(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-
-        OutlinedButton(
-            border = BorderStroke(1.dp, light_RedBackgroundContainer),
-            colors = if (currentTimeType is Times.Pomodoro) {
-                ButtonDefaults.outlinedButtonColors(
-                    containerColor = light_onRedBackground,
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                ButtonDefaults.outlinedButtonColors()
-            },
-            onClick = {
-                onClickButton(Times.Pomodoro().also { it.time = buttonTimes.pomodoro })
-            }) {
-            Text(
-                text = "Pomodoro",
-                color = if (currentTimeType is Times.Pomodoro) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
-            )
-
+        val currentTimeTypeIndex = when (currentTimeType) {
+            is Times.Long -> 0
+            is Times.Short -> 1
+            is Times.Pomodoro -> 2
+            else -> 0
         }
-        OutlinedButton(
-            border = BorderStroke(1.dp, light_RedBackgroundContainer),
-            colors = if (currentTimeType is Times.Short) {
-                ButtonDefaults.outlinedButtonColors(
-                    containerColor = light_onRedBackground,
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                ButtonDefaults.outlinedButtonColors()
-            },
-            onClick = {
-                onClickButton(Times.Short().also { it.time = buttonTimes.short })
-            }) {
-            Text(
-                text = "Short Break",
-                color = if (currentTimeType is Times.Short) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
-            )
-        }
-        OutlinedButton(
-            border = BorderStroke(1.dp, light_RedBackgroundContainer),
-            colors = if (currentTimeType is Times.Long) {
-                ButtonDefaults.outlinedButtonColors(
-                    containerColor = light_onRedBackground,
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                ButtonDefaults.outlinedButtonColors()
-            },
-            onClick = {
-                onClickButton(Times.Long().also { it.time = buttonTimes.long })
-            }) {
-            Text(
-                text = "Long Break",
-                color = if (currentTimeType is Times.Long) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
-            )
-        }
-
+        ToggleTab(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            tabItemTextStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+            initialSelectedTabIndex = currentTimeTypeIndex,
+            titleList = listOf("Long", "Short", "Pomodoro"),
+            onTabSelected = {
+                when (it) {
+                    0 -> onClickButton(Times.Long())
+                    1 -> onClickButton(Times.Short())
+                    2 -> onClickButton(Times.Pomodoro())
+                }
+            })
     }
 }
 
@@ -283,7 +366,7 @@ fun TimerBody2(
             handleColor = Color.Green,
             inactiveBarColor = light_RedBackgroundContainer,
             activeBarColor = Color.White,
-            modifier = Modifier.size(230.dp)
+            modifier = Modifier.size(250.dp)
         )
 
         Row(
@@ -320,56 +403,6 @@ fun TimerBody2(
     }
 }
 
-@Composable
-fun FavoriteTasks(
-    modifier: Modifier = Modifier,
-    favoriteTaskItems: List<TaskItem>,
-    onItemFavorite: (taskItem: TaskItem) -> Unit,
-    onItemFinish: (taskItem: TaskItem) -> Unit = {},
-    onAddTaskButtonClicked: () -> Unit
-) {
-
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            "Manage your time well!",
-            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
-        )
-
-    }
-    Spacer(modifier = Modifier.height(15.dp))
-    LazyColumn(
-        modifier
-            .fillMaxWidth(0.7f)
-            .padding(bottom = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        if (favoriteTaskItems.isNotEmpty()) {
-            items(
-                items = favoriteTaskItems,
-                key = { task -> task.id }
-            ) { task ->
-                Spacer(modifier = Modifier.height(8.dp))
-
-                FavoriteTask(
-                    modifier = Modifier,
-                    taskItem = task,
-                    onItemFavorite = onItemFavorite,
-                    onItemFinish = onItemFinish
-                )
-
-            }
-        } else {
-            item {
-                AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
-            }
-        }
-
-    }
-}
 
 @Composable
 fun AddTaskButton(
@@ -415,12 +448,12 @@ fun FavoriteTask(
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
 
     Card(
-        colors = CardDefaults.cardColors(light_task_color.copy(alpha = 0.2f)),
+        colors = CardDefaults.cardColors(RedBackground),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Row(
             modifier = modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .height(50.dp)
                 .padding(horizontal = 10.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -444,7 +477,7 @@ fun FavoriteTask(
                 text = taskItem.description ?: "",
                 modifier = Modifier.padding(horizontal = 3.dp),
                 style = TextStyle(
-                    color = light_onRedBackground,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = MaterialTheme.typography.labelMedium.fontSize
                 )
             )
@@ -462,5 +495,4 @@ fun FavoriteTask(
     }
 }
 
-data class ButtonTimes(val long: Long, val short: Long, val pomodoro: Long)
 

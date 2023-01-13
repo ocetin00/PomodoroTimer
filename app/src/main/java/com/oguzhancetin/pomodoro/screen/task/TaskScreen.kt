@@ -1,11 +1,20 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.oguzhancetin.pomodoro.screen.task
 
 
+import android.media.MediaPlayer
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Grade
@@ -15,31 +24,57 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.data.model.Task.TaskItem
+import com.oguzhancetin.pomodoro.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.util.removeDetails
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun TaskScreen(
     modifier: Modifier = Modifier,
-    viewModel: TaskViewModel = hiltViewModel()
+    viewModel: TaskViewModel = hiltViewModel(),
+    onBack: () -> Unit
 ) {
-    val taskItems = viewModel.taskItems.collectAsState(initial = listOf())
-            TaskScreenContent(
-                modifier = modifier,
-                taskItems = taskItems.value,
-                onAddItem = { taskItem -> viewModel.addTask(taskItem) },
-                onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
-                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) }
-            )
-}
+    val focusManager = LocalFocusManager.current
+    val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
+    val tasks = uiState.taskItems
 
+
+    Scaffold(
+        topBar = {
+            MainAppBar(
+                currentRoute = "Task", canNavigateBack = true, navigateUp = onBack
+            )
+        }
+    ) {
+        TaskScreenContent(
+            modifier = modifier
+                .padding(it)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                },
+            taskItems = tasks,
+            onAddItem = { taskItem -> viewModel.addTask(taskItem) },
+            onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
+            onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) }
+        )
+    }
+}
 
 @Preview
 @Composable
@@ -50,7 +85,11 @@ fun TaskScreenContent(
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {}
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = 5.dp)
+    ) {
         item {
             Spacer(modifier = Modifier.height(10.dp))
             TaskItemAdd(
@@ -58,20 +97,25 @@ fun TaskScreenContent(
                 onAddItem = { taskItem -> onAddItem(taskItem) })
         }
 
-        items(taskItems) { item ->
+        items(taskItems, { item: TaskItem -> item.id }) { item ->
             Spacer(
                 modifier = Modifier
                     .height(10.dp)
                     .padding(horizontal = 10.dp)
             )
             TaskItemContent(
-                modifier = Modifier.padding(horizontal = 5.dp),
+                modifier = Modifier
+                    .padding(horizontal = 5.dp)
+                    .animateItemPlacement(),
                 taskItem = item,
                 onItemFavorite = { taskItem -> onItemFavorite(taskItem) },
                 onItemFinish = { taskItem -> onItemFinish(taskItem) }
             )
+
         }
+
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +137,7 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             IconButton(onClick = {
-                if(text.text.isNotBlank()){
+                if (text.text.isNotBlank()) {
                     onAddItem(
                         TaskItem(
                             id = UUID.randomUUID(),
@@ -116,19 +160,46 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                 .fillMaxWidth()
             OutlinedTextField(
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 modifier = textFieldModifier,
-                value = text, onValueChange = {
+                value = text,
+                onValueChange = {
                     if (it.text.length <= 23) text = it
-                }, placeholder = {
+                },
+                placeholder = {
                     Text(text = "Add a task")
-                }, trailingIcon = {
-
-                }, colors = TextFieldDefaults.outlinedTextFieldColors(
+                },
+                trailingIcon = {
+                    if (text.text.isNotBlank()) {
+                        Icon(Icons.Default.Clear,
+                            contentDescription = "clear text",
+                            modifier = Modifier
+                                .clickable {
+                                    text = TextFieldValue("")
+                                }
+                        )
+                    }
+                },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
                     errorBorderColor = Color.Transparent,
                     disabledBorderColor = Color.Transparent,
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent
-                )
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (text.text.isNotBlank()) {
+                            onAddItem(
+                                TaskItem(
+                                    id = UUID.randomUUID(),
+                                    description = text.text,
+                                    createdDate = System.currentTimeMillis(),
+                                    isFavorite = false,
+                                    doneDate = null
+                                )
+                            )
+                        }
+                    }),
             )
             IconButton(onClick = {
                 text = TextFieldValue("")
@@ -148,6 +219,9 @@ fun TaskItemContent(
     onItemFinish: (taskItem: TaskItem) -> Unit,
     onItemFavorite: (taskItem: TaskItem) -> Unit
 ) {
+    val song: MediaPlayer =
+        MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
+
     val calendar: Calendar = Calendar.getInstance()
     calendar.removeDetails()
     Card(
@@ -163,7 +237,7 @@ fun TaskItemContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = {
-
+                song.start()
                 onItemFinish(taskItem.copy(isFinished = true, doneDate = calendar.timeInMillis))
             }) {
                 Icon(
@@ -171,9 +245,7 @@ fun TaskItemContent(
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
-
             Text(text = taskItem.description ?: "")
-
             IconButton(onClick = {
                 onItemFavorite(taskItem.copy(isFavorite = !taskItem.isFavorite))
             }) {
@@ -182,7 +254,6 @@ fun TaskItemContent(
                     contentDescription = stringResource(R.string.add_task)
                 )
             }
-
         }
     }
 }
