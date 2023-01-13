@@ -16,7 +16,7 @@ class PomodoroNavigationActions(navController: NavHostController){
 
 
     val navigateToMain: ()-> Unit = {
-        navController.navigate(PomodoroDestinations.SETTING_ROUTE){
+        navController.navigate(PomodoroDestinations.MAIN_ROUTE){
             navController.currentDestination?.route?.let {
                 popUpTo(it){
                     saveState = true

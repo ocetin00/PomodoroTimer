@@ -2,6 +2,9 @@ package com.oguzhancetin.pomodoro.screen.main
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
@@ -41,6 +44,8 @@ class MainViewModel @Inject constructor(
 
     private val _favoriteTaskItems = mainRepository.getFavoriteTaskItems()
 
+
+
     /**
      * Get times for time types,
      * For example Pomodoro: 25dk,Short: 10 dk ...
@@ -67,7 +72,7 @@ class MainViewModel @Inject constructor(
             PreferencesState().copy(short = shortTime, long = longTime, pomodoro = pomodoroTime)
         }
 
-    val mainUiState: StateFlow<MainUiState> =
+    val uiState =
         combine(
             _timePreferencesState,
             _favoriteTaskItems,
