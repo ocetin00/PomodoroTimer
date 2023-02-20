@@ -28,7 +28,6 @@ import com.oguzhancetin.pomodoro.common.util.removeDetails
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatusScreen(
     modifier: Modifier,

@@ -10,6 +10,7 @@ object PomodoroDestinations{
     const val SETTING_ROUTE = "setting"
     const val STATUS_ROUTE = "status"
     const val TASK_ROUTE = "task"
+    const val SPLASH_ROUTE = "splash"
 }
 
 class PomodoroNavigationActions(navController: NavHostController){

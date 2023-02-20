@@ -9,13 +9,14 @@ import com.oguzhancetin.pomodoro.presentation.screen.main.MainScreen
 import com.oguzhancetin.pomodoro.presentation.screen.task.TaskScreen
 import com.oguzhancetin.pomodoro.ui.SettingScreen
 import com.oguzhancetin.pomodoro.presentation.screen.report.StatusScreen
+import com.oguzhancetin.pomodoro.presentation.screen.splash.SplashScreen
 
 
 @Composable
 fun PomodoroNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = PomodoroDestinations.MAIN_ROUTE
+    startDestination: String = PomodoroDestinations.SPLASH_ROUTE
 ) {
 
     val onBack: () -> Unit = PomodoroNavigationActions(navController).navigateToMain
@@ -35,6 +36,9 @@ fun PomodoroNavGraph(
         }
         composable(PomodoroDestinations.STATUS_ROUTE) {
             StatusScreen(modifier = modifier, onBack = { onBack.invoke() })
+        }
+        composable(PomodoroDestinations.SPLASH_ROUTE) {
+            SplashScreen(modifier = modifier,onAnimationDone = {navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
         }
     }
 
