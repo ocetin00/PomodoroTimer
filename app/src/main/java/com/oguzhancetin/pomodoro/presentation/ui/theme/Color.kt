@@ -1,7 +1,7 @@
 package com.oguzhancetin.pomodoro.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
-
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 
 
 val md_theme_light_primary = Color(0xFFB32829)
@@ -79,3 +79,5 @@ val dark_RedBackgroundContainer = Color(0xFF930011)
 val dark_onRedBackgroundContainer = Color(0xFFFFDAD6)
 
 val light_task_color = Color(0xffe8def8)
+
+val task_color = Color(0x33E8DEF8)

@@ -29,6 +29,7 @@ import com.oguzhancetin.pomodoro.presentation.screen.setting.SettingViewModel
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.presentation.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil.getMinute
+import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.launch
 
@@ -48,24 +49,31 @@ fun SettingScreen(
 
 
 
-
-            SettingScreenContent(
-                modifier = modifier,
-                intervalSettingParameters = IntervalSettingParameters(
-                    pomodoroTime = pomodoroTime,
-                    longTime = longTime,
-                    shortTime = shortTime,
-                    onIncrease = { time ->
-                        viewModel.increaseTime(time)
-                    },
-                    onDecrease = { time ->
-                        viewModel.decreaseTime(time)
-                    },
-                    toggleTheme = { viewModel.ToggleAppTheme() },
-                    themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value
-                )
+    Scaffold(
+        topBar = {
+            MainAppBar(
+                currentRoute = "Setting", canNavigateBack = true, navigateUp = onBack
             )
 
+        }
+    ) { innerPadding ->
+        SettingScreenContent(
+            modifier = modifier.padding(innerPadding),
+            intervalSettingParameters = IntervalSettingParameters(
+                pomodoroTime = pomodoroTime,
+                longTime = longTime,
+                shortTime = shortTime,
+                onIncrease = { time ->
+                    viewModel.increaseTime(time)
+                },
+                onDecrease = { time ->
+                    viewModel.decreaseTime(time)
+                },
+                toggleTheme = { viewModel.ToggleAppTheme() },
+                themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value
+            )
+        )
+    }
 
 
 }
@@ -168,7 +176,7 @@ fun GeneralSetting(
                 Text(text = "Dark Theme")
                 Switch(
                     checked = themeToogleState,
-                    onCheckedChange = {toggleTheme()})
+                    onCheckedChange = { toggleTheme() })
             }
 
         }

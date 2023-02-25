@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.*
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,12 +44,9 @@ import com.oguzhancetin.pomodoro.presentation.ui.StatelessTimer
 import com.oguzhancetin.pomodoro.presentation.screen.util.ToggleTab
 import com.oguzhancetin.pomodoro.ui.*
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
-import com.oguzhancetin.pomodoro.presentation.ui.theme.RedBackground
-import com.oguzhancetin.pomodoro.presentation.ui.theme.light_RedBackgroundContainer
-import com.oguzhancetin.pomodoro.presentation.ui.theme.light_onRedBackground
-import com.oguzhancetin.pomodoro.presentation.ui.theme.md_theme_light_onPrimary
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.common.util.withNotNull
+import com.oguzhancetin.pomodoro.presentation.ui.theme.*
 import kotlinx.coroutines.launch
 
 
@@ -70,94 +68,97 @@ fun MainScreen(
     val short = uiState.timePreferencesState.short
     val pomodoro = uiState.timePreferencesState.pomodoro
 
+    var selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("Pomodoro", "Task", "Chart", "Setting")
+
 
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState()
 
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     val navigationActions = remember(navController) {
         PomodoroNavigationActions(navController)
     }
 
-
-
-    BottomSheetScaffold(
+    ModalNavigationDrawer(
+        drawerState = drawerState,
         drawerContent = {
             AppDrawer(
                 currentRoute = PomodoroDestinations.MAIN_ROUTE,
                 navigateToMain = {
                     scope.launch {
-                        scaffoldState.drawerState.close()
+                        drawerState.close()
                         navigationActions.navigateToMain.invoke()
                     }
 
                 },
                 navigateToSetting = {
                     scope.launch {
-                        scaffoldState.drawerState.close()
+                        drawerState.close()
                         navigationActions.navigateToSetting.invoke()
                     }
 
                 },
                 navigateToStatus = {
                     scope.launch {
-                        scaffoldState.drawerState.close()
+                        drawerState.close()
                         navigationActions.navigateToStatus.invoke()
                     }
                 },
                 navigateToTask = {
                     scope.launch {
-                        scaffoldState.drawerState.close()
+                        drawerState.close()
                         navigationActions.navigateToTask.invoke()
                     }
 
 
                 },
-                closeDrawer = { scope.launch { scaffoldState.drawerState.close() } })
-        },
-        topBar = {
-            MainAppBar(
-                currentRoute = "Pomodoro",
-                openDrawer = { scope.launch { scaffoldState.drawerState.open() } })
-        },
-        sheetShape = RoundedCornerShape(16.dp, 16.dp),
-        sheetContent = {
-            SheetContent(
-                favoriteTaskItems = uiState.favouriteTasks,
-                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-                onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
-                onAddTaskButtonClicked = onAddTaskButtonClicked,
+                closeDrawer = { scope.launch { drawerState.close() } }
             )
         },
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 50.dp,
-    ) { innerPadding ->
-        Surface() {
-            MainScreenContent(
-                modifier = modifier.padding(innerPadding),
-                onTimeTypeChange = { timeType ->
-                    withNotNull(long, short, pomodoro) { long, short, pomodoro ->
-                        viewModel.updateCurrentTime(
-                            timeType.also {
-                                when (it) {
-                                    is Times.Long -> it.time = long
-                                    is Times.Short -> it.time = short
-                                    is Times.Pomodoro -> it.time = pomodoro
-                                    else -> {}
-                                }
+        content = {
+            Scaffold(
+                topBar = {
+                    MainAppBar(
+                        currentRoute = "Pomodoro",
+                        openDrawer = { scope.launch { drawerState.open() } })
+                }
+            ) { innerPadding ->
+                Surface() {
+                    MainScreenContent(
+                        modifier = modifier.padding(innerPadding),
+                        onTimeTypeChange = { timeType ->
+                            withNotNull(long, short, pomodoro) { long, short, pomodoro ->
+                                viewModel.updateCurrentTime(
+                                    timeType.also {
+                                        when (it) {
+                                            is Times.Long -> it.time = long
+                                            is Times.Short -> it.time = short
+                                            is Times.Pomodoro -> it.time = pomodoro
+                                            else -> {}
+                                        }
+                                    }
+                                )
                             }
-                        )
-                    }
-                },
-                left = uiState.leftTime,
-                selectedTimeType = uiState.runningTimeType,
-                progress = uiState.timeProgress,
-                timerIsRunning = uiState.timerIsRunning,
-                pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
-                restart = { viewModel.restart() }
-            )
+                        },
+                        left = uiState.leftTime,
+                        selectedTimeType = uiState.runningTimeType,
+                        progress = uiState.timeProgress,
+                        timerIsRunning = uiState.timerIsRunning,
+                        pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
+                        restart = { viewModel.restart() },
+                        favoriteTaskItems = uiState.favouriteTasks,
+                        onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
+                        onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
+                        onAddTaskButtonClicked = onAddTaskButtonClicked,
+                    )
+                }
+            }
+
         }
-    }
+    )
+
+
 }
 
 @Composable
@@ -268,7 +269,11 @@ fun MainScreenContent(
     selectedTimeType: Times,
     timerIsRunning: Boolean,
     restart: () -> Unit,
-    pauseOrPlayTimer: () -> Unit
+    pauseOrPlayTimer: () -> Unit,
+    favoriteTaskItems: List<TaskItemEntity>,
+    onItemFavorite: (taskItem: TaskItemEntity) -> Unit,
+    onItemFinish: (taskItem: TaskItemEntity) -> Unit = {},
+    onAddTaskButtonClicked: () -> Unit,
 ) {
 
 
@@ -301,11 +306,37 @@ fun MainScreenContent(
 
             if (selectedTimeType !is Times.Pomodoro) {
                 BreakBody(time = selectedTimeType)
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (favoriteTaskItems.isNotEmpty()) {
+                        items(
+                            items = favoriteTaskItems,
+                            key = { task -> task.id }
+                        ) { task ->
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            FavoriteTask(
+                                modifier = Modifier.fillMaxSize(),
+                                taskItem = task,
+                                onItemFavorite = onItemFavorite,
+                                onItemFinish = onItemFinish
+                            )
+                        }
+                    } else {
+                        item {
+                            AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
+                        }
+                    }
+                }
             }
 
 
         }
-
     }
 }
 
@@ -340,7 +371,6 @@ private fun TopButtons(
     }
 }
 
-@Preview
 @Composable
 fun TimerBody2(
     left: String = "25 : 00",
@@ -444,14 +474,14 @@ fun FavoriteTask(
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
 
     Card(
-        colors = CardDefaults.cardColors(RedBackground),
+        colors = CardDefaults.cardColors(task_color),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Row(
             modifier = modifier
                 .fillMaxSize()
                 .height(50.dp)
-                .padding(horizontal = 10.dp, vertical = 10.dp),
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
