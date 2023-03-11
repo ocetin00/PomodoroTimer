@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
     init {
         WorkUtil.onFinishPomodoro = {
             viewModelScope.launch {
-                addPomodoroUseCase.invoke(Pomodoro(id = UUID.randomUUID(), createdDate = calender.timeInMillis))
+                addPomodoroUseCase.invoke(Pomodoro(id = UUID.randomUUID(), createdDate = calender.removeDetails().timeInMillis))
             }
         }
     }

@@ -37,21 +37,18 @@ fun StatusScreen(
 
     val reportUIState by viewModel.reportUIState.collectAsState()
 
-    reportUIState.errorMessage?.let{
+    reportUIState.errorMessage?.let {
 
     }
 
-    if(reportUIState.isLoading){
+    if (reportUIState.isLoading) {
 
-    }else{
+    } else {
         StatusScreenContent(
             modifier = modifier,
             pomodoroList = reportUIState.pomodoroList
         )
     }
-
-
-
 
 
 }
@@ -66,7 +63,16 @@ fun StatusScreenContent(
 
 
     val entries = convertEntryList(pomodoroList)
-
+/*
+    val entr = listOf<Entry>(
+        Entry(1f, 2f),
+        Entry(2f, 3f),
+        Entry(3f, 1f),
+        Entry(4f, 3f),
+        Entry(5f, 3f),
+        Entry(6f, 3f),
+        Entry(7f, 8f)
+    )*/
     val lineDataSet = LineDataSet(entries, "task_items")
 
 
@@ -77,46 +83,49 @@ fun StatusScreenContent(
     lineDataSet.cubicIntensity = 0.2f;
     val lineData = LineData(lineDataSet)
 
-    Column(
-        modifier = modifier
-    ) {
-        AndroidView(factory = { context ->
-            LineChart(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    // on below line we are specifying layout
-                    // params as MATCH PARENT for height and width.
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                )
-                data = lineData
-                axisRight.isEnabled = false
-                xAxis.setDrawGridLines(false)
-                axisLeft.setDrawGridLines(false)
-                setTouchEnabled(false)
-                xAxis.axisMaximum = 6.5f
-                xAxis.granularity = 1f
-                axisLeft.axisMinimum = 0f
-                axisLeft.axisMaximum = 10f
-                xAxis.apply {
-                    valueFormatter = XAxisValueFormatter()
-                    position = XAxis.XAxisPosition.BOTTOM;
-                    textSize = 10f;
-                    textColor = Color.RED;
-                    //.setValueFormatter(new MyCustomFormatter());
+    Surface(modifier = Modifier,
+    color = MaterialTheme.colorScheme.onPrimary) {
+        Column(
+            modifier = Modifier
+        ) {
+            AndroidView(factory = { context ->
+                LineChart(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        // on below line we are specifying layout
+                        // params as MATCH PARENT for height and width.
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                    data = lineData
+                    axisRight.isEnabled = false
+                    xAxis.setDrawGridLines(false)
+                    axisLeft.setDrawGridLines(false)
+                    setTouchEnabled(false)
+                    xAxis.axisMaximum = 6.5f
+                    xAxis.granularity = 1f
+                    axisLeft.axisMinimum = 0f
+                    axisLeft.axisMaximum = 10f
+                    xAxis.apply {
+                        valueFormatter = XAxisValueFormatter()
+                        position = XAxis.XAxisPosition.BOTTOM;
+                        textSize = 10f;
+                        textColor = Color.RED;
+                        //.setValueFormatter(new MyCustomFormatter());
+                    }
                 }
-            }
-        }, modifier = Modifier
-            .wrapContentSize()
-            .padding(5.dp),
-            update = {
-                it.invalidate()
-            })
+            }, modifier = Modifier
+                .wrapContentSize()
+                .padding(5.dp),
+                update = {
+                    it.invalidate()
+                })
+        }
     }
 }
 
 fun convertEntryList(sortedTaskItems: List<Pomodoro>): List<Entry> {
 
-    val calendar = Calendar.getInstance()
+    val calendar = Calendar.getInstance(TimeZone.getDefault())
     val entries = mutableListOf<Entry>()
     val daysValue = mutableMapOf<Long, Int>()
     calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
