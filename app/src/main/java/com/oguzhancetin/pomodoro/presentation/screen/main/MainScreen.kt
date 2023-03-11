@@ -526,3 +526,51 @@ fun FavoriteTask(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainAppBar(
+    openDrawer: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    topAppBarState: TopAppBarState = rememberTopAppBarState(),
+    canNavigateBack: Boolean = false,
+    scrollBehavior: TopAppBarScrollBehavior? =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState),
+    navigateUp: () -> Unit = {},
+    currentRoute: String
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+        title = { Text(text = currentRoute, color = light_onRedBackground) },
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            } else {
+                IconButton(onClick = openDrawer) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Menu"
+                    )
+                }
+            }
+        }/*,
+        actions = {
+            IconButton(onClick = { *//* TODO: Open search *//* }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.menu),
+                    tint = light_onSurfaceRed
+                )
+            }
+        }*/,
+        scrollBehavior = scrollBehavior,
+        modifier = modifier
+    )
+}
+
