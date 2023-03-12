@@ -13,6 +13,7 @@ interface TaskItemDao {
     @Query("SELECT * FROM task_item WHERE is_finished = 1 AND done_date >= :current_week_millis")
     fun doneTaskItems(current_week_millis:Long): Flow<List<TaskItemEntity>>
 
+
     @Query("SELECT * FROM task_item WHERE is_favorite = 1 AND is_finished = 0 ORDER BY create_date DESC")
     fun favoriteTaskItems(): Flow<List<TaskItemEntity>>
 

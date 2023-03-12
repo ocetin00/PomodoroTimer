@@ -1,6 +1,7 @@
 package com.oguzhancetin.pomodoro.domain.repository
 
 import com.oguzhancetin.pomodoro.common.Resource
+import com.oguzhancetin.pomodoro.common.util.FilterType
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow
 
@@ -13,5 +14,8 @@ interface TaskItemRepository {
     suspend fun deleteTaskItem(taskItem: TaskItem)
     suspend fun insertTaskItem(taskItem: TaskItem)
     fun getTaskItemById(id: Int) : TaskItem
+
+    fun getDoneTaskItems(filterType: FilterType) : List<TaskItem>
     suspend fun updateTask(taskItem: TaskItem)
+
 }

@@ -1,6 +1,4 @@
-package com.oguzhancetin.pomodoro.presentation.ui.commonUI
-
-import com.oguzhancetin.pomodoro.presentation.ui.Screen
+package com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util
 
 
 /**

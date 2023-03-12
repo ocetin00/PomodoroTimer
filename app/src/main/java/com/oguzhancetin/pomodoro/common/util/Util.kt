@@ -46,3 +46,7 @@ inline fun <T1, T2, T3, T4, T5, T6, R> combine(
         )
     }
 }
+
+enum class FilterType{
+    WEEK,MONTH,YEAR
+}

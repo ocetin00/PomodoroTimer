@@ -26,7 +26,7 @@ data class ReportUIState(
 
 @HiltViewModel
 class ReportViewModal @Inject constructor(
-    private val getPomodoroListUseCase: GetCurrentWeekPomodoroListUseCase
+    private val getPomodoroListUseCase: GetCurrentWeekPomodoroListUseCase,
 ) : ViewModel(){
 
      private var currentWeekMillis:Long = 0L

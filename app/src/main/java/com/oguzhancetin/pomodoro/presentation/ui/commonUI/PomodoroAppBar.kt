@@ -25,13 +25,13 @@ fun MainAppBar(
     currentRoute: String
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = currentRoute, color = light_onRedBackground) },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        title = { Text(text = currentRoute, color = MaterialTheme.colorScheme.onPrimaryContainer) },
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back"
                     )
@@ -39,7 +39,7 @@ fun MainAppBar(
             } else {
                 IconButton(onClick = openDrawer) {
                     Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         imageVector = Icons.Filled.Menu,
                         contentDescription = "Menu"
                     )
