@@ -9,9 +9,9 @@ import java.util.*
 data class TaskItem(
     val id: UUID,
     val description: String?,
-    override val doneDate: Long?,
+    override val doneDate: Long? = null,
     val isFavorite: Boolean = false,
     val isFinished: Boolean = false,
-    val createdDate: Long?,
+    val createdDate: Long? = null,
     val categoryId:UUID? = null
 ) : Doneable

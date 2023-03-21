@@ -22,11 +22,7 @@ android {
             useSupportLibrary true
         }
     }
-    testOptions {
-        unitTests.all {
-            useJUnitPlatform()
-        }
-    }
+
 
     buildTypes {
         release {
@@ -145,7 +141,7 @@ dependencies {
     implementation "com.patrykandpatrick.vico:core:1.6.4"
     implementation "com.patrykandpatrick.vico:compose-m3:1.6.4"
 
-    testImplementation 'org.jetbrains.spek:spek-junit-platform-engine:1.0.89'
+    //testImplementation 'org.jetbrains.spek:spek-junit-platform-engine:1.0.89'
 
 
 }
