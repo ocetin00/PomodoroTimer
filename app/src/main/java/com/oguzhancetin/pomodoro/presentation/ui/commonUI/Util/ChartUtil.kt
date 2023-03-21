@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.oguzhancetin.pomodoro.common.util.removeDetails
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
+import com.oguzhancetin.pomodoro.domain.model.Doneable
 import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
 import com.patrykandpatrick.vico.compose.style.ChartStyle
 import com.patrykandpatrick.vico.core.DefaultAlpha
@@ -23,7 +23,7 @@ import com.patrykandpatrick.vico.core.entry.entryOf
 import java.util.Calendar
 import java.util.TimeZone
 
-fun convertPomodoroListToXYPairs(sortedTaskItems: List<Pomodoro>): List<Pair<Int, Int>> {
+fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> {
 
     val calendar = Calendar.getInstance(TimeZone.getDefault())
     val daysValue = mutableMapOf<Long, Int>()
@@ -39,9 +39,9 @@ fun convertPomodoroListToXYPairs(sortedTaskItems: List<Pomodoro>): List<Pair<Int
     }
 
     //sorted to obtain which day and added to days hasMap
-    sortedTaskItems.forEach { pomodoroItem ->
+    sortedTaskItems.forEach { item ->
         daysValue.keys.forEach { key ->
-            if (pomodoroItem.createdDate == key) {
+            if (item.doneDate == key) {
                 val currentValue = daysValue[key] ?: 0
                 daysValue[key] = currentValue + 1
             }

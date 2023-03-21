@@ -1,8 +1,5 @@
 package com.oguzhancetin.pomodoro.domain.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import java.util.*
 
 /**
@@ -12,8 +9,9 @@ import java.util.*
 data class TaskItem(
     val id: UUID,
     val description: String?,
-    val createdDate: Long,
-    val doneDate: Long?,
+    override val doneDate: Long?,
     val isFavorite: Boolean = false,
-    val isFinished: Boolean = false
-)
+    val isFinished: Boolean = false,
+    val createdDate: Long?,
+    val categoryId:UUID? = null
+) : Doneable

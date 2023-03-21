@@ -1,7 +1,5 @@
 package com.oguzhancetin.pomodoro.domain.model
 
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
 import java.util.*
 
 /**
@@ -9,5 +7,5 @@ import java.util.*
  */
 data class Pomodoro(
     val id: UUID,
-    val createdDate: Long,
-)
+    override val doneDate: Long?,
+): Doneable

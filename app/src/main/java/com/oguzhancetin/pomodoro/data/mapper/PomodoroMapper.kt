@@ -12,13 +12,13 @@ import com.oguzhancetin.pomodoro.util.Times
 fun PomodoroEntity.toPomodoro(): Pomodoro {
     return Pomodoro(
         id = this.id,
-        createdDate = this.createdDate
+        doneDate = this.doneDate
     )
 }
 
 fun Pomodoro.toPomodoroEntity(): PomodoroEntity {
     return PomodoroEntity(
         id = this.id,
-        createdDate = this.createdDate
+        doneDate = this.doneDate
     )
 }

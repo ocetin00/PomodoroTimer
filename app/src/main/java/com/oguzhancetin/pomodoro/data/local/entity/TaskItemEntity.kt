@@ -9,13 +9,14 @@ import java.util.UUID
 data class TaskItemEntity(
     @PrimaryKey
     val id: UUID,
-    val description: String?,
+    val description: String? = null,
     @ColumnInfo(name = "create_date")
-    val createdDate: Long,
+    val createdDate: Long? = null,
     @ColumnInfo(name = "done_date")
-    val doneDate: Long?,
+    var doneDate: Long? = null,
     @ColumnInfo(name = "is_favorite")
     val isFavorite: Boolean = false,
     @ColumnInfo(name = "is_finished")
-    val isFinished: Boolean = false
+    val isFinished: Boolean = false,
+    var categoryId:UUID? = null
 )

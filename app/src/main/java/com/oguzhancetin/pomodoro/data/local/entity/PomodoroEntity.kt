@@ -12,7 +12,6 @@ import java.util.*
 data class PomodoroEntity(
     @PrimaryKey
     val id: UUID,
-    @ColumnInfo(name = "created_date")
-    val createdDate: Long,
-
+    @ColumnInfo(name = "done_date")
+    var doneDate: Long?,
     )

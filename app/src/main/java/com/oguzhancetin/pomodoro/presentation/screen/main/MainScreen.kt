@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.oguzhancetin.pomodoro.R
+import com.oguzhancetin.pomodoro.common.util.removeDetails
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.presentation.ui.AppDrawer
 import com.oguzhancetin.pomodoro.presentation.ui.PomodoroDestinations
@@ -149,7 +150,7 @@ fun MainScreen(
                         restart = { viewModel.restart() },
                         favoriteTaskItems = uiState.favouriteTasks,
                         onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
-                        onItemFinish = { taskItem -> viewModel.updateTaskItem(taskItem) },
+                        onItemFinish = { taskItem -> viewModel.onDoneTask(taskItem) },
                         onAddTaskButtonClicked = onAddTaskButtonClicked,
                     )
                 }
@@ -206,6 +207,7 @@ fun SheetContent(
                 }
             } else {
                 item {
+                    Spacer(modifier = Modifier.padding(top = 20.dp))
                     AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
                 }
             }
@@ -278,7 +280,7 @@ fun MainScreenContent(
 
 
     Surface(
-        color = RedBackground
+        color = MaterialTheme.colorScheme.primaryContainer
     ) {
         Column(
             modifier = modifier
@@ -310,7 +312,7 @@ fun MainScreenContent(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = 30.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (favoriteTaskItems.isNotEmpty()) {
@@ -356,7 +358,7 @@ private fun TopButtons(
             else -> 0
         }
         ToggleTab(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
             selectedColor = MaterialTheme.colorScheme.onPrimaryContainer,
             tabItemTextStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
             initialSelectedTabIndex = currentTimeTypeIndex,
@@ -384,7 +386,7 @@ fun TimerBody2(
         StatelessTimer(
             value = progress,
             time = left,
-            textColor = md_theme_light_onPrimary,
+            textColor = MaterialTheme.colorScheme.primary,
             handleColor = Color.Green,
             inactiveBarColor = light_RedBackgroundContainer,
             activeBarColor = Color.White,
@@ -396,10 +398,7 @@ fun TimerBody2(
             horizontalArrangement = Arrangement.Center,
         ) {
 
-            IconButton(modifier = Modifier
-                .shadow(10.dp, MaterialTheme.shapes.large)
-                .clip(MaterialTheme.shapes.large)
-                .background(Color.White), onClick = { pauseOrPlayTimer() }) {
+            IconButton(modifier = Modifier, onClick = { pauseOrPlayTimer() }) {
                 Icon(
                     painter = if (timerIsRunning) {
                         painterResource(id = R.drawable.pause_fill)
@@ -408,19 +407,17 @@ fun TimerBody2(
                     },
                     contentDescription = "",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(35.dp)
 
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
-            IconButton(modifier = Modifier
-                .shadow(10.dp, MaterialTheme.shapes.large)
-                .clip(MaterialTheme.shapes.large)
-                .background(Color.White), onClick = { restart() })
+            IconButton(modifier = Modifier,
+                onClick = { restart() })
             {
                 Icon(
                     Icons.Filled.Refresh, "",
-                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(30.dp)
+                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(35.dp)
                 )
             }
 
@@ -436,14 +433,14 @@ fun AddTaskButton(
     onAddTaskButtonClicked: () -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(Color.White.copy(0.2f)),
+        colors = CardDefaults.cardColors(Color.White.copy(0.4f)),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .height(58.dp)
-                .padding(horizontal = 15.dp, vertical = 10.dp)
+                .height(45.dp)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
                 .clickable {
                     onAddTaskButtonClicked()
                 },
@@ -451,13 +448,13 @@ fun AddTaskButton(
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 imageVector = Icons.Outlined.AddCircle,
                 contentDescription = stringResource(R.string.add_task)
             )
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(30.dp))
 
-            Text("Add Task", color = MaterialTheme.colorScheme.onPrimary)
+            Text("Add Task", color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }
@@ -474,13 +471,13 @@ fun FavoriteTask(
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
 
     Card(
-        colors = CardDefaults.cardColors(task_color),
+        colors = CardDefaults.cardColors(Color.White.copy(0.4f)),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Row(
             modifier = modifier
                 .fillMaxSize()
-                .height(50.dp)
+                .height(45.dp)
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -492,7 +489,7 @@ fun FavoriteTask(
 
             }) {
                 Icon(
-                    tint = light_onRedBackground,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     painter = painterResource(id = R.drawable.radio_button_unchecked),
                     contentDescription = stringResource(R.string.add_task)
                 )
@@ -503,7 +500,7 @@ fun FavoriteTask(
                 text = taskItem.description ?: "",
                 modifier = Modifier.padding(horizontal = 3.dp),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = MaterialTheme.typography.labelMedium.fontSize
                 )
             )
@@ -511,7 +508,7 @@ fun FavoriteTask(
                 onItemFavorite(taskItem.copy(isFavorite = !taskItem.isFavorite))
             }) {
                 Icon(
-                    tint = light_onRedBackground,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     painter = if (taskItem.isFavorite) {
                         painterResource(id = R.drawable.grade)
                     } else {

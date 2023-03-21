@@ -7,7 +7,7 @@ import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
 import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 
-@Database(entities = [TaskItemEntity::class, PomodoroEntity::class], exportSchema = true, version = 10)
+@Database(entities = [TaskItemEntity::class, PomodoroEntity::class], exportSchema = true, version = 13)
 abstract class PomodoroDatabase: RoomDatabase() {
     abstract fun taskItemDao(): TaskItemDao
     abstract fun pomodoroDao(): PomodoroDao

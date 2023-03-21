@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
     init {
         WorkUtil.onFinishPomodoro = {
             viewModelScope.launch {
-                addPomodoroUseCase.invoke(Pomodoro(id = UUID.randomUUID(), createdDate = calender.removeDetails().timeInMillis))
+                addPomodoroUseCase.invoke(Pomodoro(id = UUID.randomUUID(), doneDate  = calender.removeDetails().timeInMillis))
             }
         }
     }
@@ -144,6 +144,15 @@ class MainViewModel @Inject constructor(
     fun updateTaskItem(taskItem: TaskItemEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             mainRepository.updateTask(taskItem)
+        }
+    }
+    fun onDoneTask(taskItem: TaskItemEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            mainRepository.updateTask(
+                taskItem.apply {
+                    doneDate = calender.removeDetails().timeInMillis
+                }
+            )
         }
     }
 

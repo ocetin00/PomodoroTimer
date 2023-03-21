@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +41,7 @@ import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.common.util.removeDetails
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import java.util.*
+import java.util.Locale.Category
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +62,7 @@ fun TaskScreen(
             )
         }
     ) {
-        if(!uiState.isLoading){
+        if (!uiState.isLoading) {
             TaskScreenContent(
                 modifier = modifier
                     .padding(it)
@@ -76,6 +78,34 @@ fun TaskScreen(
             )
         }
 
+    }
+}
+
+@Preview
+@Composable
+fun Category() {
+
+    Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
+        Text("Categories")
+    }
+    LazyRow(content = {
+
+    })
+}
+
+@Composable
+@Preview
+fun TaskCategoryPreview() {
+    Category()
+}
+
+@Composable
+fun TaskCategoryItem(modifier:Modifier = Modifier,title:String,taskCount:Int) {
+    Row(modifier = modifier){
+        Column(){
+            Text("title")
+            Text("$taskCount task")
+        }
     }
 }
 
@@ -98,7 +128,8 @@ fun TaskScreenContent(
             TaskItemAdd(
                 Modifier.padding(horizontal = 5.dp),
                 onAddItem = { taskItem ->
-                    onAddItem(taskItem) }
+                    onAddItem(taskItem)
+                }
             )
         }
 

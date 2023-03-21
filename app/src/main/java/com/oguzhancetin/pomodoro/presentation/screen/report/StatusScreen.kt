@@ -1,7 +1,6 @@
 package com.oguzhancetin.pomodoro.presentation.screen.report
 
 
-import android.graphics.Color
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 
@@ -13,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,23 +19,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
+import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.PomodoroAppChart
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.convertPomodoroListToXYPairs
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.entryModelOf
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.rememberChartStyle
+import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.convertListToXYPairs
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
-import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
-import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
-import com.patrykandpatrick.vico.compose.chart.Chart
-import com.patrykandpatrick.vico.compose.chart.column.columnChart
-import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
-import com.patrykandpatrick.vico.compose.style.currentChartStyle
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
-import com.patrykandpatrick.vico.core.component.shape.LineComponent
 
 import java.util.*
+import kotlin.math.roundToInt
 
 @Composable
 fun StatusScreen(
@@ -69,22 +60,23 @@ fun StatusScreen(
 
             onDispose {}
         }
-        StatusScreenContent(modifier, reportUIState.pomodoroList)
+        StatusScreenContent(modifier, reportUIState.pomodoroList, reportUIState.taskList,onBack)
 
     }
-
 
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
 fun StatusScreenContent(
     modifier: Modifier = Modifier,
-    pomodoroList: List<Pomodoro> = listOf()
+    pomodoroList: List<Pomodoro> = listOf(),
+    taskList: List<TaskItem> = listOf(),
+    onBack: () -> Unit = {},
 ) {
 
-    val pomodoroChartPair = convertPomodoroListToXYPairs(pomodoroList)
+    val pomodoroChartPair = convertListToXYPairs(pomodoroList)
+    val taskListChartPair = convertListToXYPairs(taskList)
 
     PomodoroTheme {
         Scaffold(
@@ -92,7 +84,7 @@ fun StatusScreenContent(
                 MainAppBar(
                     currentRoute = "Status",
                     canNavigateBack = true,
-                    navigateUp = {}
+                    navigateUp = {onBack()}
                 )
             }
         ) { innerPadding ->
@@ -118,7 +110,7 @@ fun StatusScreenContent(
                         modifier = Modifier
                             .height(270.dp)
                             .padding(horizontal = 15.dp),
-                        chartPair = pomodoroChartPair
+                        chartPair = taskListChartPair
                     )
 
                 }
@@ -131,13 +123,37 @@ fun StatusScreenContent(
 }
 
 
-@Composable
 @Preview
-fun PomodoroChart(modifier: Modifier = Modifier, chartPair: List<Pair<Int, Int>> = listOf()) {
+@Composable
+fun PomodoroChart(
+    modifier: Modifier = Modifier,
+    chartPair: List<Pair<Int, Int>> = listOf(
+        Pair(0, 1),
+        Pair(1, 3),
+        Pair(2, 3),
+        Pair(3, 2),
+        Pair(4, 5),
+        Pair(5, 1),
+        Pair(6, 1)
+    )
+) {
 
     val daysOfWeek = listOf("Mo", "Tu", "Wd", "Th", "Fr", "St", "Sn")
     val bottomAxisValueFormatter =
         AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
+
+
+    val y = listOf("0", "1", "2", "3", "4", "5", "6")
+    val startAxisValueFormatter = AxisValueFormatter<AxisPosition.Vertical.Start> { x, chartValues ->
+       // val entries = chartValues.chartEntryModel.entries as? List<Pomodoro>
+        if(x.toInt() == 0){
+            "0"
+        }else{
+            (x.roundToInt()+2).toString()
+        }
+
+    }
+
 
     PomodoroTheme {
         Card(
@@ -165,6 +181,11 @@ fun TaskChart(modifier: Modifier = Modifier, chartPair: List<Pair<Int, Int>> = l
     val daysOfWeek = listOf("Mo", "Tu", "Wd", "Th", "Fr", "St", "Sn")
     val bottomAxisValueFormatter =
         AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
+
+    val y = listOf("0", "1", "2", "3", "4", "5", "6")
+    val startAxisValueFormatter = AxisValueFormatter<AxisPosition.Vertical.Start> { x, _ ->
+        y[x.toInt() % y.size]
+    }
 
     PomodoroTheme {
         Card(

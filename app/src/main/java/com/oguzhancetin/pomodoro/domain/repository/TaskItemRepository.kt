@@ -16,6 +16,7 @@ interface TaskItemRepository {
     fun getTaskItemById(id: Int) : TaskItem
 
     fun getDoneTaskItems(filterType: FilterType) : List<TaskItem>
+     fun getCurrentWeekTaskList(currentWeekMilist: Long): Flow<Resource<List<TaskItem>>>
     suspend fun updateTask(taskItem: TaskItem)
 
 }

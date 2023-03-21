@@ -13,10 +13,10 @@ interface PomodoroDao {
     @Query("SELECT * FROM pomodoro")
     fun getAllPomodoro(): Flow<List<PomodoroEntity>>
 
-    @Query("SELECT * FROM pomodoro WHERE created_date = :isFinish")
+    @Query("SELECT * FROM pomodoro WHERE done_date = :isFinish")
     fun pomodoroListByFinish(isFinish: Int = 0): Flow<List<PomodoroEntity>>
 
-    @Query("SELECT * FROM pomodoro WHERE  created_date >= :current_week_millis")
+    @Query("SELECT * FROM pomodoro WHERE  done_date >= :current_week_millis")
     fun finishPomodoroListForCurrentWeek(current_week_millis: Long): Flow<List<PomodoroEntity>>
 
     @Delete
