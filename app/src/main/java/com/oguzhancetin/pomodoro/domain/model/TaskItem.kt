@@ -13,5 +13,5 @@ data class TaskItem(
     val isFavorite: Boolean = false,
     val isFinished: Boolean = false,
     val createdDate: Long? = null,
-    val categoryId:UUID? = null
+    var categoryId:UUID? = null
 ) : Doneable

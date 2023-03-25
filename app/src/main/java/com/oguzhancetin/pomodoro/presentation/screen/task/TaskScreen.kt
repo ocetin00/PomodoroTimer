@@ -5,6 +5,7 @@ package com.oguzhancetin.pomodoro.presentation.screen.task
 
 import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +44,7 @@ import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.common.util.removeDetails
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
+import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import java.util.*
 import java.util.Locale.Category
 
@@ -81,35 +86,68 @@ fun TaskScreen(
     }
 }
 
-@Preview
 @Composable
-fun Category() {
+fun Category(modifier:Modifier = Modifier) {
 
-    Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
-        Text("Categories")
+    Column (modifier = modifier){
+        Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
+            Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+        }
+        Spacer(Modifier.height(25.dp))
+        LazyRow(content = {
+            items(10) {
+                TaskCategoryItem(
+                    modifier = Modifier
+                        .width(150.dp)
+                        .padding(vertical = 5.dp),
+                    title = "Task $it",
+                    taskCount = it
+                )
+                Spacer(modifier = Modifier.width(15.dp))
+            }
+        })
     }
-    LazyRow(content = {
-
-    })
 }
 
 @Composable
 @Preview
 fun TaskCategoryPreview() {
-    Category()
-}
-
-@Composable
-fun TaskCategoryItem(modifier:Modifier = Modifier,title:String,taskCount:Int) {
-    Row(modifier = modifier){
-        Column(){
-            Text("title")
-            Text("$taskCount task")
+    PomodoroTheme {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+           Category(modifier = Modifier.padding(horizontal = 10.dp))
         }
     }
 }
 
-@Preview
+@Composable
+fun TaskCategoryItem(modifier: Modifier = Modifier, title: String, taskCount: Int) {
+    Card(shape = MaterialTheme.shapes.large,      colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),) {
+        Row(modifier = modifier.padding(start = 10.dp, top = 8.dp,bottom = 8.dp)) {
+            Column() {
+                Text(
+                    text = title,
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    )
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "20 Task",
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
+                        fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                    )
+                )
+            }
+        }
+    }
+
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskScreenContent(
     modifier: Modifier = Modifier,
@@ -118,44 +156,48 @@ fun TaskScreenContent(
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {}
 ) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(bottom = 5.dp)
+    Surface(
+        color = MaterialTheme.colorScheme.primaryContainer
     ) {
-        item {
-            Spacer(modifier = Modifier.height(10.dp))
-            TaskItemAdd(
-                Modifier.padding(horizontal = 5.dp),
-                onAddItem = { taskItem ->
-                    onAddItem(taskItem)
-                }
-            )
-        }
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(bottom = 5.dp)
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                Category(modifier = Modifier.padding(horizontal = 10.dp))
+                /*TaskItemAdd(
+                    Modifier.padding(horizontal = 5.dp),
+                    onAddItem = { taskItem ->
+                        onAddItem(taskItem)
+                    }
+                )*/
+            }
 
-        items(taskItems, { item: TaskItem -> item.id }) { item ->
-            Spacer(
-                modifier = Modifier
-                    .height(10.dp)
-                    .padding(horizontal = 10.dp)
-            )
-            TaskItemContent(
-                modifier = Modifier
-                    .padding(horizontal = 5.dp)
-                    .animateItemPlacement(),
-                taskItem = item,
-                onItemFavorite = { taskItem -> onItemFavorite(taskItem) },
-                onItemFinish = { taskItem -> onItemFinish(taskItem) }
-            )
+            items(taskItems, { item: TaskItem -> item.id }) { item ->
+                Spacer(
+                    modifier = Modifier
+                        .height(10.dp)
+                        .padding(horizontal = 10.dp)
+                )
+                TaskItemContent(
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .animateItemPlacement(),
+                    taskItem = item,
+                    onItemFavorite = { taskItem -> onItemFavorite(taskItem) },
+                    onItemFinish = { taskItem -> onItemFinish(taskItem) }
+                )
+
+            }
 
         }
 
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -> Unit = {}) {
     Card(
@@ -293,3 +335,4 @@ fun TaskItemContent(
         }
     }
 }
+
