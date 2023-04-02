@@ -1,9 +1,13 @@
 package com.oguzhancetin.pomodoro.di
 
+import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao
+import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao_Impl
 import com.oguzhancetin.pomodoro.data.local.dao.PomodoroDao
 import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
+import com.oguzhancetin.pomodoro.data.repository.CategoryRepositoryImpl
 import com.oguzhancetin.pomodoro.data.repository.PomodoroRepositoryImpl
 import com.oguzhancetin.pomodoro.data.repository.TaskItemRepositoryImpl
+import com.oguzhancetin.pomodoro.domain.repository.CategoryRepository
 import com.oguzhancetin.pomodoro.domain.repository.PomodoroRepository
 import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
 import dagger.Module
@@ -29,6 +33,12 @@ class RepositoryModule {
     @Provides
     fun providePomodoroRepository(pomodoroDao: PomodoroDao): PomodoroRepository {
         return PomodoroRepositoryImpl(pomodoroDao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideCategoryRepository(categoryDao: CategoryDao): CategoryRepository {
+        return CategoryRepositoryImpl(categoryDao)
     }
 
 }

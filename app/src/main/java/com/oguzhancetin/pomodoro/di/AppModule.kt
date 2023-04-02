@@ -3,6 +3,7 @@ package com.oguzhancetin.pomodoro.di
 import android.content.Context
 import androidx.room.Room
 import com.oguzhancetin.pomodoro.data.local.PomodoroDatabase
+import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao
 import com.oguzhancetin.pomodoro.data.local.dao.PomodoroDao
 import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
 import com.oguzhancetin.pomodoro.data.repository.PomodoroRepositoryImpl
@@ -29,6 +30,11 @@ class AppModule {
     @Provides
     fun providePomodoroDao(db: PomodoroDatabase): PomodoroDao {
         return db.pomodoroDao()
+    }
+    @Singleton
+    @Provides
+    fun provideCategoryDao(db: PomodoroDatabase): CategoryDao {
+        return db.taskCategoryDao()
     }
 
     @Singleton

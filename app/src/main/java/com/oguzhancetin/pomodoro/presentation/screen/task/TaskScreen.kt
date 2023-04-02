@@ -5,7 +5,6 @@ package com.oguzhancetin.pomodoro.presentation.screen.task
 
 import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AddCircle
@@ -35,8 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
@@ -45,25 +41,39 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oguzhancetin.pomodoro.R
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.common.util.removeDetails
+import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import java.util.*
-import java.util.Locale.Category
+import com.oguzhancetin.pomodoro.domain.model.Category
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     modifier: Modifier = Modifier,
     viewModel: TaskViewModel = hiltViewModel(),
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateTaskDetail: (id: UUID) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
-    val tasks = uiState.taskItems
 
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog)
+        AddCategoryDialog(value = "", setShowDialog = {
+            showDialog = it
+        }) { categoryName ->
+            if (categoryName.isNotBlank()) {
+                viewModel.addCategory(
+                    Category(
+                        UUID.randomUUID(),
+                        categoryName
+                    )
+                )
+            }
+        }
 
     Scaffold(
         topBar = {
@@ -72,27 +82,40 @@ fun TaskScreen(
             )
         }
     ) {
-        if (!uiState.isLoading) {
-            TaskScreenContent(
-                modifier = modifier
-                    .padding(it)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-                            focusManager.clearFocus()
-                        })
-                    },
-                taskItems = tasks,
-                onAddItem = { taskItem -> viewModel.addTask(taskItem) },
-                onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
-                onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) }
-            )
+        when (uiState) {
+            is UIState.Success -> {
+                TaskScreenContent(
+                    modifier = modifier
+                        .padding(it)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = {
+                                focusManager.clearFocus()
+                            })
+                        },
+                    taskItems = (uiState as UIState.Success).data.taskItems ?: listOf(),
+                    onAddItem = { taskItem -> viewModel.addTask(taskItem) },
+                    onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
+                    onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) },
+                    onClickTaskItem = { id -> onNavigateTaskDetail(id) },
+                    onClickAddCategory = { showDialog = true },
+                    categories = (uiState as UIState.Success).data.categories ?: listOf()
+                )
+            }
+
+            is UIState.Loading -> {}
+            is UIState.Error -> {}
+
         }
 
     }
 }
 
 @Composable
-fun Category(modifier: Modifier = Modifier) {
+fun Category(
+    modifier: Modifier = Modifier,
+    onClickAddCategory: () -> Unit,
+    categories: List<CategoryWithTask> = listOf()
+) {
 
     Column(modifier = modifier) {
         Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
@@ -100,30 +123,58 @@ fun Category(modifier: Modifier = Modifier) {
         }
         Spacer(Modifier.height(25.dp))
         LazyRow(content = {
-            items(10) {
+            items(categories) {
                 TaskCategoryItem(
                     modifier = Modifier
                         .width(150.dp)
+                        .height(100.dp)
                         .padding(vertical = 5.dp),
-                    title = "Task $it",
-                    taskCount = it
+                    title = "Task ${it.category.name}",
+                    taskCount = it.taskList.size
                 )
+                Spacer(modifier = Modifier.width(15.dp))
+
+
+            }
+            item() {
+                AddTaskCategoryItem(modifier = Modifier
+                    .width(150.dp)
+                    .height(100.dp)
+                    .padding(vertical = 5.dp),
+                    onClickAddCategory = { onClickAddCategory() })
                 Spacer(modifier = Modifier.width(15.dp))
             }
         })
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun TaskCategoryPreview() {
-    PomodoroTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer
+fun AddTaskCategoryItem(modifier: Modifier = Modifier, onClickAddCategory: () -> Unit) {
+    Card(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+        onClick = {
+            onClickAddCategory()
+        }
+    ) {
+        Row(
+            modifier = modifier.padding(start = 10.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Category(modifier = Modifier.padding(horizontal = 10.dp))
+            Column() {
+                Text(
+                    text = "Add Category",
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    )
+                )
+            }
         }
     }
+
 }
 
 @Composable
@@ -132,7 +183,10 @@ fun TaskCategoryItem(modifier: Modifier = Modifier, title: String, taskCount: In
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
     ) {
-        Row(modifier = modifier.padding(start = 10.dp, top = 8.dp, bottom = 8.dp)) {
+        Row(
+            modifier = modifier.padding(start = 10.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Column() {
                 Text(
                     text = title,
@@ -143,7 +197,7 @@ fun TaskCategoryItem(modifier: Modifier = Modifier, title: String, taskCount: In
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "20 Task",
+                    text = "$taskCount Task",
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                         fontSize = MaterialTheme.typography.titleSmall.fontSize,
@@ -162,7 +216,10 @@ fun TaskScreenContent(
     taskItems: List<TaskItem> = listOf<TaskItem>(),
     onAddItem: (taskItem: TaskItem) -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
-    onItemFavorite: (taskItem: TaskItem) -> Unit = {}
+    onItemFavorite: (taskItem: TaskItem) -> Unit = {},
+    onClickTaskItem: (id: UUID) -> Unit = {},
+    onClickAddCategory: () -> Unit,
+    categories: List<CategoryWithTask> = listOf()
 ) {
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer
@@ -174,7 +231,11 @@ fun TaskScreenContent(
         ) {
             item {
                 Spacer(modifier = Modifier.height(20.dp))
-                Category(modifier = Modifier.padding(horizontal = 20.dp))
+                Category(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    onClickAddCategory = { onClickAddCategory() },
+                    categories = categories
+                )
                 Spacer(Modifier.height(25.dp))
                 TaskListBody(
                     modifier = Modifier
@@ -202,7 +263,8 @@ fun TaskScreenContent(
                         .animateItemPlacement(),
                     taskItem = item,
                     onItemFavorite = { taskItem -> onItemFavorite(taskItem) },
-                    onItemFinish = { taskItem -> onItemFinish(taskItem) }
+                    onItemFinish = { taskItem -> onItemFinish(taskItem) },
+                    onTaskItemClick = { id -> onClickTaskItem(id) }
                 )
 
             }
@@ -306,11 +368,13 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskItemContent(
     taskItem: TaskItem, modifier: Modifier = Modifier,
     onItemFinish: (taskItem: TaskItem) -> Unit,
-    onItemFavorite: (taskItem: TaskItem) -> Unit
+    onItemFavorite: (taskItem: TaskItem) -> Unit,
+    onTaskItemClick: (id: UUID) -> Unit = {}
 ) {
     val song: MediaPlayer =
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
@@ -319,7 +383,10 @@ fun TaskItemContent(
     calendar.removeDetails()
     Card(
         shape = MaterialTheme.shapes.extraLarge,
-        modifier = modifier.padding(horizontal = 10.dp)
+        modifier = modifier.padding(horizontal = 10.dp),
+        onClick = {
+            onTaskItemClick(taskItem.id)
+        }
     ) {
         Row(
             modifier = Modifier
@@ -388,8 +455,8 @@ fun TaskListBody(
     taskList: List<TaskItem> = emptyList()
 ) {
 
-    Column() {
-        Row(modifier = Modifier.padding(horizontal = 10.dp)) {
+    Column(modifier = modifier) {
+        Row(modifier = Modifier) {
             Text(taskTitle, fontSize = MaterialTheme.typography.titleMedium.fontSize)
         }
         Spacer(Modifier.height(25.dp))
@@ -412,8 +479,9 @@ fun TaskListBody(
 }
 
 @Composable
-fun TaskBodyHeader() {
+fun TaskBodyHeader(modifier: Modifier = Modifier) {
     Row(
+        modifier = modifier,
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {

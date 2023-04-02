@@ -11,7 +11,6 @@ import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.GetCurrentWeekPomodoroListUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetCurrentWeekDoneTaskItems
-import com.oguzhancetin.pomodoro.presentation.screen.task.TaskUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
