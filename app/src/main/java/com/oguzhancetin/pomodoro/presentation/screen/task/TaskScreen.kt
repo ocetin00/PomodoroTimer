@@ -15,8 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Grade
@@ -35,6 +39,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -87,9 +92,9 @@ fun TaskScreen(
 }
 
 @Composable
-fun Category(modifier:Modifier = Modifier) {
+fun Category(modifier: Modifier = Modifier) {
 
-    Column (modifier = modifier){
+    Column(modifier = modifier) {
         Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
             Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
         }
@@ -116,15 +121,18 @@ fun TaskCategoryPreview() {
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
-           Category(modifier = Modifier.padding(horizontal = 10.dp))
+            Category(modifier = Modifier.padding(horizontal = 10.dp))
         }
     }
 }
 
 @Composable
 fun TaskCategoryItem(modifier: Modifier = Modifier, title: String, taskCount: Int) {
-    Card(shape = MaterialTheme.shapes.large,      colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),) {
-        Row(modifier = modifier.padding(start = 10.dp, top = 8.dp,bottom = 8.dp)) {
+    Card(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+    ) {
+        Row(modifier = modifier.padding(start = 10.dp, top = 8.dp, bottom = 8.dp)) {
             Column() {
                 Text(
                     text = title,
@@ -166,7 +174,14 @@ fun TaskScreenContent(
         ) {
             item {
                 Spacer(modifier = Modifier.height(20.dp))
-                Category(modifier = Modifier.padding(horizontal = 10.dp))
+                Category(modifier = Modifier.padding(horizontal = 20.dp))
+                Spacer(Modifier.height(25.dp))
+                TaskListBody(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .height(300.dp),
+                )
                 /*TaskItemAdd(
                     Modifier.padding(horizontal = 5.dp),
                     onAddItem = { taskItem ->
@@ -334,5 +349,132 @@ fun TaskItemContent(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun TaskListBodyPreview() {
+
+    val taskList = listOf(
+        TaskItem(description = "Task1", id = UUID.randomUUID()),
+        TaskItem(description = "Task2", id = UUID.randomUUID(), doneDate = 12321),
+        TaskItem(description = "Task3", id = UUID.randomUUID()),
+        TaskItem(description = "Task4", id = UUID.randomUUID()),
+        TaskItem(description = "Task5", id = UUID.randomUUID(), doneDate = 12321)
+    )
+
+    PomodoroTheme {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            TaskListBody(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .height(300.dp),
+                taskList = taskList,
+                taskTitle = "Default Task List"
+            )
+        }
+    }
+}
+
+@Composable
+fun TaskListBody(
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .height(300.dp),
+    taskTitle: String = "Task",
+    taskList: List<TaskItem> = emptyList()
+) {
+
+    Column() {
+        Row(modifier = Modifier.padding(horizontal = 10.dp)) {
+            Text(taskTitle, fontSize = MaterialTheme.typography.titleMedium.fontSize)
+        }
+        Spacer(Modifier.height(25.dp))
+        Card(
+            modifier = modifier,
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+        ) {
+            Row() {
+                Column() {
+                    TaskBodyHeader()
+                    taskList.forEach { taskItem ->
+                        TaskBodyItem(taskItem)
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+fun TaskBodyHeader() {
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = { /*TODO*/ }) {
+            Icon(
+                imageVector = Icons.Filled.AddCircle,
+                "add task",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        Text(
+            "Add New Task", style = TextStyle(
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+            )
+        )
+    }
+}
+
+@Composable
+fun TaskBodyItem(taskItem: TaskItem) {
+    taskItem.doneDate?.let {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    "add task",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(
+                "Add New Task", style = TextStyle(
+                    textDecoration = TextDecoration.LineThrough,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                )
+            )
+        }
+    } ?: run {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Filled.RadioButtonUnchecked,
+                    "add task",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(
+                "Add New Task", style = TextStyle(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                )
+            )
+        }
+    }
+
 }
 

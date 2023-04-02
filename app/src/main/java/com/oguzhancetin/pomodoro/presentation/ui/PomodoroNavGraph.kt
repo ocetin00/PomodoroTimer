@@ -10,6 +10,7 @@ import com.oguzhancetin.pomodoro.presentation.screen.task.TaskScreen
 import com.oguzhancetin.pomodoro.ui.SettingScreen
 import com.oguzhancetin.pomodoro.presentation.screen.report.StatusScreen
 import com.oguzhancetin.pomodoro.presentation.screen.splash.SplashScreen
+import com.oguzhancetin.pomodoro.presentation.screen.task.TaskDetailScreen
 
 
 @Composable
@@ -39,6 +40,9 @@ fun PomodoroNavGraph(
         }
         composable(PomodoroDestinations.SPLASH_ROUTE) {
             SplashScreen(modifier = modifier,onAnimationDone = {navController.navigate(PomodoroDestinations.MAIN_ROUTE)})
+        }
+        composable(PomodoroDestinations.SPLASH_ROUTE) {
+            TaskDetailScreen(modifier = modifier, onBack = { onBack.invoke() })
         }
     }
 
