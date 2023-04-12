@@ -9,6 +9,8 @@ import androidx.room.Transaction
 import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.domain.model.Category
+import com.oguzhancetin.pomodoro.domain.model.TaskCategory
+import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -38,6 +40,7 @@ interface CategoryDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(categoryEntity: CategoryEntity)
+
 
 
 }

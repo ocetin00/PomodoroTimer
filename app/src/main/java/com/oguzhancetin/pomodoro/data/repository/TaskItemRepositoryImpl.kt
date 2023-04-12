@@ -5,10 +5,13 @@ import com.oguzhancetin.pomodoro.common.util.FilterType
 import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
 import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.data.mapper.toCategory
 import com.oguzhancetin.pomodoro.data.mapper.toMapTaskEntity
 import com.oguzhancetin.pomodoro.data.mapper.toMapTaskItem
 import com.oguzhancetin.pomodoro.data.mapper.toPomodoro
+import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
+import com.oguzhancetin.pomodoro.domain.model.TaskCategory
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
 import kotlinx.coroutines.flow.*
@@ -32,6 +35,7 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
                 if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
             }
     }
+
     override fun getCurrentWeekTaskList(currentWeekMilist: Long): Flow<Resource<List<TaskItem>>> {
         return taskItemDao.doneTaskItems(currentWeekMilist)
             .onStart {
@@ -62,11 +66,23 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
     override suspend fun deleteTaskItem(taskItem: TaskItem) =
         taskItemDao.delete(taskItem.toMapTaskEntity())
 
-    override suspend fun insertTaskItem(taskItem: TaskItem) = taskItemDao.insert(taskItem.toMapTaskEntity())
+    override suspend fun insertTaskItem(taskItem: TaskItem) =
+        taskItemDao.insert(taskItem.toMapTaskEntity())
+
     override fun getTaskItemById(id: Int) = taskItemDao.taskItem(id).toMapTaskItem()
     override fun getDoneTaskItems(filterType: FilterType): List<TaskItem> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateTask(taskItem: TaskItem) = taskItemDao.updateTaskItem(taskItem.toMapTaskEntity())
+    override suspend fun updateTask(taskItem: TaskItem) =
+        taskItemDao.updateTaskItem(taskItem.toMapTaskEntity())
+
+    override suspend fun getTaskByCategoryName(categoryName: String): Map<Category, List<TaskItem>> {
+        return taskItemDao.getTaskByCategoryName(categoryName).mapKeys {
+            it.key.toCategory()
+        }.mapValues {
+            it.value.map { it.toMapTaskItem() }
+        }
+
+    }
 }

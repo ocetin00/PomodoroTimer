@@ -2,6 +2,8 @@ package com.oguzhancetin.pomodoro.domain.repository
 
 import com.oguzhancetin.pomodoro.common.Resource
 import com.oguzhancetin.pomodoro.common.util.FilterType
+import com.oguzhancetin.pomodoro.domain.model.Category
+import com.oguzhancetin.pomodoro.domain.model.TaskCategory
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow
 
@@ -19,4 +21,5 @@ interface TaskItemRepository {
      fun getCurrentWeekTaskList(currentWeekMilist: Long): Flow<Resource<List<TaskItem>>>
     suspend fun updateTask(taskItem: TaskItem)
 
+    suspend fun getTaskByCategoryName(categoryName:String):  Map<Category, List<TaskItem>>
 }

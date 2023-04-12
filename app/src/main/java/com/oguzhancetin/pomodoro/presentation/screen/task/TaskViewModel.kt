@@ -11,6 +11,7 @@ import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryWithTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
+import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksByCategoryNameUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,14 +23,16 @@ import javax.inject.Inject
 
 sealed class UIState {
     object Loading : UIState()
-    data class Success(val data: TaskWithCategories) : UIState()
+    data class Success(
+        val selectedTaskCategory: String,
+        val categories: List<CategoryWithTask>? = listOf(),
+        val taskItems: List<TaskItem>? = listOf(),
+
+    ) : UIState()
+
     data class Error(val message: String) : UIState()
 }
 
-data class TaskWithCategories(
-    val taskItems: List<TaskItem>? = listOf(),
-    val categories: List<CategoryWithTask>? = listOf()
-)
 
 
 @HiltViewModel
@@ -40,25 +43,34 @@ class TaskViewModel @Inject constructor(
     private val deleteTaskItemUseCase: DeleteTaskItemUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val getAllCategoryWithTasksUseCase: GetAllCategoryWithTasksUseCase,
+    private val getAllTasksByCategoryNameUseCase: GetTasksByCategoryNameUseCase,
 ) :
     ViewModel() {
 
-    private val _taskItems = getTasksUseCase.invoke()
+
     private val _categories = getAllCategoryWithTasksUseCase.invoke()
 
 
     private val _isLoading = MutableStateFlow(false)
 
+    private val _selectedTaskCategory = MutableStateFlow("General")
+    private val _taskItems = _selectedTaskCategory.map {
+        getAllTasksByCategoryNameUseCase.invoke(it)
+    }
 
 
     val taskUIState: StateFlow<UIState> =
-        combine(_taskItems, _isLoading, _categories)
-        { taskItems, _, categories ->
+        combine(_taskItems, _isLoading, _categories, _selectedTaskCategory)
+        { taskItems, _, categories, selectedTaskCategory ->
             when {
                 taskItems is Resource.Loading<*> || categories is Resource.Loading<*> -> UIState.Loading
                 taskItems is Resource.Error<*> -> UIState.Error(taskItems.message + "")
                 categories is Resource.Error<*> -> UIState.Error((categories.message + ""))
-                else -> UIState.Success(TaskWithCategories(taskItems.data, categories.data))
+                else -> UIState.Success(selectedTaskCategory,
+                    categories.data,
+                    taskItems.values.firstOrNull()
+
+                )
             }
 
         }
@@ -73,6 +85,11 @@ class TaskViewModel @Inject constructor(
             addCategoryUseCase.invoke(category)
         }
     }
+
+    fun onChangeSelectedCategory(category: String) {
+        _selectedTaskCategory.value = category
+    }
+
 
     fun addTask(taskItem: TaskItem) {
         viewModelScope.launch(Dispatchers.IO) {

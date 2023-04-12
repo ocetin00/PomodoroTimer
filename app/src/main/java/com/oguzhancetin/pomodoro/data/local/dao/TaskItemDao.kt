@@ -1,7 +1,10 @@
 package com.oguzhancetin.pomodoro.data.local.dao
 
 import androidx.room.*
+import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.domain.model.TaskCategory
+import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -32,6 +35,10 @@ interface TaskItemDao {
     @Query("SELECT * FROM task_item WHERE id = :id ")
     fun taskItem(id:Int): TaskItemEntity
 
+
+    @Query(  "SELECT * FROM task_item " +
+            "JOIN task_category ON task_item.categoryId = task_category.id where name=:categoryName")
+    suspend fun getTaskByCategoryName(categoryName:String): Map<CategoryEntity,List<TaskItemEntity>>
 
 
 

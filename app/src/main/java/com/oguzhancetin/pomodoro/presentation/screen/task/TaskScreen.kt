@@ -5,6 +5,7 @@ package com.oguzhancetin.pomodoro.presentation.screen.task
 
 import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -55,7 +56,7 @@ fun TaskScreen(
     modifier: Modifier = Modifier,
     viewModel: TaskViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateTaskDetail: (id: UUID) -> Unit
+    onNavigateTaskDetail: (id: UUID?) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
@@ -92,13 +93,16 @@ fun TaskScreen(
                                 focusManager.clearFocus()
                             })
                         },
-                    taskItems = (uiState as UIState.Success).data.taskItems ?: listOf(),
+                    taskItems = (uiState as UIState.Success).taskItems ?: listOf(),
                     onAddItem = { taskItem -> viewModel.addTask(taskItem) },
                     onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
                     onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) },
                     onClickTaskItem = { id -> onNavigateTaskDetail(id) },
                     onClickAddCategory = { showDialog = true },
-                    categories = (uiState as UIState.Success).data.categories ?: listOf()
+                    categories = (uiState as UIState.Success).categories ?: listOf(),
+                    onClickSelectedCategory = { viewModel.onChangeSelectedCategory(it) },
+                    selectedCategory = (uiState as UIState.Success).selectedTaskCategory,
+                    onClickNewTask = { onNavigateTaskDetail(null) }
                 )
             }
 
@@ -114,7 +118,9 @@ fun TaskScreen(
 fun Category(
     modifier: Modifier = Modifier,
     onClickAddCategory: () -> Unit,
-    categories: List<CategoryWithTask> = listOf()
+    categories: List<CategoryWithTask> = listOf(),
+    onClickSelectedCategory: (String) -> Unit,
+    selectedCategory: String = ""
 ) {
 
     Column(modifier = modifier) {
@@ -122,29 +128,43 @@ fun Category(
             Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
         }
         Spacer(Modifier.height(25.dp))
-        LazyRow(content = {
-            items(categories) {
-                TaskCategoryItem(
-                    modifier = Modifier
+        Row (){
+            Spacer(modifier = Modifier.width(20.dp))
+            LazyRow(modifier = Modifier.padding(), content = {
+                items(categories) {
+                    val taskItemModifier = if (selectedCategory.equals(it.category.name)) {
+                        Modifier.border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = MaterialTheme.shapes.large
+                        )
+                    } else {
+                        Modifier
+                    }
+
+                    TaskCategoryItem(
+                        modifier = taskItemModifier
+                            .width(150.dp)
+                            .height(100.dp),
+                        title = "${it.category.name}",
+                        taskCount = it.taskList.size,
+                        onClickSelectedCategory = onClickSelectedCategory
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+
+
+                }
+
+                item() {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    AddTaskCategoryItem(modifier = Modifier
                         .width(150.dp)
                         .height(100.dp)
                         .padding(vertical = 5.dp),
-                    title = "Task ${it.category.name}",
-                    taskCount = it.taskList.size
-                )
-                Spacer(modifier = Modifier.width(15.dp))
-
-
-            }
-            item() {
-                AddTaskCategoryItem(modifier = Modifier
-                    .width(150.dp)
-                    .height(100.dp)
-                    .padding(vertical = 5.dp),
-                    onClickAddCategory = { onClickAddCategory() })
-                Spacer(modifier = Modifier.width(15.dp))
-            }
-        })
+                        onClickAddCategory = { onClickAddCategory() })
+                }
+            })
+        }
     }
 }
 
@@ -177,17 +197,31 @@ fun AddTaskCategoryItem(modifier: Modifier = Modifier, onClickAddCategory: () ->
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskCategoryItem(modifier: Modifier = Modifier, title: String, taskCount: Int) {
+fun TaskCategoryItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    taskCount: Int,
+    onClickSelectedCategory: (String) -> Unit
+) {
     Card(
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+        onClick = { onClickSelectedCategory(title) }
     ) {
         Row(
-            modifier = modifier.padding(start = 10.dp, top = 8.dp, bottom = 8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 10.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column() {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
                 Text(
                     text = title,
                     style = TextStyle(
@@ -219,7 +253,10 @@ fun TaskScreenContent(
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
     onClickTaskItem: (id: UUID) -> Unit = {},
     onClickAddCategory: () -> Unit,
-    categories: List<CategoryWithTask> = listOf()
+    categories: List<CategoryWithTask> = listOf(),
+    onClickSelectedCategory: (String) -> Unit,
+    selectedCategory: String = "",
+    onClickNewTask:()->Unit = {}
 ) {
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer
@@ -234,7 +271,9 @@ fun TaskScreenContent(
                 Category(
                     modifier = Modifier.padding(horizontal = 20.dp),
                     onClickAddCategory = { onClickAddCategory() },
-                    categories = categories
+                    categories = categories,
+                    onClickSelectedCategory = onClickSelectedCategory,
+                    selectedCategory = selectedCategory
                 )
                 Spacer(Modifier.height(25.dp))
                 TaskListBody(
@@ -242,6 +281,7 @@ fun TaskScreenContent(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
                         .height(300.dp),
+                    onClickNewTask = onClickNewTask
                 )
                 /*TaskItemAdd(
                     Modifier.padding(horizontal = 5.dp),
@@ -452,7 +492,8 @@ fun TaskListBody(
         .fillMaxWidth()
         .height(300.dp),
     taskTitle: String = "Task",
-    taskList: List<TaskItem> = emptyList()
+    taskList: List<TaskItem> = emptyList(),
+    onClickNewTask:()->Unit = {}
 ) {
 
     Column(modifier = modifier) {
@@ -467,7 +508,7 @@ fun TaskListBody(
         ) {
             Row() {
                 Column() {
-                    TaskBodyHeader()
+                    TaskBodyHeader(onClickNewTask = onClickNewTask)
                     taskList.forEach { taskItem ->
                         TaskBodyItem(taskItem)
                     }
@@ -479,13 +520,19 @@ fun TaskListBody(
 }
 
 @Composable
-fun TaskBodyHeader(modifier: Modifier = Modifier) {
+fun Card2() {
+    //Medium shape card
+
+}
+
+@Composable
+fun TaskBodyHeader(modifier: Modifier = Modifier,onClickNewTask:()->Unit) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {onClickNewTask() }) {
             Icon(
                 imageVector = Icons.Filled.AddCircle,
                 "add task",
