@@ -128,7 +128,8 @@ fun Category(
                     modifier = Modifier
                         .width(150.dp)
                         .height(100.dp)
-                        .padding(vertical = 5.dp),
+                        .padding(vertical = 5.dp)
+                        .padding(start = 20.dp),
                     title = "Task ${it.category.name}",
                     taskCount = it.taskList.size
                 )
@@ -232,7 +233,7 @@ fun TaskScreenContent(
             item {
                 Spacer(modifier = Modifier.height(20.dp))
                 Category(
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     onClickAddCategory = { onClickAddCategory() },
                     categories = categories
                 )
