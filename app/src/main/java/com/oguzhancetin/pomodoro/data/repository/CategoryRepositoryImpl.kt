@@ -30,6 +30,10 @@ class CategoryRepositoryImpl @Inject constructor(private val categoryDao: Catego
         categoryDao.deleteAllCategory()
     }
 
+    override suspend fun categoryById(id: UUID): Category {
+       return categoryDao.categoryById(id).toCategory()
+    }
+
     override fun getCategoryByName(name: String): Flow<Resource<Category>> {
         return categoryDao.getCategoryByName(name)
             .onStart {

@@ -2,7 +2,9 @@ package com.oguzhancetin.pomodoro.presentation.ui.commonUI
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.sharp.Cancel
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -56,6 +58,31 @@ fun MainAppBar(
             }
         }*/,
         scrollBehavior = scrollBehavior,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailTopBar(
+    modifier: Modifier = Modifier,
+    canNavigateBack: Boolean = false,
+    navigateUp: () -> Unit = {},
+    currentRoute: String
+) {
+    CenterAlignedTopAppBar(
+        title = { Text(text = currentRoute, color = MaterialTheme.colorScheme.onPrimaryContainer) },
+        actions = {
+            IconButton(onClick = {
+                navigateUp()
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = "Cancel",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        },
         modifier = modifier
     )
 }

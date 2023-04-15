@@ -11,5 +11,5 @@ data class CategoryEntity(
     @PrimaryKey
     val id: UUID,
     @ColumnInfo(name = "name")
-    var name: String?
+    var name: String
 )

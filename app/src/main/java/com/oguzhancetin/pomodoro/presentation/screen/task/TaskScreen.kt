@@ -45,6 +45,7 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.common.util.removeDetails
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
+import com.oguzhancetin.pomodoro.data.mapper.toCategory
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import java.util.*
@@ -55,8 +56,8 @@ import com.oguzhancetin.pomodoro.domain.model.Category
 fun TaskScreen(
     modifier: Modifier = Modifier,
     viewModel: TaskViewModel = hiltViewModel(),
-    onBack: () -> Unit,
-    onNavigateTaskDetail: (id: UUID?) -> Unit
+    onBack: () -> Unit = {},
+    onNavigateTaskDetail: (id: UUID?, categoryId: UUID?) -> Unit = { _, _ -> }
 ) {
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
@@ -82,12 +83,12 @@ fun TaskScreen(
                 currentRoute = "Task", canNavigateBack = true, navigateUp = onBack
             )
         }
-    ) {
+    ) { innerPadding ->
         when (uiState) {
             is UIState.Success -> {
                 TaskScreenContent(
                     modifier = modifier
-                        .padding(it)
+                        .padding(innerPadding)
                         .pointerInput(Unit) {
                             detectTapGestures(onTap = {
                                 focusManager.clearFocus()
@@ -97,12 +98,21 @@ fun TaskScreen(
                     onAddItem = { taskItem -> viewModel.addTask(taskItem) },
                     onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
                     onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) },
-                    onClickTaskItem = { id -> onNavigateTaskDetail(id) },
+                    onClickTaskItem = { id ->
+                        onNavigateTaskDetail(
+                            id,
+                            (uiState as UIState.Success).selectedTaskCategory
+                        )
+                    },
                     onClickAddCategory = { showDialog = true },
                     categories = (uiState as UIState.Success).categories ?: listOf(),
-                    onClickSelectedCategory = { viewModel.onChangeSelectedCategory(it) },
+                    onClickSelectedCategory = { categoryId ->
+                        viewModel.onChangeSelectedCategory(
+                            categoryId
+                        )
+                    },
                     selectedCategory = (uiState as UIState.Success).selectedTaskCategory,
-                    onClickNewTask = { onNavigateTaskDetail(null) }
+                    onClickNewTask = { onNavigateTaskDetail(null, (uiState as UIState.Success).selectedTaskCategory) }
                 )
             }
 
@@ -114,13 +124,14 @@ fun TaskScreen(
     }
 }
 
+//TODO: CategoryWith taskı Map e çevir
 @Composable
 fun Category(
     modifier: Modifier = Modifier,
     onClickAddCategory: () -> Unit,
     categories: List<CategoryWithTask> = listOf(),
-    onClickSelectedCategory: (String) -> Unit,
-    selectedCategory: String = ""
+    onClickSelectedCategory: (UUID) -> Unit,
+    selectedCategory: UUID? = null
 ) {
 
     Column(modifier = modifier) {
@@ -128,11 +139,11 @@ fun Category(
             Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
         }
         Spacer(Modifier.height(25.dp))
-        Row (){
+        Row() {
             Spacer(modifier = Modifier.width(20.dp))
             LazyRow(modifier = Modifier.padding(), content = {
                 items(categories) {
-                    val taskItemModifier = if (selectedCategory.equals(it.category.name)) {
+                    val taskItemModifier = if (selectedCategory == it.category.id) {
                         Modifier.border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.tertiary,
@@ -146,7 +157,7 @@ fun Category(
                         modifier = taskItemModifier
                             .width(150.dp)
                             .height(100.dp),
-                        title = "${it.category.name}",
+                        category = it.category.toCategory(),
                         taskCount = it.taskList.size,
                         onClickSelectedCategory = onClickSelectedCategory
                     )
@@ -201,15 +212,15 @@ fun AddTaskCategoryItem(modifier: Modifier = Modifier, onClickAddCategory: () ->
 @Composable
 fun TaskCategoryItem(
     modifier: Modifier = Modifier,
-    title: String,
+    category: Category,
     taskCount: Int,
-    onClickSelectedCategory: (String) -> Unit
+    onClickSelectedCategory: (UUID) -> Unit
 ) {
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        onClick = { onClickSelectedCategory(title) }
+        onClick = { onClickSelectedCategory(category.id) }
     ) {
         Row(
             modifier = Modifier
@@ -223,7 +234,7 @@ fun TaskCategoryItem(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = title,
+                    text = category.name,
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -251,12 +262,12 @@ fun TaskScreenContent(
     onAddItem: (taskItem: TaskItem) -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
-    onClickTaskItem: (id: UUID) -> Unit = {},
+    onClickTaskItem: (id: UUID) -> Unit = { },
     onClickAddCategory: () -> Unit,
     categories: List<CategoryWithTask> = listOf(),
-    onClickSelectedCategory: (String) -> Unit,
-    selectedCategory: String = "",
-    onClickNewTask:()->Unit = {}
+    onClickSelectedCategory: (UUID) -> Unit,
+    selectedCategory: UUID? = null,
+    onClickNewTask: () -> Unit = {}
 ) {
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer
@@ -414,7 +425,7 @@ fun TaskItemContent(
     taskItem: TaskItem, modifier: Modifier = Modifier,
     onItemFinish: (taskItem: TaskItem) -> Unit,
     onItemFavorite: (taskItem: TaskItem) -> Unit,
-    onTaskItemClick: (id: UUID) -> Unit = {}
+    onTaskItemClick: (id: UUID) -> Unit = {},
 ) {
     val song: MediaPlayer =
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
@@ -493,7 +504,7 @@ fun TaskListBody(
         .height(300.dp),
     taskTitle: String = "Task",
     taskList: List<TaskItem> = emptyList(),
-    onClickNewTask:()->Unit = {}
+    onClickNewTask: () -> Unit = {}
 ) {
 
     Column(modifier = modifier) {
@@ -526,13 +537,13 @@ fun Card2() {
 }
 
 @Composable
-fun TaskBodyHeader(modifier: Modifier = Modifier,onClickNewTask:()->Unit) {
+fun TaskBodyHeader(modifier: Modifier = Modifier, onClickNewTask: () -> Unit) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = {onClickNewTask() }) {
+        IconButton(onClick = { onClickNewTask() }) {
             Icon(
                 imageVector = Icons.Filled.AddCircle,
                 "add task",

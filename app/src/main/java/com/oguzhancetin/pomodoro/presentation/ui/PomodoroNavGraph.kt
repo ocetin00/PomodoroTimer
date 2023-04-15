@@ -38,8 +38,13 @@ fun PomodoroNavGraph(
             TaskScreen(
                 modifier = modifier,
                 onBack = { onBack.invoke() },
-                onNavigateTaskDetail = {
-                    navController.navigate("${PomodoroDestinations.SPLASH_ROUTE}/{${it.toString()}}")
+                onNavigateTaskDetail = { taskId, categoryName ->
+
+                    navController.navigate(
+                        "${PomodoroDestinations.TASK_DETAIL_ROUTE}/{${taskId.toString()}}/{$categoryName}"
+                    )
+
+
                 })
         }
         composable(PomodoroDestinations.STATUS_ROUTE) {
@@ -51,11 +56,13 @@ fun PomodoroNavGraph(
                 onAnimationDone = { navController.navigate(PomodoroDestinations.MAIN_ROUTE) })
         }
         composable(
-            "${PomodoroDestinations.SPLASH_ROUTE}/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            "${PomodoroDestinations.TASK_DETAIL_ROUTE}/{taskId}/{selectedCategoryId}",
+            arguments = listOf(
+                navArgument("taskId") { type = NavType.StringType },
+                navArgument("selectedCategoryId") { type = NavType.StringType })
         ) {
             TaskDetailScreen(modifier = modifier,
-                onBack = { onBack.invoke() }
+                onBack = { navController.popBackStack() }
             )
         }
     }

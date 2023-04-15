@@ -9,7 +9,6 @@ import androidx.room.Transaction
 import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.domain.model.Category
-import com.oguzhancetin.pomodoro.domain.model.TaskCategory
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
@@ -34,6 +33,8 @@ interface CategoryDao {
     @Query("SELECT * FROM TASK_CATEGORY WHERE id = :id")
     fun getCategoryById(id: UUID): Flow<CategoryWithTask>
 
+    @Query("SELECT * FROM TASK_CATEGORY WHERE id = :id")
+    suspend fun categoryById(id: UUID): CategoryEntity
 
     @Query("Select * from task_category where name= :name")
     fun getCategoryByName(name:String): Flow<CategoryEntity>

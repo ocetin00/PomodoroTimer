@@ -1,9 +1,10 @@
 package com.oguzhancetin.pomodoro.presentation.screen.task
 
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,16 +20,17 @@ import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,38 +39,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Magenta
-import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
+import com.oguzhancetin.pomodoro.domain.model.Category
+import com.oguzhancetin.pomodoro.presentation.ui.commonUI.DetailTopBar
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(
     modifier: Modifier = Modifier,
-    viewModel: TaskViewModel = hiltViewModel(),
+    viewModel: TaskDetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-    val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
 
     Scaffold(
         topBar = {
-            MainAppBar(
-                currentRoute = "TaskDetail", canNavigateBack = true, navigateUp = onBack
+            DetailTopBar(
+                currentRoute = "New Task", canNavigateBack = true, navigateUp = { onBack() }
             )
         },
         bottomBar = {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Button(modifier = Modifier.fillMaxWidth(fraction = 0.4f), onClick = { /*TODO*/ }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(modifier = Modifier.fillMaxWidth(fraction = 0.8f), onClick = { /*TODO*/ }) {
                     Text("Save")
                 }
             }
@@ -76,11 +80,23 @@ fun TaskDetailScreen(
         }
     ) {
 
-        TaskDetailScreenContent(
-            modifier = modifier
-                .padding(it)
+        when(uiState.value){
+            is TaskDetailUIState.Success ->{
+                TaskDetailScreenContent(
+                    modifier = modifier
+                        .padding(it),
+                    (uiState.value as TaskDetailUIState.Success).cateGoryList
+                    )
+            }
+            is TaskDetailUIState.Loading -> {
 
-        )
+            }
+            is TaskDetailUIState.Error -> {
+
+            }
+
+        }
+
 
 
     }
@@ -93,8 +109,8 @@ fun TaskDetailScreenContentPreview() {
     PomodoroTheme {
         Scaffold(
             topBar = {
-                MainAppBar(
-                    currentRoute = "TaskDetail", canNavigateBack = true, navigateUp = { }
+                DetailTopBar(
+                    currentRoute = "New Task", canNavigateBack = true, navigateUp = { }
                 )
             },
             bottomBar = {
@@ -115,7 +131,8 @@ fun TaskDetailScreenContentPreview() {
 
             TaskDetailScreenContent(
                 modifier = Modifier
-                    .padding(it)
+                    .padding(it),
+
 
             )
 
@@ -125,10 +142,10 @@ fun TaskDetailScreenContentPreview() {
 
 }
 
-@Preview
 @Composable
 fun TaskDetailScreenContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    categories: List<Category> = listOf()
 ) {
 
     Surface(
@@ -143,10 +160,11 @@ fun TaskDetailScreenContent(
                 TextBody(
                     Modifier
                         .fillMaxWidth()
-                        .height(250.dp)
+                        .height(250.dp),
+                    categories
+
                 )
             }
-
         }
     }
 }
@@ -162,7 +180,7 @@ fun TextBodyPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextBody(modifier: Modifier = Modifier) {
+fun TextBody(modifier: Modifier = Modifier,categories: List<Category> = listOf()) {
     val interactionSource = remember { MutableInteractionSource() }
     var text by remember { mutableStateOf("") }
 
@@ -191,7 +209,7 @@ fun TextBody(modifier: Modifier = Modifier) {
             )
         }
         Divider(thickness = 2.dp)
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(12.dp))
         Column(Modifier.padding(horizontal = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -201,9 +219,24 @@ fun TextBody(modifier: Modifier = Modifier) {
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("12/23/2023", fontSize = MaterialTheme.typography.headlineSmall.fontSize)
+                TextField(
+                    value = "10/10/2022",
+                    onValueChange = {},
+                    readOnly = true,
+                    // trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .width(200.dp)
+                        .background(color = MaterialTheme.colorScheme.surface),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                    )
+                )
             }
-            Spacer(Modifier.height(20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Filled.Category,
@@ -212,12 +245,69 @@ fun TextBody(modifier: Modifier = Modifier) {
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Default Category", fontSize = MaterialTheme.typography.headlineSmall.fontSize)
+                SelectCategoryDropDown(categories)
             }
 
         }
 
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview
+fun SelectCategoryDropDown(categories: List<Category> = listOf()) {
+    val context = LocalContext.current
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf(categories[0].name) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            TextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .menuAnchor()
+                    .width(200.dp)
+                    .padding(start = 0.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                ),
+                textStyle = TextStyle(
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                )
+            )
 
 
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                categories.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.name) },
+                        onClick = {
+                            selectedText = item.name
+                            expanded = false
+                            Toast.makeText(context, item.name, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+        }
+    }
 }

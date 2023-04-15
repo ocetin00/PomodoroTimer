@@ -10,13 +10,12 @@ import com.oguzhancetin.pomodoro.data.mapper.toMapTaskEntity
 import com.oguzhancetin.pomodoro.data.mapper.toMapTaskItem
 import com.oguzhancetin.pomodoro.data.mapper.toPomodoro
 import com.oguzhancetin.pomodoro.domain.model.Category
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.domain.model.TaskCategory
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.handleCoroutineException
 import java.io.IOException
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -69,7 +68,8 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
     override suspend fun insertTaskItem(taskItem: TaskItem) =
         taskItemDao.insert(taskItem.toMapTaskEntity())
 
-    override fun getTaskItemById(id: Int) = taskItemDao.taskItem(id).toMapTaskItem()
+    suspend override fun getTaskItemById(id: UUID) = taskItemDao.taskItem(id).toMapTaskItem()
+
     override fun getDoneTaskItems(filterType: FilterType): List<TaskItem> {
         TODO("Not yet implemented")
     }
@@ -84,5 +84,13 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
             it.value.map { it.toMapTaskItem() }
         }
 
+    }
+
+    override suspend fun getTaskByCategoryId(id: UUID): Map<Category, List<TaskItem>> {
+        return taskItemDao.getTaskByCategoryId(id).mapKeys {
+            it.key.toCategory()
+        }.mapValues {
+            it.value.map { it.toMapTaskItem() }
+        }
     }
 }

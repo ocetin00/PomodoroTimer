@@ -11,6 +11,7 @@ import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryWithTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
+import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksByCategoryIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksByCategoryNameUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
@@ -19,12 +20,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 sealed class UIState {
     object Loading : UIState()
     data class Success(
-        val selectedTaskCategory: String,
+        val selectedTaskCategory: UUID,
         val categories: List<CategoryWithTask>? = listOf(),
         val taskItems: List<TaskItem>? = listOf(),
 
@@ -43,7 +45,7 @@ class TaskViewModel @Inject constructor(
     private val deleteTaskItemUseCase: DeleteTaskItemUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
     private val getAllCategoryWithTasksUseCase: GetAllCategoryWithTasksUseCase,
-    private val getAllTasksByCategoryNameUseCase: GetTasksByCategoryNameUseCase,
+    private val getTasksByCategoryIdUseCase: GetTasksByCategoryIdUseCase,
 ) :
     ViewModel() {
 
@@ -53,9 +55,9 @@ class TaskViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
 
-    private val _selectedTaskCategory = MutableStateFlow("General")
+    private val _selectedTaskCategory = MutableStateFlow(UUID(0,0))
     private val _taskItems = _selectedTaskCategory.map {
-        getAllTasksByCategoryNameUseCase.invoke(it)
+        getTasksByCategoryIdUseCase.invoke(it)
     }
 
 
@@ -86,7 +88,7 @@ class TaskViewModel @Inject constructor(
         }
     }
 
-    fun onChangeSelectedCategory(category: String) {
+    fun onChangeSelectedCategory(category: UUID) {
         _selectedTaskCategory.value = category
     }
 
