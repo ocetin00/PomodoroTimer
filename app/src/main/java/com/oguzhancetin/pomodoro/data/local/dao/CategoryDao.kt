@@ -20,7 +20,7 @@ interface CategoryDao {
     @Query("SELECT * FROM task_category")
     fun getAllCategoryWithTask(): Flow<List<CategoryWithTask>>
 
-    @Transaction
+
     @Query("SELECT * FROM task_category")
     fun getAllCategory(): Flow<List<CategoryEntity>>
     @Query("DELETE FROM TASK_CATEGORY")

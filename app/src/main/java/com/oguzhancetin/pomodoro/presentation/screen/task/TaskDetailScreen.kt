@@ -46,8 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oguzhancetin.pomodoro.domain.model.Category
+import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.DetailTopBar
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,50 +58,57 @@ fun TaskDetailScreen(
     viewModel: TaskDetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    when (val state = uiState) {
+        is TaskDetailUIState.Success -> {
+            Scaffold(
+                topBar = {
+                    DetailTopBar(
+                        currentRoute = "New Task", canNavigateBack = true, navigateUp = { onBack() }
+                    )
+                },
+                bottomBar = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(modifier = Modifier.fillMaxWidth(fraction = 0.8f), onClick = {
+                            viewModel.saveTask()
+                            onBack()
+                        }, enabled = (uiState as TaskDetailUIState.Success).isSaveButtonActive) {
+                            Text("Save")
+                        }
+                    }
 
-    Scaffold(
-        topBar = {
-            DetailTopBar(
-                currentRoute = "New Task", canNavigateBack = true, navigateUp = { onBack() }
-            )
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(modifier = Modifier.fillMaxWidth(fraction = 0.8f), onClick = { /*TODO*/ }) {
-                    Text("Save")
                 }
-            }
+            ) {
 
-        }
-    ) {
-
-        when(uiState.value){
-            is TaskDetailUIState.Success ->{
                 TaskDetailScreenContent(
                     modifier = modifier
                         .padding(it),
-                    (uiState.value as TaskDetailUIState.Success).cateGoryList
-                    )
-            }
-            is TaskDetailUIState.Loading -> {
-
-            }
-            is TaskDetailUIState.Error -> {
+                    state.categoryList,
+                    state.selectedCategoryId,
+                    onTextChange = { viewModel.onTextChange(it) },
+                    text = state.text
+                )
 
             }
 
         }
 
+        is TaskDetailUIState.Loading -> {
 
+        }
+
+        is TaskDetailUIState.Error -> {
+
+        }
 
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -134,7 +143,7 @@ fun TaskDetailScreenContentPreview() {
                     .padding(it),
 
 
-            )
+                )
 
 
         }
@@ -145,7 +154,10 @@ fun TaskDetailScreenContentPreview() {
 @Composable
 fun TaskDetailScreenContent(
     modifier: Modifier = Modifier,
-    categories: List<Category> = listOf()
+    categories: List<Category> = listOf(),
+    selectedCategoryId: UUID? = null,
+    onTextChange: (String) -> Unit = { },
+    text: String = ""
 ) {
 
     Surface(
@@ -161,8 +173,10 @@ fun TaskDetailScreenContent(
                     Modifier
                         .fillMaxWidth()
                         .height(250.dp),
-                    categories
-
+                    categories,
+                    selectedCategoryId,
+                    text = text,
+                    onTextChange = onTextChange
                 )
             }
         }
@@ -180,9 +194,14 @@ fun TextBodyPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextBody(modifier: Modifier = Modifier,categories: List<Category> = listOf()) {
-    val interactionSource = remember { MutableInteractionSource() }
-    var text by remember { mutableStateOf("") }
+fun TextBody(
+    modifier: Modifier = Modifier,
+    categories: List<Category> = listOf(),
+    selectedCategoryId: UUID? = null,
+    onTextChange: (String) -> Unit = { },
+    text: String = ""
+) {
+
 
     Column {
         Row(modifier = modifier) {
@@ -191,10 +210,10 @@ fun TextBody(modifier: Modifier = Modifier,categories: List<Category> = listOf()
                     .fillMaxWidth()
                     .background(color = MaterialTheme.colorScheme.surface),
                 value = text,
-                onValueChange = { text = it },
+                onValueChange = { onTextChange(it) },
                 placeholder = {
                     Text(
-                        text = "What are you planing?",
+                        text = "What do you want to do?",
                         fontSize = MaterialTheme.typography.headlineMedium.fontSize
                     )
                 },
@@ -245,7 +264,7 @@ fun TextBody(modifier: Modifier = Modifier,categories: List<Category> = listOf()
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.width(8.dp))
-                SelectCategoryDropDown(categories)
+                SelectCategoryDropDown(categories, selectedCategoryId)
             }
 
         }
@@ -256,11 +275,20 @@ fun TextBody(modifier: Modifier = Modifier,categories: List<Category> = listOf()
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun SelectCategoryDropDown(categories: List<Category> = listOf()) {
+fun SelectCategoryDropDown(
+    categories: List<Category> = listOf(),
+    selectedCategoryId: UUID? = null
+) {
     val context = LocalContext.current
 
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(categories[0].name) }
+    var selectedCategoryName by remember {
+        mutableStateOf(
+            categories.find {
+                it.id == selectedCategoryId
+            }?.name ?: categories[0].name
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -273,7 +301,7 @@ fun SelectCategoryDropDown(categories: List<Category> = listOf()) {
             }
         ) {
             TextField(
-                value = selectedText,
+                value = selectedCategoryName,
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -301,7 +329,7 @@ fun SelectCategoryDropDown(categories: List<Category> = listOf()) {
                     DropdownMenuItem(
                         text = { Text(text = item.name) },
                         onClick = {
-                            selectedText = item.name
+                            selectedCategoryName = item.name
                             expanded = false
                             Toast.makeText(context, item.name, Toast.LENGTH_SHORT).show()
                         }

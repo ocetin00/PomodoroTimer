@@ -57,7 +57,7 @@ class CategoryRepositoryImpl @Inject constructor(private val categoryDao: Catego
                 Resource.Success(it.map { it.toCategory() })
             }
             .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
+                Resource.Error(e.message ?: "An error occured", null)
             }
     }
 

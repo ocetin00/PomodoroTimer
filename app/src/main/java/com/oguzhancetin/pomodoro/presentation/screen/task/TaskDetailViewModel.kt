@@ -24,8 +24,10 @@ import javax.inject.Inject
 sealed class TaskDetailUIState {
     object Loading : TaskDetailUIState()
     data class Success(
-        val selectedCategory: Category? = null,
-        val cateGoryList: List<Category> = listOf()
+        val selectedCategoryId: UUID? = null,
+        val categoryList: List<Category> = listOf(),
+        val text: String = "",
+        val isSaveButtonActive:Boolean = false
 
     ) : TaskDetailUIState()
 
@@ -44,45 +46,40 @@ class TaskDetailViewModel
 ) : ViewModel() {
 
     private val taskId: String? = savedStateHandle["taskId"]
-    private val selectedCategory: String? = savedStateHandle["selectedCategoryId"]
+    private val selectedCategoryId: String? = savedStateHandle["selectedCategoryId"]
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _allCategories = getAllCategoryUseCase.invoke()
+    private val _text = MutableStateFlow("")
+
 
     var category: Category? = null
 
-
-    init {
-        selectedCategory?.let {
-            viewModelScope.launch {
-                category =
-                    getCategoryByIdUseCase(UUID.fromString(it.replace("{", "").replace("}", "")))
-            }
-        } ?: run {
-            category = null
-        }
-
-    }
-
-
     val uiState: StateFlow<TaskDetailUIState> =
-        combine(_allCategories, _isLoading) { categories, isLoading ->
-            when (categories) {
-                is Resource.Success -> {
+        combine(_allCategories, _isLoading, _text) { categories, isLoading, text ->
+            when {
+                categories is Resource.Success<*> -> {
                     TaskDetailUIState.Success(
-                        selectedCategory = category,
-                        cateGoryList = categories.data ?: listOf()
+                        selectedCategoryId = UUID.fromString(
+                            selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
+                        ),
+                        categoryList = categories.data ?: listOf(),
+                        text = text,
+                        isSaveButtonActive = text.isNotEmpty()
                     )
                 }
 
-                is Resource.Loading<*> -> {
+                categories is Resource.Loading<*> -> {
                     TaskDetailUIState.Loading
                 }
 
-                is Resource.Error -> {
+                categories is Resource.Error -> {
                     TaskDetailUIState.Error("")
                 }
 
+                else -> {
+                    TaskDetailUIState.Loading
+                }
             }
         }.stateIn(
             scope = viewModelScope,
@@ -90,9 +87,17 @@ class TaskDetailViewModel
             initialValue = TaskDetailUIState.Loading
         )
 
-    fun saveTask(taskItem: TaskItem) {
+    fun saveTask() {
         viewModelScope.launch {
-            addTaskItemUseCase.invoke(taskItem)
+            addTaskItemUseCase.invoke(
+                TaskItem(
+                    id = UUID.randomUUID(),
+                    categoryId = UUID.fromString(
+                        selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
+                    ),
+                    description = _text.value
+                )
+            )
         }
     }
 
@@ -100,6 +105,10 @@ class TaskDetailViewModel
         viewModelScope.launch {
             addTaskItemUseCase.invoke(taskItem)
         }
+    }
+
+    fun onTextChange(it: String) {
+        _text.value = it
     }
 
 }

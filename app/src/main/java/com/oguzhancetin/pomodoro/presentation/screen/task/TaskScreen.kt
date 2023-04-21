@@ -112,7 +112,12 @@ fun TaskScreen(
                         )
                     },
                     selectedCategory = (uiState as UIState.Success).selectedTaskCategory,
-                    onClickNewTask = { onNavigateTaskDetail(null, (uiState as UIState.Success).selectedTaskCategory) }
+                    onClickNewTask = {
+                        onNavigateTaskDetail(
+                            null,
+                            (uiState as UIState.Success).selectedTaskCategory
+                        )
+                    }
                 )
             }
 
@@ -291,8 +296,9 @@ fun TaskScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .height(300.dp),
-                    onClickNewTask = onClickNewTask
+                        .fillMaxHeight(),
+                    onClickNewTask = onClickNewTask,
+                    taskList = taskItems
                 )
                 /*TaskItemAdd(
                     Modifier.padding(horizontal = 5.dp),
@@ -302,23 +308,6 @@ fun TaskScreenContent(
                 )*/
             }
 
-            items(taskItems, { item: TaskItem -> item.id }) { item ->
-                Spacer(
-                    modifier = Modifier
-                        .height(10.dp)
-                        .padding(horizontal = 10.dp)
-                )
-                TaskItemContent(
-                    modifier = Modifier
-                        .padding(horizontal = 5.dp)
-                        .animateItemPlacement(),
-                    taskItem = item,
-                    onItemFavorite = { taskItem -> onItemFavorite(taskItem) },
-                    onItemFinish = { taskItem -> onItemFinish(taskItem) },
-                    onTaskItemClick = { id -> onClickTaskItem(id) }
-                )
-
-            }
 
         }
 
@@ -531,12 +520,6 @@ fun TaskListBody(
 }
 
 @Composable
-fun Card2() {
-    //Medium shape card
-
-}
-
-@Composable
 fun TaskBodyHeader(modifier: Modifier = Modifier, onClickNewTask: () -> Unit) {
     Row(
         modifier = modifier,
@@ -574,7 +557,7 @@ fun TaskBodyItem(taskItem: TaskItem) {
                 )
             }
             Text(
-                "Add New Task", style = TextStyle(
+                taskItem.description?: "", style = TextStyle(
                     textDecoration = TextDecoration.LineThrough,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
@@ -594,7 +577,7 @@ fun TaskBodyItem(taskItem: TaskItem) {
                 )
             }
             Text(
-                "Add New Task", style = TextStyle(
+                taskItem.description?: " ", style = TextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 )

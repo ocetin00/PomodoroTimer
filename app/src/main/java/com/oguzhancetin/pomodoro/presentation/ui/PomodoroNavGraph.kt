@@ -38,10 +38,10 @@ fun PomodoroNavGraph(
             TaskScreen(
                 modifier = modifier,
                 onBack = { onBack.invoke() },
-                onNavigateTaskDetail = { taskId, categoryName ->
+                onNavigateTaskDetail = { taskId, categoryId ->
 
                     navController.navigate(
-                        "${PomodoroDestinations.TASK_DETAIL_ROUTE}/{${taskId.toString()}}/{$categoryName}"
+                        "${PomodoroDestinations.TASK_DETAIL_ROUTE}/{${taskId.toString()}}/{$categoryId}"
                     )
 
 
