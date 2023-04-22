@@ -29,7 +29,6 @@ import com.patrykandpatrick.vico.core.formatter.DecimalFormatValueFormatter
 import java.text.DecimalFormat
 
 @Composable
-@Preview
 fun PomodoroAppChart(
     chartPair: List<Pair<Int, Int>> = listOf(
         Pair(0, 1),

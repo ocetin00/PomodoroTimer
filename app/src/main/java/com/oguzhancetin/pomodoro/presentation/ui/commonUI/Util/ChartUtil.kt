@@ -32,9 +32,7 @@ fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> 
 
     //add week days
     repeat(7) {
-        daysValue.put(
-            calendar.timeInMillis, 0
-        )
+        daysValue[calendar.timeInMillis] = 0
         calendar.add(Calendar.DATE, 1)
     }
 
