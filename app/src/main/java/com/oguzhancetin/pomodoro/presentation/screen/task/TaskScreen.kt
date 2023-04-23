@@ -7,13 +7,17 @@ import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Cancel
@@ -30,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -274,45 +279,43 @@ fun TaskScreenContent(
     selectedCategory: UUID? = null,
     onClickNewTask: () -> Unit = {}
 ) {
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
+
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer
     ) {
-        LazyColumn(
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(bottom = 5.dp)
         ) {
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-                Category(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    onClickAddCategory = { onClickAddCategory() },
-                    categories = categories,
-                    onClickSelectedCategory = onClickSelectedCategory,
-                    selectedCategory = selectedCategory
-                )
-                Spacer(Modifier.height(25.dp))
-                TaskListBody(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .fillMaxHeight(),
-                    onClickNewTask = onClickNewTask,
-                    taskList = taskItems
-                )
-                /*TaskItemAdd(
-                    Modifier.padding(horizontal = 5.dp),
-                    onAddItem = { taskItem ->
-                        onAddItem(taskItem)
-                    }
-                )*/
-            }
 
+            Spacer(modifier = Modifier.height(20.dp))
+            Category(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                onClickAddCategory = { onClickAddCategory() },
+                categories = categories,
+                onClickSelectedCategory = onClickSelectedCategory,
+                selectedCategory = selectedCategory
+            )
+            Spacer(Modifier.height(25.dp))
+            TaskListBody(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .heightIn(screenHeight.times(0.5f), screenHeight.times(0.6f)),
+                onClickNewTask = onClickNewTask,
+                taskList = taskItems
+            )
 
         }
 
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -496,26 +499,39 @@ fun TaskListBody(
     onClickNewTask: () -> Unit = {}
 ) {
 
-    Column(modifier = modifier) {
-        Row(modifier = Modifier) {
-            Text(taskTitle, fontSize = MaterialTheme.typography.titleMedium.fontSize)
-        }
-        Spacer(Modifier.height(25.dp))
-        Card(
-            modifier = modifier,
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            Row() {
-                Column() {
-                    TaskBodyHeader(onClickNewTask = onClickNewTask)
-                    taskList.forEach { taskItem ->
-                        TaskBodyItem(taskItem)
+            item {
+                Column(modifier = Modifier.padding(10.dp)) {
+                    Row(modifier = Modifier) {
+                        Text(taskTitle, fontSize = MaterialTheme.typography.titleMedium.fontSize)
                     }
+                    Spacer(Modifier.height(25.dp))
+
+                    Row() {
+                        Column() {
+                            TaskBodyHeader(onClickNewTask = onClickNewTask)
+                            taskList.forEach { taskItem ->
+                                TaskBodyItem(taskItem)
+                            }
+                        }
+                    }
+
                 }
             }
+
         }
     }
+
+
 
 }
 
@@ -557,7 +573,7 @@ fun TaskBodyItem(taskItem: TaskItem) {
                 )
             }
             Text(
-                taskItem.description?: "", style = TextStyle(
+                taskItem.description ?: "", style = TextStyle(
                     textDecoration = TextDecoration.LineThrough,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
@@ -577,7 +593,7 @@ fun TaskBodyItem(taskItem: TaskItem) {
                 )
             }
             Text(
-                taskItem.description?: " ", style = TextStyle(
+                taskItem.description ?: " ", style = TextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 )
