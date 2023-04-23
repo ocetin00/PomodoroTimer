@@ -302,14 +302,22 @@ fun TaskScreenContent(
                 selectedCategory = selectedCategory
             )
             Spacer(Modifier.height(25.dp))
+            Row(
+                modifier = Modifier.padding(start = 20.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+            }
+            Spacer(Modifier.height(25.dp))
             TaskListBody(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .heightIn(screenHeight.times(0.5f), screenHeight.times(0.6f)),
+                    .weight(1f),
                 onClickNewTask = onClickNewTask,
                 taskList = taskItems
             )
+            Spacer(Modifier.height(20.dp))
 
         }
 
@@ -482,8 +490,7 @@ fun TaskListBodyPreview() {
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp)
                     .height(300.dp),
-                taskList = taskList,
-                taskTitle = "Default Task List"
+                taskList = taskList
             )
         }
     }
@@ -494,14 +501,13 @@ fun TaskListBody(
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .height(300.dp),
-    taskTitle: String = "Task",
     taskList: List<TaskItem> = emptyList(),
     onClickNewTask: () -> Unit = {}
 ) {
 
 
     Card(
-        modifier = modifier,
+        modifier = modifier.padding(start = 20.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
     ) {
@@ -511,26 +517,18 @@ fun TaskListBody(
         ) {
             item {
                 Column(modifier = Modifier.padding(10.dp)) {
-                    Row(modifier = Modifier) {
-                        Text(taskTitle, fontSize = MaterialTheme.typography.titleMedium.fontSize)
-                    }
-                    Spacer(Modifier.height(25.dp))
 
-                    Row() {
-                        Column() {
-                            TaskBodyHeader(onClickNewTask = onClickNewTask)
-                            taskList.forEach { taskItem ->
-                                TaskBodyItem(taskItem)
-                            }
-                        }
+                    TaskBodyHeader(onClickNewTask = onClickNewTask)
+                    taskList.forEach { taskItem ->
+                        TaskBodyItem(taskItem)
                     }
+
 
                 }
             }
 
         }
     }
-
 
 
 }
