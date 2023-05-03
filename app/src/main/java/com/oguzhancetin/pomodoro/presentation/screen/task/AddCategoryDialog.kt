@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Money
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -60,7 +61,7 @@ fun AddCategoryDialog(value: String, setShowDialog: (Boolean) -> Unit, setValue:
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Set value",
+                            text = "Add Category",
                         )
                         Icon(
                             imageVector = Icons.Filled.Cancel,
@@ -80,7 +81,7 @@ fun AddCategoryDialog(value: String, setShowDialog: (Boolean) -> Unit, setValue:
                             .border(
                                 BorderStroke(
                                     width = 2.dp,
-                                    color = colorResource(id = if (txtFieldError.value.isEmpty()) R.color.holo_green_light else R.color.holo_red_dark)
+                                    color =  if (txtFieldError.value.isEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
                                 ),
                                 shape = RoundedCornerShape(50)
                             ),
@@ -93,13 +94,13 @@ fun AddCategoryDialog(value: String, setShowDialog: (Boolean) -> Unit, setValue:
                             Icon(
                                 imageVector = Icons.Filled.Money,
                                 contentDescription = "",
-                                tint = colorResource(android.R.color.holo_green_light),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .width(20.dp)
                                     .height(20.dp)
                             )
                         },
-                        placeholder = { Text(text = "Enter value") },
+                        placeholder = { Text(text = "Enter Category Title") },
                         value = txtField.value,
                         onValueChange = {
                             txtField.value = it.take(10)

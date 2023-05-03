@@ -32,6 +32,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -144,15 +145,17 @@ fun Category(
     selectedCategory: UUID? = null
 ) {
 
+
+
     Column(modifier = modifier) {
         Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
             Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
         }
         Spacer(Modifier.height(25.dp))
         Row() {
-            Spacer(modifier = Modifier.width(20.dp))
             LazyRow(modifier = Modifier.padding(), content = {
                 items(categories) {
+
                     val taskItemModifier = if (selectedCategory == it.category.id) {
                         Modifier.border(
                             width = 1.dp,
@@ -261,7 +264,6 @@ fun TaskCategoryItem(
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -306,7 +308,7 @@ fun TaskScreenContent(
                 modifier = Modifier.padding(start = 20.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                Text("Categories", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+                Text("Task", fontSize = MaterialTheme.typography.titleMedium.fontSize)
             }
             Spacer(Modifier.height(25.dp))
             TaskListBody(
@@ -315,9 +317,11 @@ fun TaskScreenContent(
                     .padding(horizontal = 20.dp)
                     .weight(1f),
                 onClickNewTask = onClickNewTask,
-                taskList = taskItems
+                taskList = taskItems,
+                onItemFavorite = onItemFavorite,
+                onItemFinish = onItemFinish
             )
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(10.dp))
 
         }
 
@@ -502,12 +506,13 @@ fun TaskListBody(
         .fillMaxWidth()
         .height(300.dp),
     taskList: List<TaskItem> = emptyList(),
-    onClickNewTask: () -> Unit = {}
+    onClickNewTask: () -> Unit = {},
+    onItemFinish: (taskItem: TaskItem) -> Unit = {},
+    onItemFavorite: (taskItem: TaskItem) -> Unit = {},
 ) {
 
-
     Card(
-        modifier = modifier.padding(start = 20.dp),
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
     ) {
@@ -517,21 +522,22 @@ fun TaskListBody(
         ) {
             item {
                 Column(modifier = Modifier.padding(10.dp)) {
-
                     TaskBodyHeader(onClickNewTask = onClickNewTask)
                     taskList.forEach { taskItem ->
-                        TaskBodyItem(taskItem)
+                        TaskBodyItem(
+                            taskItem,
+                            onItemFinish = onItemFinish,
+                            onItemFavorite = onItemFavorite
+                        )
                     }
-
-
                 }
+
             }
-
         }
+
     }
-
-
 }
+
 
 @Composable
 fun TaskBodyHeader(modifier: Modifier = Modifier, onClickNewTask: () -> Unit) {
@@ -557,47 +563,78 @@ fun TaskBodyHeader(modifier: Modifier = Modifier, onClickNewTask: () -> Unit) {
 }
 
 @Composable
-fun TaskBodyItem(taskItem: TaskItem) {
-    taskItem.doneDate?.let {
+fun TaskBodyItem(
+    taskItem: TaskItem,
+    onItemFinish: (taskItem: TaskItem) -> Unit = {},
+    onItemFavorite: (taskItem: TaskItem) -> Unit = {}
+) {
+    if (taskItem.isFinished) {
         Row(
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /*TODO*/ }) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = false }) }) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        "add task",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text(
+                    taskItem.description ?: "", style = TextStyle(
+                        textDecoration = TextDecoration.LineThrough,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    )
+                )
+            }
+
+            IconButton(onClick = { onItemFinish(taskItem.apply { isFavorite = !isFavorite }) }) {
                 Icon(
-                    imageVector = Icons.Filled.CheckCircle,
-                    "add task",
+                    imageVector = if (taskItem.isFavorite) Icons.Filled.Star else Icons.Outlined.Grade,
+                    "add favorite",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            Text(
-                taskItem.description ?: "", style = TextStyle(
-                    textDecoration = TextDecoration.LineThrough,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                )
-            )
+
         }
-    } ?: run {
+    } else {
         Row(
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /*TODO*/ }) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = true }) }) {
+                    Icon(
+                        imageVector = Icons.Filled.RadioButtonUnchecked,
+                        "add task",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text(
+                    taskItem.description ?: " ", style = TextStyle(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    )
+                )
+            }
+            IconButton(onClick = { onItemFinish(taskItem.apply { isFavorite = !isFavorite }) }) {
                 Icon(
-                    imageVector = Icons.Filled.RadioButtonUnchecked,
-                    "add task",
+                    imageVector = if (taskItem.isFavorite) Icons.Filled.Star else Icons.Outlined.Grade,
+                    "add favorite",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            Text(
-                taskItem.description ?: " ", style = TextStyle(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                )
-            )
         }
     }
-
 }
 

@@ -14,7 +14,8 @@ fun TaskItemEntity.toMapTaskItem(): TaskItem{
         description = this.description,
         doneDate = this.doneDate,
         isFavorite = this.isFavorite,
-        isFinished = this.isFinished
+        isFinished = this.isFinished,
+        categoryId = this.categoryId
     )
 }
 fun TaskItem.toMapTaskEntity(): TaskItemEntity{

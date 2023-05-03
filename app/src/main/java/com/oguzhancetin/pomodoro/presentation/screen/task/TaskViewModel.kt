@@ -26,7 +26,7 @@ import javax.inject.Inject
 sealed class UIState {
     object Loading : UIState()
     data class Success(
-        val selectedTaskCategory: UUID,
+        val selectedTaskCategory: UUID? = null,
         val categories: List<CategoryWithTask>? = listOf(),
         val taskItems: List<TaskItem>? = listOf(),
 
@@ -55,22 +55,27 @@ class TaskViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
 
-    private val _selectedTaskCategory = MutableStateFlow(UUID(0,0))
+    private val _selectedTaskCategory = MutableStateFlow<UUID?>(null)
     private val _taskItems = _selectedTaskCategory.map {
-        getTasksByCategoryIdUseCase.invoke(it)
+        it?.let {
+            getTasksByCategoryIdUseCase.invoke(it)
+        }
+
     }
 
 
     val taskUIState: StateFlow<UIState> =
         combine(_taskItems, _isLoading, _categories, _selectedTaskCategory)
         { taskItems, _, categories, selectedTaskCategory ->
+            val firstCategoryId = categories.data?.firstOrNull()?.category?.id
             when {
                 taskItems is Resource.Loading<*> || categories is Resource.Loading<*> -> UIState.Loading
                 taskItems is Resource.Error<*> -> UIState.Error(taskItems.message + "")
                 categories is Resource.Error<*> -> UIState.Error((categories.message + ""))
-                else -> UIState.Success(selectedTaskCategory,
+                else -> UIState.Success(
+                    selectedTaskCategory ?: firstCategoryId,
                     categories.data,
-                    taskItems.values.firstOrNull()
+                    taskItems?.values?.firstOrNull()
 
                 )
             }
@@ -89,7 +94,7 @@ class TaskViewModel @Inject constructor(
     }
 
     fun onChangeSelectedCategory(category: UUID) {
-        _selectedTaskCategory.value = category
+        _selectedTaskCategory.update { category }
     }
 
 
