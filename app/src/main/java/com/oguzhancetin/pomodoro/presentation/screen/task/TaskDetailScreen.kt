@@ -1,5 +1,7 @@
 package com.oguzhancetin.pomodoro.presentation.screen.task
 
+import android.annotation.SuppressLint
+import android.icu.text.SimpleDateFormat
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,6 +54,10 @@ import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.DetailTopBar
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +74,9 @@ fun TaskDetailScreen(
             Scaffold(
                 topBar = {
                     DetailTopBar(
-                        currentRoute = "New Task", canNavigateBack = true, navigateUp = { onBack() }
+                        currentRoute = state.taskItem?.let { "Task Update" } ?: "New Task",
+                        canNavigateBack = true,
+                        navigateUp = { onBack() }
                     )
                 },
                 bottomBar = {
@@ -95,7 +103,8 @@ fun TaskDetailScreen(
                     state.categoryList,
                     state.selectedCategoryId,
                     onTextChange = { viewModel.onTextChange(it) },
-                    text = state.text
+                    text = state.text,
+                    task = state.taskItem
                 )
 
             }
@@ -114,6 +123,7 @@ fun TaskDetailScreen(
 
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
@@ -141,13 +151,7 @@ fun TaskDetailScreenContentPreview() {
             }
         ) {
 
-            TaskDetailScreenContent(
-                modifier = Modifier
-                    .padding(it),
-
-
-                )
-
+            Text("Hello")
 
         }
     }
@@ -160,7 +164,8 @@ fun TaskDetailScreenContent(
     categories: List<Category> = listOf(),
     selectedCategoryId: UUID? = null,
     onTextChange: (String) -> Unit = { },
-    text: String = ""
+    text: String = "",
+    task: TaskItem? = null
 ) {
 
     Surface(
@@ -179,7 +184,8 @@ fun TaskDetailScreenContent(
                     categories,
                     selectedCategoryId,
                     text = text,
-                    onTextChange = onTextChange
+                    onTextChange = onTextChange,
+                    task = task
                 )
             }
         }
@@ -202,13 +208,23 @@ fun TextBody(
     categories: List<Category> = listOf(),
     selectedCategoryId: UUID? = null,
     onTextChange: (String) -> Unit = { },
-    text: String = ""
+    text: String = "",
+    task: TaskItem? = null
 ) {
+
+
+    val currentDateTime = Calendar.getInstance().time
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+    val formattedDate = formatter.format(currentDateTime)
 
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        task?.let {
+            it.description?.let { it1 -> onTextChange(it1) }
+        } ?: run {
+            focusRequester.requestFocus()
+        }
     }
 
     Column {
@@ -222,7 +238,7 @@ fun TextBody(
                 onValueChange = { onTextChange(it) },
                 placeholder = {
                     Text(
-                        text = "What do you want to do?",
+                        text = if (task == null) "Task Name" else "",
                         fontSize = MaterialTheme.typography.headlineMedium.fontSize
                     )
                 },
@@ -249,7 +265,7 @@ fun TextBody(
                 )
                 Spacer(Modifier.width(8.dp))
                 TextField(
-                    value = "10/10/2022",
+                    value = formattedDate,
                     onValueChange = {},
                     readOnly = true,
                     // trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -274,7 +290,7 @@ fun TextBody(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.width(8.dp))
-                SelectCategoryDropDown(categories, selectedCategoryId)
+                // SelectCategoryDropDown(categories, selectedCategoryId)
             }
 
         }

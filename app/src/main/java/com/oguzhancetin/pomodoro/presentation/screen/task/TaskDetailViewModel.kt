@@ -9,14 +9,19 @@ import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetCategoryByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
+import com.oguzhancetin.pomodoro.domain.use_case.task.GetTaskByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -27,7 +32,8 @@ sealed class TaskDetailUIState {
         val selectedCategoryId: UUID? = null,
         val categoryList: List<Category> = listOf(),
         val text: String = "",
-        val isSaveButtonActive:Boolean = false
+        val isSaveButtonActive: Boolean = false,
+        val taskItem: TaskItem? = null
 
     ) : TaskDetailUIState()
 
@@ -42,7 +48,8 @@ class TaskDetailViewModel
     private val addTaskItemUseCase: AddTaskItemUseCase,
     private val updateTaskItemUseCase: UpdateTaskItemUseCase,
     private val getCategoryByIdUseCase: GetCategoryByIdUseCase,
-    private val getAllCategoryUseCase: GetAllCategoryUseCase
+    private val getAllCategoryUseCase: GetAllCategoryUseCase,
+    private val getTaskByIdUseCase: GetTaskByIdUseCase
 ) : ViewModel() {
 
     private val taskId: String? = savedStateHandle["taskId"]
@@ -53,19 +60,34 @@ class TaskDetailViewModel
     private val _text = MutableStateFlow("")
 
 
+    private val _task =
+        taskId?.let {
+            getTaskByIdUseCase.invoke(
+                UUID.fromString(
+                    taskId.removePrefix("{").removeSuffix("}")
+                )
+            )
+        } ?: MutableStateFlow(
+            Resource.Success(null)
+        )
+
+
+
     var category: Category? = null
 
+
     val uiState: StateFlow<TaskDetailUIState> =
-        combine(_allCategories, _isLoading, _text) { categories, isLoading, text ->
+        combine(_allCategories, _isLoading, _text, _task) { categories, isLoading, text, task ->
             when {
-                categories is Resource.Success<*> -> {
+                categories is Resource.Success<*> || task is Resource.Success -> {
                     TaskDetailUIState.Success(
                         selectedCategoryId = UUID.fromString(
                             selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
                         ),
                         categoryList = categories.data ?: listOf(),
                         text = text,
-                        isSaveButtonActive = text.isNotEmpty()
+                        isSaveButtonActive = text.isNotEmpty(),
+                        taskItem = task.data
                     )
                 }
 

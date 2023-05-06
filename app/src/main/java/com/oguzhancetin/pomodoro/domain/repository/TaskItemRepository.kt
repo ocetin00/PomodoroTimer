@@ -15,7 +15,7 @@ interface TaskItemRepository {
     fun getFavoriteTaskItems(): Flow<Resource<List<TaskItem>>>
     suspend fun deleteTaskItem(taskItem: TaskItem)
     suspend fun insertTaskItem(taskItem: TaskItem)
-    suspend fun getTaskItemById(id: UUID): TaskItem
+     fun getTaskItemById(id: UUID): Flow<Resource<TaskItem>>
 
     fun getDoneTaskItems(filterType: FilterType): List<TaskItem>
     fun getCurrentWeekTaskList(currentWeekMilist: Long): Flow<Resource<List<TaskItem>>>

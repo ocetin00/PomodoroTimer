@@ -68,7 +68,19 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
     override suspend fun insertTaskItem(taskItem: TaskItem) =
         taskItemDao.insert(taskItem.toMapTaskEntity())
 
-    suspend override fun getTaskItemById(id: UUID) = taskItemDao.taskItem(id).toMapTaskItem()
+    override fun getTaskItemById(id: UUID): Flow<Resource<TaskItem>> {
+       return taskItemDao.taskItem(id)
+            .onStart {
+                Resource.Loading<List<TaskItemEntity>>()
+            }
+            .map {
+                Resource.Success(it.toMapTaskItem())
+            }
+            .catch { e ->
+                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
+            }
+    }
+
 
     override fun getDoneTaskItems(filterType: FilterType): List<TaskItem> {
         TODO("Not yet implemented")

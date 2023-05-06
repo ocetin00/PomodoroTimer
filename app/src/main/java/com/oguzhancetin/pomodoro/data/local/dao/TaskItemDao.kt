@@ -33,7 +33,7 @@ interface TaskItemDao {
     suspend fun updateTaskItem(taskItem: TaskItemEntity)
 
     @Query("SELECT * FROM task_item WHERE id = :id ")
-    fun taskItem(id:UUID): TaskItemEntity
+    fun taskItem(id:UUID): Flow<TaskItemEntity>
 
     @Query(  "SELECT * FROM task_item " +
             "JOIN task_category ON task_item.categoryId = task_category.id where name=:categoryName")

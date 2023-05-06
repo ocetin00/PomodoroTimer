@@ -138,9 +138,7 @@ fun TaskScreen(
                             (uiState as UIState.Success).selectedTaskCategory
                         )
                     },
-                    onClickTaskDetail = { id ->
 
-                    },
                     onCategoryAddClick = {
                         dialogState = DialogState.ShowDialog(null)
                     }
@@ -175,8 +173,6 @@ fun Category(
         Row() {
             LazyRow(modifier = Modifier.padding(), content = {
                 itemsIndexed(categories) { index, item ->
-
-
                     val taskItemModifier = if (selectedCategory == item.category.id) {
                         Modifier.border(
                             width = 1.dp,
@@ -258,7 +254,7 @@ fun TaskCategoryItem(
     category: Category,
     taskCount: Int,
     onClickSelectedCategory: (UUID) -> Unit,
-    isFirstItem: Boolean = false
+    isFirstItem: Boolean = false,
 ) {
     LaunchedEffect(key1 = true, block = {
         if (isFirstItem) {
@@ -316,7 +312,6 @@ fun TaskScreenContent(
     onClickSelectedCategory: (UUID) -> Unit,
     selectedCategory: UUID? = null,
     onClickNewTask: () -> Unit = {},
-    onClickTaskDetail: (id: UUID) -> Unit = {},
 ) {
 
     val configuration = LocalConfiguration.current
@@ -357,7 +352,8 @@ fun TaskScreenContent(
                 onClickNewTask = onClickNewTask,
                 taskList = taskItems,
                 onItemFavorite = onItemFavorite,
-                onItemFinish = onItemFinish
+                onItemFinish = onItemFinish,
+                onClickTaskItem = onClickTaskItem,
             )
             Spacer(Modifier.height(10.dp))
 
@@ -532,7 +528,11 @@ fun TaskListBodyPreview() {
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp)
                     .height(300.dp),
-                taskList = taskList
+                taskList = taskList,
+                onClickNewTask = {},
+                onItemFinish = {},
+                onItemFavorite = {},
+                onClickTaskItem = {}
             )
         }
     }
@@ -547,6 +547,8 @@ fun TaskListBody(
     onClickNewTask: () -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
+    onClickTaskItem: (UUID) -> Unit
+
 ) {
 
     Card(
@@ -565,7 +567,8 @@ fun TaskListBody(
                         TaskBodyItem(
                             taskItem,
                             onItemFinish = onItemFinish,
-                            onItemFavorite = onItemFavorite
+                            onItemFavorite = onItemFavorite,
+                            onClickTaskItem = onClickTaskItem
                         )
                     }
                 }
@@ -604,7 +607,8 @@ fun TaskBodyHeader(modifier: Modifier = Modifier, onClickNewTask: () -> Unit) {
 fun TaskBodyItem(
     taskItem: TaskItem,
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
-    onItemFavorite: (taskItem: TaskItem) -> Unit = {}
+    onItemFavorite: (taskItem: TaskItem) -> Unit = {},
+    onClickTaskItem: (UUID) -> Unit
 ) {
     if (taskItem.isFinished) {
         Row(
@@ -624,7 +628,12 @@ fun TaskBodyItem(
                     )
                 }
                 Text(
-                    taskItem.description ?: "", style = TextStyle(
+                    modifier = Modifier
+                        .clickable {
+                            onClickTaskItem(taskItem.id)
+                        },
+                    text = taskItem.description ?: "",
+                    style = TextStyle(
                         textDecoration = TextDecoration.LineThrough,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
