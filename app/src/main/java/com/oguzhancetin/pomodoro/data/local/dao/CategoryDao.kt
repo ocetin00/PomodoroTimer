@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
+import androidx.room.Upsert
 import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.domain.model.Category
@@ -39,8 +41,11 @@ interface CategoryDao {
     @Query("Select * from task_category where name= :name")
     fun getCategoryByName(name:String): Flow<CategoryEntity>
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(categoryEntity: CategoryEntity)
+    @Upsert()
+    suspend fun upsert(categoryEntity: CategoryEntity)
+
+    @Update
+    suspend fun updateCategory(category: CategoryEntity)
 
 
 

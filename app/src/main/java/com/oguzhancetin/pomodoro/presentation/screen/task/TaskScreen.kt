@@ -7,17 +7,14 @@ import android.media.MediaPlayer
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Cancel
@@ -32,7 +29,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -57,6 +53,11 @@ import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import java.util.*
 import com.oguzhancetin.pomodoro.domain.model.Category
 
+sealed class DialogState {
+    object DismissDialog : DialogState()
+    data class ShowDialog(val category: Category?) : DialogState()
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
@@ -68,20 +69,31 @@ fun TaskScreen(
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
 
-    var showDialog by remember { mutableStateOf(false) }
-    if (showDialog)
-        AddCategoryDialog(value = "", setShowDialog = {
-            showDialog = it
-        }) { categoryName ->
-            if (categoryName.isNotBlank()) {
-                viewModel.addCategory(
-                    Category(
-                        UUID.randomUUID(),
-                        categoryName
-                    )
-                )
-            }
+    var dialogState by remember { mutableStateOf<DialogState>(DialogState.DismissDialog) }
+
+    when (dialogState) {
+        is DialogState.ShowDialog -> {
+            val category = (dialogState as DialogState.ShowDialog).category
+            CategoryDialog(
+                modifier = Modifier.fillMaxHeight(0.5f),
+                category = category,
+                onDismisRequest = { dialogState = DialogState.DismissDialog },
+                onUpsertCategory = { category ->
+                    viewModel.upsertCategory(category)
+                    dialogState = DialogState.DismissDialog
+                },
+                onDeleteClick = { category ->
+                    viewModel.deleteCategory(category)
+                    dialogState = DialogState.DismissDialog
+                }
+            )
         }
+
+        DialogState.DismissDialog -> {
+
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -110,7 +122,9 @@ fun TaskScreen(
                             (uiState as UIState.Success).selectedTaskCategory
                         )
                     },
-                    onClickAddCategory = { showDialog = true },
+                    onCategoryLongClick = { category ->
+                        dialogState = DialogState.ShowDialog(category)
+                    },
                     categories = (uiState as UIState.Success).categories ?: listOf(),
                     onClickSelectedCategory = { categoryId ->
                         viewModel.onChangeSelectedCategory(
@@ -123,6 +137,12 @@ fun TaskScreen(
                             null,
                             (uiState as UIState.Success).selectedTaskCategory
                         )
+                    },
+                    onClickTaskDetail = { id ->
+
+                    },
+                    onCategoryAddClick = {
+                        dialogState = DialogState.ShowDialog(null)
                     }
                 )
             }
@@ -136,16 +156,16 @@ fun TaskScreen(
 }
 
 //TODO: CategoryWith taskı Map e çevir
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Category(
     modifier: Modifier = Modifier,
     onClickAddCategory: () -> Unit,
     categories: List<CategoryWithTask> = listOf(),
     onClickSelectedCategory: (UUID) -> Unit,
-    selectedCategory: UUID? = null
+    selectedCategory: UUID? = null,
+    openCategoryDetail: (Category) -> Unit
 ) {
-
-
 
     Column(modifier = modifier) {
         Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
@@ -154,9 +174,10 @@ fun Category(
         Spacer(Modifier.height(25.dp))
         Row() {
             LazyRow(modifier = Modifier.padding(), content = {
-                items(categories) {
+                itemsIndexed(categories) { index, item ->
 
-                    val taskItemModifier = if (selectedCategory == it.category.id) {
+
+                    val taskItemModifier = if (selectedCategory == item.category.id) {
                         Modifier.border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.tertiary,
@@ -168,11 +189,20 @@ fun Category(
 
                     TaskCategoryItem(
                         modifier = taskItemModifier
+                            .combinedClickable(
+                                onClick = {
+                                    onClickSelectedCategory(item.category.id)
+                                },
+                                onLongClick = {
+                                    openCategoryDetail(item.category.toCategory())
+                                }
+                            )
                             .width(150.dp)
                             .height(100.dp),
-                        category = it.category.toCategory(),
-                        taskCount = it.taskList.size,
-                        onClickSelectedCategory = onClickSelectedCategory
+                        category = item.category.toCategory(),
+                        taskCount = item.taskList.size,
+                        onClickSelectedCategory = onClickSelectedCategory,
+                        isFirstItem = index == 0
                     )
                     Spacer(modifier = Modifier.width(10.dp))
 
@@ -227,13 +257,18 @@ fun TaskCategoryItem(
     modifier: Modifier = Modifier,
     category: Category,
     taskCount: Int,
-    onClickSelectedCategory: (UUID) -> Unit
+    onClickSelectedCategory: (UUID) -> Unit,
+    isFirstItem: Boolean = false
 ) {
+    LaunchedEffect(key1 = true, block = {
+        if (isFirstItem) {
+            onClickSelectedCategory(category.id)
+        }
+    })
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        onClick = { onClickSelectedCategory(category.id) }
     ) {
         Row(
             modifier = Modifier
@@ -275,11 +310,13 @@ fun TaskScreenContent(
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
     onClickTaskItem: (id: UUID) -> Unit = { },
-    onClickAddCategory: () -> Unit,
+    onCategoryAddClick: () -> Unit = {},
+    onCategoryLongClick: (Category) -> Unit,
     categories: List<CategoryWithTask> = listOf(),
     onClickSelectedCategory: (UUID) -> Unit,
     selectedCategory: UUID? = null,
-    onClickNewTask: () -> Unit = {}
+    onClickNewTask: () -> Unit = {},
+    onClickTaskDetail: (id: UUID) -> Unit = {},
 ) {
 
     val configuration = LocalConfiguration.current
@@ -298,10 +335,11 @@ fun TaskScreenContent(
             Spacer(modifier = Modifier.height(20.dp))
             Category(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                onClickAddCategory = { onClickAddCategory() },
+                onClickAddCategory = { onCategoryAddClick() },
                 categories = categories,
                 onClickSelectedCategory = onClickSelectedCategory,
-                selectedCategory = selectedCategory
+                selectedCategory = selectedCategory,
+                openCategoryDetail = onCategoryLongClick
             )
             Spacer(Modifier.height(25.dp))
             Row(
@@ -577,7 +615,7 @@ fun TaskBodyItem(
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = false }) }) {
                     Icon(
                         imageVector = Icons.Filled.CheckCircle,

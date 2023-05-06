@@ -10,6 +10,7 @@ import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import java.io.IOException
@@ -18,8 +19,8 @@ import javax.inject.Inject
 
 class CategoryRepositoryImpl @Inject constructor(private val categoryDao: CategoryDao) :
     CategoryRepository {
-    override suspend fun insertCategory(category: Category) {
-        categoryDao.insert(category.toCategoryEntity())
+    override suspend fun upsertCategory(category: Category) {
+        categoryDao.upsert(category.toCategoryEntity())
     }
 
     override suspend fun deleteCategory(category: Category) {
@@ -96,5 +97,19 @@ class CategoryRepositoryImpl @Inject constructor(private val categoryDao: Catego
                 if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
             }
 
+    }
+
+    override suspend fun updateCategory(category: Category): Flow<Resource<Any>> {
+
+             return flow {
+                    categoryDao.updateCategory(category.toCategoryEntity())
+                    emit(Resource.Success<Any>(Any()))
+             }
+            .onStart {
+                Resource.Loading<Any>()
+            }
+            .catch { e ->
+                if (e is IOException) Resource.Error(e.message ?: "An error occurred", null)
+            }
     }
 }

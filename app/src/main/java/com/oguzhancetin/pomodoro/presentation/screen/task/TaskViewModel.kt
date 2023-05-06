@@ -6,6 +6,7 @@ import com.oguzhancetin.pomodoro.common.Resource
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
+import com.oguzhancetin.pomodoro.domain.repository.CategoryRepository
 import com.oguzhancetin.pomodoro.domain.use_case.category.AddCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryWithTasksUseCase
@@ -46,6 +47,7 @@ class TaskViewModel @Inject constructor(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val getAllCategoryWithTasksUseCase: GetAllCategoryWithTasksUseCase,
     private val getTasksByCategoryIdUseCase: GetTasksByCategoryIdUseCase,
+    private val categoryRepository: CategoryRepository
 ) :
     ViewModel() {
 
@@ -67,13 +69,12 @@ class TaskViewModel @Inject constructor(
     val taskUIState: StateFlow<UIState> =
         combine(_taskItems, _isLoading, _categories, _selectedTaskCategory)
         { taskItems, _, categories, selectedTaskCategory ->
-            val firstCategoryId = categories.data?.firstOrNull()?.category?.id
             when {
                 taskItems is Resource.Loading<*> || categories is Resource.Loading<*> -> UIState.Loading
                 taskItems is Resource.Error<*> -> UIState.Error(taskItems.message + "")
                 categories is Resource.Error<*> -> UIState.Error((categories.message + ""))
                 else -> UIState.Success(
-                    selectedTaskCategory ?: firstCategoryId,
+                    selectedTaskCategory,
                     categories.data,
                     taskItems?.values?.firstOrNull()
 
@@ -110,6 +111,19 @@ class TaskViewModel @Inject constructor(
             updateTaskItemUseCase.invoke(taskItem = taskItem)
         }
     }
+
+    fun upsertCategory(category: Category) {
+        viewModelScope.launch(Dispatchers.IO) {
+            categoryRepository.upsertCategory(category)
+        }
+    }
+
+    fun deleteCategory(categoryId: Category) {
+        viewModelScope.launch(Dispatchers.IO) {
+            categoryRepository.deleteCategory(categoryId)
+        }
+    }
+
 
 }
 
