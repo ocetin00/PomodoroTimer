@@ -75,7 +75,7 @@ fun TaskScreen(
         is DialogState.ShowDialog -> {
             val category = (dialogState as DialogState.ShowDialog).category
             CategoryDialog(
-                modifier = Modifier.fillMaxHeight(0.5f),
+                modifier = Modifier,
                 category = category,
                 onDismisRequest = { dialogState = DialogState.DismissDialog },
                 onUpsertCategory = { category ->
