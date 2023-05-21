@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -213,7 +214,7 @@ fun TaskDetailScreenContent(
                 TextBody(
                     Modifier
                         .fillMaxWidth()
-                        .height(250.dp),
+                        .fillMaxHeight(0.5f),
                     text = text,
                     onTextChange = onTextChange,
                     category = category
@@ -259,7 +260,7 @@ fun TextBody(
     Column {
         Row(modifier = modifier) {
             TextField(
-                modifier = Modifier
+                modifier = Modifier.fillMaxHeight()
                     .focusRequester(focusRequester)
                     .fillMaxWidth()
                     .background(color = MaterialTheme.colorScheme.surface),

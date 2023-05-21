@@ -28,6 +28,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+sealed class DialogState {
+    object DismissDialog : DialogState()
+    data class ShowDialog(val category: Category?) : DialogState()
+}
 
 sealed class UIState {
     object Loading : UIState()
@@ -80,6 +84,8 @@ class TaskViewModel @Inject constructor(
 
     }
 
+    private val _dialogState = MutableStateFlow<DialogState>(DialogState.DismissDialog)
+    val dialogState: StateFlow<DialogState> = _dialogState
 
     val taskUIState: StateFlow<UIState> =
         combine(_isLoading, _categories, _selectedTaskCategory)
@@ -152,6 +158,24 @@ class TaskViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun showCategoryDialog() {
+        viewModelScope.launch {
+                _dialogState.value = DialogState.ShowDialog(null)
+        }
+    }
+
+    fun dismisDialog() {
+        viewModelScope.launch {
+            _dialogState.value = DialogState.DismissDialog
+        }
+    }
+
+    fun showDialog(category: Category) {
+        viewModelScope.launch {
+            _dialogState.value = DialogState.ShowDialog(category)
+        }
     }
 
 

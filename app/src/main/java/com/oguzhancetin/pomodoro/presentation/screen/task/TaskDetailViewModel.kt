@@ -73,9 +73,10 @@ class TaskDetailViewModel
     init {
         viewModelScope.launch(Dispatchers.IO) {
             //get Task
-            taskId.value?.let {
+            val taskId = taskId.value?.clearSufAndPrefix()
+            if (!taskId.isNullOrEmpty()) {
                 val taskItem =
-                    getTaskByIdUseCase.invoke(UUID.fromString(taskId.value?.clearSufAndPrefix()))
+                    getTaskByIdUseCase.invoke(UUID.fromString(taskId))
                 _task.emit(Resource.Success(taskItem))
                 _text.emit(taskItem.description ?: "")
             }
@@ -106,14 +107,14 @@ class TaskDetailViewModel
 
     fun saveTask() {
         viewModelScope.launch {
-            if (taskId.value.isNullOrEmpty()) {
+            if (taskId.value?.clearSufAndPrefix().isNullOrEmpty()) {
                 addTaskItemUseCase.invoke(
                     TaskItem(
                         id = UUID.randomUUID(),
                         categoryId = UUID.fromString(
                             selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
                         ),
-                        description = _text.value
+                        description = _text.value.trim()
                     )
                 )
             } else {
@@ -123,7 +124,7 @@ class TaskDetailViewModel
                         categoryId = UUID.fromString(
                             selectedCategoryId?.clearSufAndPrefix()
                         ),
-                        description = _text.value
+                        description = _text.value.trim()
                     )
                 )
             }

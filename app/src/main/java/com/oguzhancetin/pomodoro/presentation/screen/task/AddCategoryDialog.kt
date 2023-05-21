@@ -52,16 +52,23 @@ fun CategoryDialogPreview() {
 @Composable
 fun CategoryDialog(
     modifier: Modifier = Modifier,
-    category: Category,
-    onDeleteClick: (Category) -> Unit,
-    onDismissRequest: (Category) -> Unit,
+    category: Category?,
+    onDeleteClick: (Category?) -> Unit,
+    onDismissRequest: (Category?) -> Unit,
 ) {
 
     val txtFieldError = remember { mutableStateOf("") }
-    val txtField = remember { mutableStateOf(category.name) }
+    val txtField = remember { mutableStateOf(category?.name ?: "") }
 
     Dialog(
-        onDismissRequest = { onDismissRequest(category) },
+        onDismissRequest = {
+            category?.let {
+                onDismissRequest(category.also { it.name = txtField.value.trim()  })
+            } ?: run {
+                onDismissRequest(Category(id = UUID.randomUUID(), name = txtField.value.trim()))
+            }
+
+        },
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -87,7 +94,18 @@ fun CategoryDialog(
                             modifier = Modifier
                                 .width(30.dp)
                                 .height(30.dp)
-                                .clickable { onDismissRequest(category) }
+                                .clickable {
+                                    category?.let {
+                                        onDismissRequest(category.also { it.name = txtField.value.trim()  })
+                                    } ?: run {
+                                        onDismissRequest(
+                                            Category(
+                                                id = UUID.randomUUID(),
+                                                name = txtField.value.trim()
+                                            )
+                                        )
+                                    }
+                                }
                         )
                     }
 
@@ -108,7 +126,11 @@ fun CategoryDialog(
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent
                         ),
-                        placeholder = { if (category.name.isNotEmpty()) Text(text = "Enter Category Title") },
+                        placeholder = {
+                            if (category?.name?.isNotEmpty() == true) Text(text = "Enter Category Title") else Text(
+                                text = ""
+                            )
+                        },
                         value = txtField.value,
                         onValueChange = {
                             txtField.value = it.take(10)

@@ -21,9 +21,11 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.*
@@ -54,10 +56,6 @@ import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import java.util.*
 import com.oguzhancetin.pomodoro.domain.model.Category
 
-sealed class DialogState {
-    object DismissDialog : DialogState()
-    data class ShowDialog(val category: Category?) : DialogState()
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,27 +68,25 @@ fun TaskScreen(
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
 
-    var dialogState by remember { mutableStateOf<DialogState>(DialogState.DismissDialog) }
+    val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
 
-
-
-    when (dialogState) {
+    when (val dialogState = dialogState) {
         is DialogState.ShowDialog -> {
-            val category = (dialogState as DialogState.ShowDialog).category
-            category?.let {
-                CategoryDialog(
-                    modifier = Modifier,
-                    category = it,
-                    onDismissRequest = {
-                        viewModel.upsertCategory(category)
-                        dialogState = DialogState.DismissDialog
-                    },
-                    onDeleteClick = { category ->
-                        viewModel.deleteCategory(category)
-                        dialogState = DialogState.DismissDialog
-                    }
-                )
-            }
+            val category = dialogState.category
+
+            CategoryDialog(
+                modifier = Modifier,
+                category = category,
+                onDismissRequest = { c ->
+                    c?.let { viewModel.upsertCategory(it) }
+                    viewModel.dismisDialog()
+                },
+                onDeleteClick = { c ->
+                    c?.let { viewModel.deleteCategory(it) }
+                    viewModel.dismisDialog()
+                }
+            )
+
         }
 
         DialogState.DismissDialog -> {
@@ -106,8 +102,8 @@ fun TaskScreen(
             )
         }
     ) { innerPadding ->
-
-        when (uiState) {
+        val state = uiState
+        when (state) {
             is UIState.Loading -> {
 
             }
@@ -121,35 +117,35 @@ fun TaskScreen(
                                 focusManager.clearFocus()
                             })
                         },
-                    taskItems = (uiState as UIState.Success).taskItems ?: listOf(),
+                    taskItems = state.taskItems ?: listOf(),
                     onAddItem = { taskItem -> viewModel.addTask(taskItem) },
                     onItemFinish = { taskItem -> viewModel.updateTask(taskItem) },
                     onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) },
                     onClickTaskItem = { id ->
                         onNavigateTaskDetail(
                             id.toString(),
-                            (uiState as UIState.Success).selectedTaskCategory
+                            state.selectedTaskCategory
                         )
                     },
                     onCategoryLongClick = { category ->
-                        dialogState = DialogState.ShowDialog(category)
+                        viewModel.showDialog(category)
                     },
-                    categories = (uiState as UIState.Success).categories ?: listOf(),
+                    categories = state.categories ?: listOf(),
                     onClickSelectedCategory = { categoryId ->
                         viewModel.onChangeSelectedCategory(
                             categoryId
                         )
                     },
-                    selectedCategory = (uiState as UIState.Success).selectedTaskCategory,
+                    selectedCategory = state.selectedTaskCategory,
                     onClickNewTask = {
                         onNavigateTaskDetail(
                             "",
-                            (uiState as UIState.Success).selectedTaskCategory
+                            state.selectedTaskCategory
                         )
                     },
 
                     onCategoryAddClick = {
-                        dialogState = DialogState.ShowDialog(null)
+                        viewModel.showCategoryDialog()
                     },
                     onClearListClick = {
                         viewModel.clearList()
@@ -161,7 +157,6 @@ fun TaskScreen(
             is UIState.Error -> {
 
             }
-
 
         }
 
@@ -636,9 +631,9 @@ fun TaskBodyHeader(
 
         IconButton(onClick = { onClearListClick() }) {
             Icon(
-                imageVector = Icons.Default.Clear,
+                imageVector = Icons.Outlined.Delete,
                 contentDescription = "Clear List",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.primary
             )
 
         }
