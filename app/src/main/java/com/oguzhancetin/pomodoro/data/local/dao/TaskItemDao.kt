@@ -3,6 +3,7 @@ package com.oguzhancetin.pomodoro.data.local.dao
 import androidx.room.*
 import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
@@ -33,17 +34,16 @@ interface TaskItemDao {
     suspend fun updateTaskItem(taskItem: TaskItemEntity)
 
     @Query("SELECT * FROM task_item WHERE id = :id ")
-    fun taskItem(id:UUID): Flow<TaskItemEntity>
+    fun taskItem(id:UUID): TaskItemEntity
 
     @Query(  "SELECT * FROM task_item " +
             "JOIN task_category ON task_item.categoryId = task_category.id where name=:categoryName")
     suspend fun getTaskByCategoryName(categoryName:String): Map<CategoryEntity,List<TaskItemEntity>>
     @Query(  "SELECT * FROM task_item " +
             "JOIN task_category ON task_item.categoryId = task_category.id where categoryId=:id")
-    suspend fun getTaskByCategoryId(id:UUID): Map<CategoryEntity,List<TaskItemEntity>>
-
-
-
+    fun getTaskByCategoryId(id:UUID): Map<CategoryEntity, List<TaskItemEntity>>
+    @Query("DELETE FROM task_item WHERE categoryId = :categoryId")
+    fun deleteTaskItemByCategoryId(categoryId: UUID)
 
 
 }

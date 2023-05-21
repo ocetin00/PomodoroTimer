@@ -12,8 +12,7 @@ import javax.inject.Inject
 class GetTaskByIdUseCase @Inject constructor(
     private val taskItemRepository: TaskItemRepository
 ) {
-     operator fun invoke(id: UUID): Flow<Resource<TaskItem>> {
+     suspend operator fun invoke(id: UUID): TaskItem {
         return taskItemRepository.getTaskItemById(id)
-
     }
 }

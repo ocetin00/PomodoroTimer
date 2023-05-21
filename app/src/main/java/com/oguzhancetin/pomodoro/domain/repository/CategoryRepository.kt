@@ -18,7 +18,7 @@ interface CategoryRepository {
 
     fun getAllCategory(): Flow<Resource<List<Category>>>
 
-    fun getAllCategoryWithTask(): Flow<Resource<List<CategoryWithTask>>>
+    fun getAllCategoryWithTask(): Flow<List<CategoryWithTask>>
     fun getCategoryById(id:UUID): Flow<Resource<CategoryWithTask>>
 
     suspend fun updateCategory(category: Category): Flow<Resource<Any>>

@@ -9,9 +9,13 @@ import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetCategoryByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
+import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTaskByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
+import com.oguzhancetin.pomodoro.presentation.screen.util.clearSufAndPrefix
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,21 +24,20 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.switchMap
 import javax.inject.Inject
 
 
 sealed class TaskDetailUIState {
     object Loading : TaskDetailUIState()
     data class Success(
-        val selectedCategoryId: UUID? = null,
-        val categoryList: List<Category> = listOf(),
+        val selectedCategory: Category? = null,
         val text: String = "",
         val isSaveButtonActive: Boolean = false,
-        val taskItem: TaskItem? = null
-
     ) : TaskDetailUIState()
 
     data class Error(val message: String) : TaskDetailUIState()
@@ -49,60 +52,52 @@ class TaskDetailViewModel
     private val updateTaskItemUseCase: UpdateTaskItemUseCase,
     private val getCategoryByIdUseCase: GetCategoryByIdUseCase,
     private val getAllCategoryUseCase: GetAllCategoryUseCase,
-    private val getTaskByIdUseCase: GetTaskByIdUseCase
+    private val getTaskByIdUseCase: GetTaskByIdUseCase,
+    private val deleteTaskItemUseCase: DeleteTaskItemUseCase
 ) : ViewModel() {
 
-    private val taskId: String? = savedStateHandle["taskId"]
+    private val taskId = savedStateHandle.getStateFlow<String?>("taskId", null)
+
+
     private val selectedCategoryId: String? = savedStateHandle["selectedCategoryId"]
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _allCategories = getAllCategoryUseCase.invoke()
+
+    private var category: Category? = null
+
     private val _text = MutableStateFlow("")
 
-
-    private val _task =
-        taskId?.let {
-            getTaskByIdUseCase.invoke(
-                UUID.fromString(
-                    taskId.removePrefix("{").removeSuffix("}")
-                )
-            )
-        } ?: MutableStateFlow(
-            Resource.Success(null)
-        )
+    private val _task: MutableStateFlow<Resource<TaskItem>> = MutableStateFlow(Resource.Loading())
 
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            //get Task
+            taskId.value?.let {
+                val taskItem =
+                    getTaskByIdUseCase.invoke(UUID.fromString(taskId.value?.clearSufAndPrefix()))
+                _task.emit(Resource.Success(taskItem))
+                _text.emit(taskItem.description ?: "")
+            }
+            //get Category
+            selectedCategoryId?.let {
+                category =
+                    getCategoryByIdUseCase.invoke(UUID.fromString(selectedCategoryId.clearSufAndPrefix()))
+            }
 
-    var category: Category? = null
+
+        }
+    }
 
 
     val uiState: StateFlow<TaskDetailUIState> =
-        combine(_allCategories, _isLoading, _text, _task) { categories, isLoading, text, task ->
-            when {
-                categories is Resource.Success<*> || task is Resource.Success -> {
-                    TaskDetailUIState.Success(
-                        selectedCategoryId = UUID.fromString(
-                            selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
-                        ),
-                        categoryList = categories.data ?: listOf(),
-                        text = text,
-                        isSaveButtonActive = text.isNotEmpty(),
-                        taskItem = task.data
-                    )
-                }
+        combine(_text, _isLoading) { text, _ ->
+            TaskDetailUIState.Success(
+                selectedCategory = category,
+                text = text,
+                isSaveButtonActive = text.isNotEmpty(),
+            )
 
-                categories is Resource.Loading<*> -> {
-                    TaskDetailUIState.Loading
-                }
-
-                categories is Resource.Error -> {
-                    TaskDetailUIState.Error("")
-                }
-
-                else -> {
-                    TaskDetailUIState.Loading
-                }
-            }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -111,21 +106,41 @@ class TaskDetailViewModel
 
     fun saveTask() {
         viewModelScope.launch {
-            addTaskItemUseCase.invoke(
-                TaskItem(
-                    id = UUID.randomUUID(),
-                    categoryId = UUID.fromString(
-                        selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
-                    ),
-                    description = _text.value
+            if (taskId.value.isNullOrEmpty()) {
+                addTaskItemUseCase.invoke(
+                    TaskItem(
+                        id = UUID.randomUUID(),
+                        categoryId = UUID.fromString(
+                            selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
+                        ),
+                        description = _text.value
+                    )
                 )
-            )
+            } else {
+                updateTaskItemUseCase.invoke(
+                    TaskItem(
+                        id = UUID.fromString(taskId.value?.clearSufAndPrefix()),
+                        categoryId = UUID.fromString(
+                            selectedCategoryId?.clearSufAndPrefix()
+                        ),
+                        description = _text.value
+                    )
+                )
+            }
         }
     }
 
     fun updateTask(taskItem: TaskItem) {
         viewModelScope.launch {
             addTaskItemUseCase.invoke(taskItem)
+        }
+    }
+
+    fun deleteTask() {
+        viewModelScope.launch {
+            _task.value.data?.let {
+                deleteTaskItemUseCase.invoke(it)
+            }
         }
     }
 

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetAllCategoryWithTasksUseCase @Inject constructor(private val categoryRepository: CategoryRepository) {
-    operator fun invoke(): Flow<Resource<List<CategoryWithTask>>> {
+    operator fun invoke(): Flow<List<CategoryWithTask>> {
         return categoryRepository.getAllCategoryWithTask()
     }
 

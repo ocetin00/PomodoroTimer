@@ -68,17 +68,9 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
     override suspend fun insertTaskItem(taskItem: TaskItem) =
         taskItemDao.insert(taskItem.toMapTaskEntity())
 
-    override fun getTaskItemById(id: UUID): Flow<Resource<TaskItem>> {
-       return taskItemDao.taskItem(id)
-            .onStart {
-                Resource.Loading<List<TaskItemEntity>>()
-            }
-            .map {
-                Resource.Success(it.toMapTaskItem())
-            }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
+    override suspend fun getTaskItemById(id: UUID): TaskItem {
+        return taskItemDao.taskItem(id).toMapTaskItem()
+
     }
 
 
@@ -90,19 +82,27 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
         taskItemDao.updateTaskItem(taskItem.toMapTaskEntity())
 
     override suspend fun getTaskByCategoryName(categoryName: String): Map<Category, List<TaskItem>> {
-        return taskItemDao.getTaskByCategoryName(categoryName).mapKeys {
-            it.key.toCategory()
-        }.mapValues {
-            it.value.map { it.toMapTaskItem() }
-        }
+        return taskItemDao.getTaskByCategoryName(categoryName)
+            .mapKeys {
+                it.key.toCategory()
+            }
+            .mapValues {
+                it.value.map { it.toMapTaskItem() }
+            }
 
     }
 
     override suspend fun getTaskByCategoryId(id: UUID): Map<Category, List<TaskItem>> {
-        return taskItemDao.getTaskByCategoryId(id).mapKeys {
-            it.key.toCategory()
-        }.mapValues {
-            it.value.map { it.toMapTaskItem() }
-        }
+        return taskItemDao.getTaskByCategoryId(id)
+            .mapKeys {
+                it.key.toCategory()
+            }.mapValues {
+                it.value.map { it.toMapTaskItem() }
+            }
+
+    }
+
+    override suspend fun deleteByCategoryId(categoryId: UUID) {
+        taskItemDao.deleteTaskItemByCategoryId(categoryId)
     }
 }

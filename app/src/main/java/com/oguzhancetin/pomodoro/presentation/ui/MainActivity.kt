@@ -12,15 +12,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import com.oguzhancetin.pomodoro.data.local.PomodoroDatabase
 import com.oguzhancetin.pomodoro.presentation.ui.PomodoroApp
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var appDb:PomodoroDatabase
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setContent {
             PomodoroApp()
         }

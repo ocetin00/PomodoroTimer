@@ -32,7 +32,7 @@ class CategoryRepositoryImpl @Inject constructor(private val categoryDao: Catego
     }
 
     override suspend fun categoryById(id: UUID): Category {
-       return categoryDao.categoryById(id).toCategory()
+        return categoryDao.categoryById(id).toCategory()
     }
 
     override fun getCategoryByName(name: String): Flow<Resource<Category>> {
@@ -62,21 +62,15 @@ class CategoryRepositoryImpl @Inject constructor(private val categoryDao: Catego
             }
     }
 
-    override fun getAllCategoryWithTask(): Flow<Resource<List<CategoryWithTask>>> {
+    override fun getAllCategoryWithTask(): Flow<List<CategoryWithTask>> {
         return categoryDao.getAllCategoryWithTask()
-            .onStart {
-                Resource.Loading<List<CategoryWithTask>>()
-            }
             .map {
-                Resource.Success(it.map { categoryWithTaskItem ->
+                it.map { categoryWithTaskItem ->
                     categoryWithTaskItem.apply {
                         this.category.toCategory()
                         this.taskList.map { task -> task.toMapTaskItem() }
                     }
-                })
-            }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
+                }
             }
     }
 
@@ -101,10 +95,10 @@ class CategoryRepositoryImpl @Inject constructor(private val categoryDao: Catego
 
     override suspend fun updateCategory(category: Category): Flow<Resource<Any>> {
 
-             return flow {
-                    categoryDao.updateCategory(category.toCategoryEntity())
-                    emit(Resource.Success<Any>(Any()))
-             }
+        return flow {
+            categoryDao.updateCategory(category.toCategoryEntity())
+            emit(Resource.Success<Any>(Any()))
+        }
             .onStart {
                 Resource.Loading<Any>()
             }

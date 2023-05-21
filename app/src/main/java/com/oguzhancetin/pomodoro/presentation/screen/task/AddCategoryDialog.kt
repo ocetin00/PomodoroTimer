@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Money
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,8 +43,7 @@ fun CategoryDialogPreview() {
             id = UUID.randomUUID(),
             name = "Category 1",
         ),
-        onUpsertCategory = {},
-        onDismisRequest = {},
+        onDismissRequest = {},
         onDeleteClick = {}
     )
 }
@@ -55,17 +52,16 @@ fun CategoryDialogPreview() {
 @Composable
 fun CategoryDialog(
     modifier: Modifier = Modifier,
-    category: Category?,
-    onUpsertCategory: (Category) -> Unit,
+    category: Category,
     onDeleteClick: (Category) -> Unit,
-    onDismisRequest: (Boolean) -> Unit,
+    onDismissRequest: (Category) -> Unit,
 ) {
 
     val txtFieldError = remember { mutableStateOf("") }
-    val txtField = remember { mutableStateOf("") }
+    val txtField = remember { mutableStateOf(category.name) }
 
     Dialog(
-        onDismissRequest = { onDismisRequest(false) },
+        onDismissRequest = { onDismissRequest(category) },
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -91,7 +87,7 @@ fun CategoryDialog(
                             modifier = Modifier
                                 .width(30.dp)
                                 .height(30.dp)
-                                .clickable { onDismisRequest(false) }
+                                .clickable { onDismissRequest(category) }
                         )
                     }
 
@@ -112,19 +108,7 @@ fun CategoryDialog(
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent
                         ),
-                        leadingIcon = {
-                            /**
-                             *    Icon(
-                             *                                 imageVector = Icons.Filled.T,
-                             *                                 contentDescription = "",
-                             *                                 tint = MaterialTheme.colorScheme.primary,
-                             *                                 modifier = Modifier
-                             *                                     .width(20.dp)
-                             *                                     .height(20.dp)
-                             *                             )
-                             */
-                        },
-                        placeholder = { Text(text = category?.name ?: "Enter Category Title") },
+                        placeholder = { if (category.name.isNotEmpty()) Text(text = "Enter Category Title") },
                         value = txtField.value,
                         onValueChange = {
                             txtField.value = it.take(10)
@@ -132,31 +116,8 @@ fun CategoryDialog(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
-                        Button(
-                            onClick = {
-                                if (txtField.value.isEmpty()) {
-                                    txtFieldError.value = "Field can not be empty"
-                                    return@Button
-                                }
-                                onUpsertCategory(
-                                    Category(
-                                        id = category?.id ?: UUID.randomUUID(),
-                                        name = txtField.value
-                                    )
-                                )
-
-                            },
-                            shape = RoundedCornerShape(50.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                        ) {
-                            Text(text = "Done")
-                        }
-                    }
                     category?.let {
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
@@ -169,7 +130,6 @@ fun CategoryDialog(
                                     onDeleteClick(category)
                                 }
                             )
-
                         }
                     }
                 }

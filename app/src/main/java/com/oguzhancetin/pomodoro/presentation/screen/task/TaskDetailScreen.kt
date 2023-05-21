@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,8 +55,6 @@ import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.DetailTopBar
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
@@ -71,40 +70,57 @@ fun TaskDetailScreen(
 
     when (val state = uiState) {
         is TaskDetailUIState.Success -> {
+
             Scaffold(
                 topBar = {
                     DetailTopBar(
-                        currentRoute = state.taskItem?.let { "Task Update" } ?: "New Task",
+                        currentRoute = if (state.text.isNotEmpty()) "Task Update" else "New Task",
                         canNavigateBack = true,
                         navigateUp = { onBack() }
                     )
                 },
                 bottomBar = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Button(modifier = Modifier.fillMaxWidth(fraction = 0.8f), onClick = {
-                            viewModel.saveTask()
-                            onBack()
-                        }, enabled = (uiState as TaskDetailUIState.Success).isSaveButtonActive) {
-                            Text("Save")
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(modifier = Modifier.fillMaxWidth(fraction = 0.8f), onClick = {
+                                viewModel.saveTask()
+                                onBack()
+                            }, enabled = state.isSaveButtonActive) {
+                                Text("Save")
+                            }
                         }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Delete Task",
+                                color = Color.Red,
+                                modifier = Modifier.clickable {
+                                    viewModel.deleteTask()
+                                    onBack()
+                                }
+                            )
+
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
                     }
 
                 }
-            ) {
-
+            ) { innerPadding ->
                 TaskDetailScreenContent(
                     modifier = modifier
-                        .padding(it),
-                    state.categoryList,
-                    state.selectedCategoryId,
-                    onTextChange = { viewModel.onTextChange(it) },
+                        .padding(innerPadding),
+                    onTextChange = { text -> viewModel.onTextChange(text) },
                     text = state.text,
-                    task = state.taskItem
+                    category = state.selectedCategory
                 )
 
             }
@@ -136,18 +152,37 @@ fun TaskDetailScreenContentPreview() {
                 )
             },
             bottomBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(fraction = 0.4f),
-                        onClick = { /*TODO*/ }) {
-                        Text("Save")
+                Column() {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(fraction = 0.4f),
+                            onClick = { /*TODO*/ }) {
+                            Text("Save")
+                        }
                     }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Delete Category",
+                            color = Color.Red,
+                            modifier = Modifier.clickable {
+                                /*TODO*/
+                            }
+                        )
+
+                    }
+
                 }
+
             }
         ) {
 
@@ -161,11 +196,9 @@ fun TaskDetailScreenContentPreview() {
 @Composable
 fun TaskDetailScreenContent(
     modifier: Modifier = Modifier,
-    categories: List<Category> = listOf(),
-    selectedCategoryId: UUID? = null,
     onTextChange: (String) -> Unit = { },
     text: String = "",
-    task: TaskItem? = null
+    category: Category?
 ) {
 
     Surface(
@@ -181,11 +214,9 @@ fun TaskDetailScreenContent(
                     Modifier
                         .fillMaxWidth()
                         .height(250.dp),
-                    categories,
-                    selectedCategoryId,
                     text = text,
                     onTextChange = onTextChange,
-                    task = task
+                    category = category
                 )
             }
         }
@@ -194,10 +225,14 @@ fun TaskDetailScreenContent(
 
 @Composable
 fun TextBodyPreview() {
+    val category = Category(
+        id = UUID.randomUUID(),
+        name = "Work",
+    )
     TextBody(
         Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(250.dp), category = category
     )
 }
 
@@ -205,13 +240,10 @@ fun TextBodyPreview() {
 @Composable
 fun TextBody(
     modifier: Modifier = Modifier,
-    categories: List<Category> = listOf(),
-    selectedCategoryId: UUID? = null,
+    category: Category?,
     onTextChange: (String) -> Unit = { },
     text: String = "",
-    task: TaskItem? = null
 ) {
-
 
     val currentDateTime = Calendar.getInstance().time
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.US)
@@ -220,11 +252,8 @@ fun TextBody(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        task?.let {
-            it.description?.let { it1 -> onTextChange(it1) }
-        } ?: run {
+        if (text.isEmpty())
             focusRequester.requestFocus()
-        }
     }
 
     Column {
@@ -238,7 +267,7 @@ fun TextBody(
                 onValueChange = { onTextChange(it) },
                 placeholder = {
                     Text(
-                        text = if (task == null) "Task Name" else "",
+                        text = if (text.isNotEmpty()) "Task Name" else "",
                         fontSize = MaterialTheme.typography.headlineMedium.fontSize
                     )
                 },
@@ -253,47 +282,47 @@ fun TextBody(
             )
         }
 
-        Divider(thickness = 2.dp)
+        //Divider(thickness = 2.dp)
         Spacer(Modifier.height(12.dp))
-        Column(Modifier.padding(horizontal = 10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = "created date",
-                    modifier = Modifier.size(35.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.width(8.dp))
-                TextField(
-                    value = formattedDate,
-                    onValueChange = {},
-                    readOnly = true,
-                    // trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier
-                        .width(200.dp)
-                        .background(color = MaterialTheme.colorScheme.surface),
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                    ),
-                    textStyle = TextStyle(
-                        fontSize = MaterialTheme.typography.headlineSmall.fontSize
-                    )
-                )
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Category,
-                    contentDescription = "created date",
-                    modifier = Modifier.size(35.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.width(8.dp))
-                // SelectCategoryDropDown(categories, selectedCategoryId)
-            }
+        /*      Column(Modifier.padding(horizontal = 10.dp)) {
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                      Icon(
+                          imageVector = Icons.Filled.Notifications,
+                          contentDescription = "created date",
+                          modifier = Modifier.size(35.dp),
+                          tint = MaterialTheme.colorScheme.primary
+                      )
+                      Spacer(Modifier.width(8.dp))
+                      TextField(
+                          value = formattedDate,
+                          onValueChange = {},
+                          readOnly = true,
+                          // trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                          modifier = Modifier
+                              .width(200.dp)
+                              .background(color = MaterialTheme.colorScheme.surface),
+                          colors = TextFieldDefaults.textFieldColors(
+                              containerColor = MaterialTheme.colorScheme.surface,
+                              unfocusedIndicatorColor = Color.Transparent,
+                              focusedIndicatorColor = Color.Transparent,
+                          ),
+                          textStyle = TextStyle(
+                              fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                          )
+                      )
+                  }
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                      Icon(
+                          imageVector = Icons.Filled.Category,
+                          contentDescription = "created date",
+                          modifier = Modifier.size(35.dp),
+                          tint = MaterialTheme.colorScheme.primary
+                      )
+                      Spacer(Modifier.width(8.dp))
+                      // SelectCategoryDropDown(categories, selectedCategoryId)
+                  }
 
-        }
+              }*/
 
     }
 }

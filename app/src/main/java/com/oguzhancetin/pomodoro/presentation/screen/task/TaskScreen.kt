@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -64,29 +65,32 @@ fun TaskScreen(
     modifier: Modifier = Modifier,
     viewModel: TaskViewModel = hiltViewModel(),
     onBack: () -> Unit = {},
-    onNavigateTaskDetail: (id: UUID?, categoryId: UUID?) -> Unit = { _, _ -> }
+    onNavigateTaskDetail: (id: String?, categoryId: UUID?) -> Unit = { _, _ -> }
 ) {
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.taskUIState.collectAsStateWithLifecycle()
 
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.DismissDialog) }
 
+
+
     when (dialogState) {
         is DialogState.ShowDialog -> {
             val category = (dialogState as DialogState.ShowDialog).category
-            CategoryDialog(
-                modifier = Modifier,
-                category = category,
-                onDismisRequest = { dialogState = DialogState.DismissDialog },
-                onUpsertCategory = { category ->
-                    viewModel.upsertCategory(category)
-                    dialogState = DialogState.DismissDialog
-                },
-                onDeleteClick = { category ->
-                    viewModel.deleteCategory(category)
-                    dialogState = DialogState.DismissDialog
-                }
-            )
+            category?.let {
+                CategoryDialog(
+                    modifier = Modifier,
+                    category = it,
+                    onDismissRequest = {
+                        viewModel.upsertCategory(category)
+                        dialogState = DialogState.DismissDialog
+                    },
+                    onDeleteClick = { category ->
+                        viewModel.deleteCategory(category)
+                        dialogState = DialogState.DismissDialog
+                    }
+                )
+            }
         }
 
         DialogState.DismissDialog -> {
@@ -102,7 +106,12 @@ fun TaskScreen(
             )
         }
     ) { innerPadding ->
+
         when (uiState) {
+            is UIState.Loading -> {
+
+            }
+
             is UIState.Success -> {
                 TaskScreenContent(
                     modifier = modifier
@@ -118,7 +127,7 @@ fun TaskScreen(
                     onItemFavorite = { taskItem -> viewModel.updateTask(taskItem) },
                     onClickTaskItem = { id ->
                         onNavigateTaskDetail(
-                            id,
+                            id.toString(),
                             (uiState as UIState.Success).selectedTaskCategory
                         )
                     },
@@ -134,23 +143,30 @@ fun TaskScreen(
                     selectedCategory = (uiState as UIState.Success).selectedTaskCategory,
                     onClickNewTask = {
                         onNavigateTaskDetail(
-                            null,
+                            "",
                             (uiState as UIState.Success).selectedTaskCategory
                         )
                     },
 
                     onCategoryAddClick = {
                         dialogState = DialogState.ShowDialog(null)
+                    },
+                    onClearListClick = {
+                        viewModel.clearList()
                     }
+
                 )
             }
 
-            is UIState.Loading -> {}
-            is UIState.Error -> {}
+            is UIState.Error -> {
+
+            }
+
 
         }
 
     }
+
 }
 
 //TODO: CategoryWith taskı Map e çevir
@@ -164,6 +180,8 @@ fun Category(
     selectedCategory: UUID? = null,
     openCategoryDetail: (Category) -> Unit
 ) {
+
+    val interactionSource = MutableInteractionSource()
 
     Column(modifier = modifier) {
         Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
@@ -186,6 +204,8 @@ fun Category(
                     TaskCategoryItem(
                         modifier = taskItemModifier
                             .combinedClickable(
+                                interactionSource = interactionSource,
+                                indication = null,
                                 onClick = {
                                     onClickSelectedCategory(item.category.id)
                                 },
@@ -212,6 +232,8 @@ fun Category(
                         .height(100.dp)
                         .padding(vertical = 5.dp),
                         onClickAddCategory = { onClickAddCategory() })
+
+
                 }
             })
         }
@@ -256,11 +278,7 @@ fun TaskCategoryItem(
     onClickSelectedCategory: (UUID) -> Unit,
     isFirstItem: Boolean = false,
 ) {
-    LaunchedEffect(key1 = true, block = {
-        if (isFirstItem) {
-            onClickSelectedCategory(category.id)
-        }
-    })
+
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
@@ -312,6 +330,7 @@ fun TaskScreenContent(
     onClickSelectedCategory: (UUID) -> Unit,
     selectedCategory: UUID? = null,
     onClickNewTask: () -> Unit = {},
+    onClearListClick: () -> Unit = {}
 ) {
 
     val configuration = LocalConfiguration.current
@@ -354,6 +373,7 @@ fun TaskScreenContent(
                 onItemFavorite = onItemFavorite,
                 onItemFinish = onItemFinish,
                 onClickTaskItem = onClickTaskItem,
+                onClearListClick = onClearListClick
             )
             Spacer(Modifier.height(10.dp))
 
@@ -547,7 +567,8 @@ fun TaskListBody(
     onClickNewTask: () -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
-    onClickTaskItem: (UUID) -> Unit
+    onClickTaskItem: (UUID) -> Unit,
+    onClearListClick: () -> Unit = {}
 
 ) {
 
@@ -562,7 +583,10 @@ fun TaskListBody(
         ) {
             item {
                 Column(modifier = Modifier.padding(10.dp)) {
-                    TaskBodyHeader(onClickNewTask = onClickNewTask)
+                    TaskBodyHeader(
+                        onClickNewTask = onClickNewTask,
+                        onClearListClick = onClearListClick
+                    )
                     taskList.forEach { taskItem ->
                         TaskBodyItem(
                             taskItem,
@@ -581,25 +605,43 @@ fun TaskListBody(
 
 
 @Composable
-fun TaskBodyHeader(modifier: Modifier = Modifier, onClickNewTask: () -> Unit) {
+fun TaskBodyHeader(
+    modifier: Modifier = Modifier,
+    onClickNewTask: () -> Unit,
+    onClearListClick: () -> Unit
+) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Start,
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { onClickNewTask() }) {
-            Icon(
-                imageVector = Icons.Filled.AddCircle,
-                "add task",
-                tint = MaterialTheme.colorScheme.primary
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onClickNewTask() }) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    "add task",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(
+                "Add New Task", style = TextStyle(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                )
             )
         }
-        Text(
-            "Add New Task", style = TextStyle(
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+
+        IconButton(onClick = { onClearListClick() }) {
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = "Clear List",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
-        )
+
+        }
     }
 }
 
@@ -652,7 +694,8 @@ fun TaskBodyItem(
         }
     } else {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -668,7 +711,10 @@ fun TaskBodyItem(
                     )
                 }
                 Text(
-                    taskItem.description ?: " ", style = TextStyle(
+                    modifier = Modifier.clickable {
+                        onClickTaskItem(taskItem.id)
+                    },
+                    text = taskItem.description ?: " ", style = TextStyle(
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     )
