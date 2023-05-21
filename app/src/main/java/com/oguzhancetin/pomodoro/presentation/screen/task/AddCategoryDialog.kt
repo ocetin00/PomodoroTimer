@@ -63,9 +63,17 @@ fun CategoryDialog(
     Dialog(
         onDismissRequest = {
             category?.let {
-                onDismissRequest(category.also { it.name = txtField.value.trim()  })
+                onDismissRequest(category.also { it.name = txtField.value.trim() })
             } ?: run {
-                onDismissRequest(Category(id = UUID.randomUUID(), name = txtField.value.trim()))
+                if (txtField.value.isNotBlank()) {
+                    onDismissRequest(
+                        Category(
+                            id = UUID.randomUUID(),
+                            name = txtField.value.trim()
+                        )
+                    )
+                } else
+                    onDismissRequest(null)
             }
 
         },
@@ -96,14 +104,20 @@ fun CategoryDialog(
                                 .height(30.dp)
                                 .clickable {
                                     category?.let {
-                                        onDismissRequest(category.also { it.name = txtField.value.trim()  })
+                                        onDismissRequest(category.also {
+                                            it.name = txtField.value.trim()
+                                        })
                                     } ?: run {
-                                        onDismissRequest(
-                                            Category(
-                                                id = UUID.randomUUID(),
-                                                name = txtField.value.trim()
+                                        if (txtField.value.isNotBlank()) {
+                                            onDismissRequest(
+                                                Category(
+                                                    id = UUID.randomUUID(),
+                                                    name = txtField.value.trim()
+                                                )
                                             )
-                                        )
+                                        } else
+                                            onDismissRequest(null)
+
                                     }
                                 }
                         )

@@ -141,11 +141,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun updateTaskItem(taskItem: TaskItemEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            mainRepository.updateTask(taskItem)
-        }
-    }
     fun onDoneTask(taskItem: TaskItemEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             mainRepository.updateTask(
