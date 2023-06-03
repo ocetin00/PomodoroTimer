@@ -9,8 +9,8 @@ import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PomodoroApp() {
-    PomodoroTheme {
+fun PomodoroApp(darkTheme:Boolean) {
+    PomodoroTheme(darkTheme = darkTheme) {
         val navController = rememberNavController()
         PomodoroNavGraph(
             navController = navController

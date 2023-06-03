@@ -10,16 +10,13 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
-import android.os.CountDownTimer
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.*
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.presentation.ui.MainActivity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
 
 class TimerWorker(
@@ -27,47 +24,61 @@ class TimerWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
-    var timeNotificationBuilder: NotificationCompat.Builder? = null
-    var finishNotificationBuilder: NotificationCompat.Builder? = null
-
-    companion object {
-        private var timer: CountDownTimer? = null
-    }
+    private var timeNotificationBuilder: NotificationCompat.Builder? = null
+    private var finishNotificationBuilder: NotificationCompat.Builder? = null
 
     private var left = 0L
+
+
+    companion object {
+        const val CHANNEL_ID = "PomodoroChannel"
+        const val CHANNEL_NAME = "Pomodoro"
+        const val NOTIFICATION_ID = 1234
+        const val interval = 1000L
+        const val oneMinute = 60000L
+    }
+
+
 
     override suspend fun doWork(): Result {
         val startTime = inputData.getLong("Time", 0)
         val leftTime = inputData.getLong("Left", 0)
         left = leftTime
-        setForeground(createForegroundInfo("Pomodoro Running"))
-        withContext(Dispatchers.IO) {
+        try {
+
+            setForeground(createForegroundInfo("Pomodoro Running"))
             //clear finished notification
-            notificationManager.cancel(1234)
-            repeat((leftTime / 1000).toInt()) {
-                delay(1000)
-                left -= 1000
-                Log.e("kalan", "${leftTime / 60000} : ${(left % 60000) / 1000}")
+            notificationManager.cancel(NOTIFICATION_ID)
+
+            repeat((leftTime / interval).toInt()) {
+                delay(interval)
+                left -= interval
+                Log.e("kalan", "${leftTime / oneMinute} : ${(left % oneMinute) / interval}")
                 setProgress(workDataOf("Left" to left.toFloat() / startTime.toFloat()))
                 timeNotificationBuilder?.let {
                     it.setContentTitle(getLeftTime(left));
-                    notificationManager.notify(123, it.build());
+                    notificationManager.notify(NOTIFICATION_ID, it.build());
                 }
 
-
             }
+
             finishNotificationBuilder?.let {
-                notificationManager.notify(1234, it.build());
+                notificationManager.notify(NOTIFICATION_ID, it.build());
             }
-
+            return Result.success()
+        } catch (
+            e: Exception
+        ) {
+            return Result.failure()
         }
-
-        return Result.success()
     }
 
+    /**
+     * Long to Time
+     */
     private fun getLeftTime(left: Long): String {
-        var minute = (left / 60000).toString()
-        var second = ((left % 60000) / 1000).toString()
+        var minute = (left / oneMinute).toString()
+        var second = ((left % oneMinute) / interval).toString()
         if (minute.length == 1) minute = "0${minute}"
         if (second.length == 1) second = "0${second}"
         return "$minute : $second"
@@ -82,8 +93,8 @@ class TimerWorker(
                 NotificationManager
 
     private fun createForegroundInfo(progress: String): ForegroundInfo {
-        val id = "chanel2"
-        val title = "title1"
+        val id = CHANNEL_ID
+        val title = "Pomodoro Running"
         val cancel = "cancel"
         // This PendingIntent can be used to cancel the worker
         val intent = WorkManager.getInstance(applicationContext)
@@ -144,10 +155,10 @@ class TimerWorker(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel() {
-        val name = "chanel2"
-        val descriptionText = "chanel2"
+        val name = CHANNEL_ID
+        val descriptionText = CHANNEL_NAME
         val importance = NotificationManager.IMPORTANCE_HIGH
-        val mChannel = NotificationChannel("chanel2", name, importance)
+        val mChannel = NotificationChannel(CHANNEL_ID, name, importance)
         mChannel.description = descriptionText
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this

@@ -48,7 +48,6 @@ fun SettingScreen(
     Log.e("PomdoroTime", pomodoroTime.toString())
 
 
-
     Scaffold(
         topBar = {
             MainAppBar(
@@ -90,7 +89,7 @@ fun SettingScreenContent(
 
 
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.primaryContainer,
 
         ) {
         Column(modifier = modifier) {
@@ -136,9 +135,11 @@ fun SettingScreenContent(
                         toggleTheme = intervalSettingParameters.toggleTheme,
                         themeToogleState = intervalSettingParameters.themeToogleState
                     )
+
                     1 -> IntervalSetting(
                         parameters = intervalSettingParameters
                     )
+
                     else -> GeneralSetting(
                         toggleTheme = intervalSettingParameters.toggleTheme,
                         themeToogleState = intervalSettingParameters.themeToogleState
@@ -161,6 +162,46 @@ fun GeneralSetting(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        /*   Surface(
+               shape = MaterialTheme.shapes.extraLarge,
+               contentColor = MaterialTheme.colorScheme.inverseSurface
+           ) {
+               Row(
+                   modifier = Modifier
+                       .height(55.dp)
+                       .fillMaxWidth(0.8f)
+                       .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
+                   horizontalArrangement = Arrangement.SpaceBetween,
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   Text(text = "Dark Theme")
+                   Switch(
+                       checked = themeToogleState,
+                       onCheckedChange = { toggleTheme() })
+               }
+
+           }
+           Spacer(modifier = Modifier.height(12.dp))
+
+           Surface(
+               shape = MaterialTheme.shapes.extraLarge,
+               contentColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)
+           ) {
+               Row(
+                   modifier = Modifier
+                       .height(55.dp)
+                       .fillMaxWidth(0.8f)
+                       .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
+                   horizontalArrangement = Arrangement.SpaceBetween,
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   Text(text = "Daily Notification")
+                   var checkedState by remember { mutableStateOf<Boolean>(false) }
+                   Switch(checked = checkedState, onCheckedChange = { checkedState = !checkedState })
+               }
+
+           }
+           Spacer(modifier = Modifier.height(12.dp))*/
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             contentColor = MaterialTheme.colorScheme.inverseSurface
@@ -174,48 +215,8 @@ fun GeneralSetting(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Dark Theme")
-                Switch(
-                    checked = themeToogleState,
-                    onCheckedChange = { toggleTheme() })
-            }
 
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)
-        ) {
-            Row(
-                modifier = Modifier
-                    .height(55.dp)
-                    .fillMaxWidth(0.8f)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Daily Notification")
-                var checkedState by remember { mutableStateOf<Boolean>(false) }
-                Switch(checked = checkedState, onCheckedChange = { checkedState = !checkedState })
-            }
-
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface
-        ) {
-            Row(
-                modifier = Modifier
-                    .height(55.dp)
-                    .fillMaxWidth(0.8f)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Dark Theme")
-                var checkedState by remember { mutableStateOf<Boolean>(false) }
-                Switch(checked = checkedState, onCheckedChange = { checkedState = !checkedState })
+                Switch(checked = themeToogleState, onCheckedChange = { toggleTheme() })
             }
 
         }
