@@ -19,7 +19,6 @@
         <activity
             android:name=".presentation.ui.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Pomodoro">
             <intent-filter>
@@ -28,9 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".common.util.Time.TimerService"
-            android:stopWithTask="true" />
 
     </application>
 

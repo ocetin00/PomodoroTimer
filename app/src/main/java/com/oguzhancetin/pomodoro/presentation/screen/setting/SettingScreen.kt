@@ -89,7 +89,7 @@ fun SettingScreenContent(
 
 
     Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.background,
 
         ) {
         Column(modifier = modifier) {
