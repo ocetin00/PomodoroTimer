@@ -65,12 +65,13 @@ object WorkUtil {
     /**
      * Start timer according to selected timer
      */
-    fun startTime(context: Application) {
+    fun startTime(context: Application,isSilent: Boolean = false) {
         timerIsRunning.value = true
         request = workRequestBuilder.setInputData(
             workDataOf(
                 "Time" to runningTimeType.value.time,
-                "Left" to (cachedTime ?: runningTimeType.value.time)
+                "Left" to (cachedTime ?: runningTimeType.value.time),
+                "IsSilent" to isSilent
             )
         ).build()
         request?.let { request ->
@@ -134,5 +135,6 @@ object WorkUtil {
     fun Long.getMinute(): Long {
         return this / 60000
     }
+
 
 }

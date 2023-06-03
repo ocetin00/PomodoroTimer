@@ -31,13 +31,13 @@ class TimerWorker(
 
 
     companion object {
-        const val CHANNEL_ID = "PomodoroChannel"
+        const val CHANNEL_ID = "PomodoroTimerChannel"
         const val CHANNEL_NAME = "Pomodoro"
-        const val NOTIFICATION_ID = 1234
+        const val FINISH_NOTIFICATION_ID = 12345
+        const val TIMER_NOTIFICATION_ID = 123456
         const val interval = 1000L
         const val oneMinute = 60000L
     }
-
 
 
     override suspend fun doWork(): Result {
@@ -48,7 +48,7 @@ class TimerWorker(
 
             setForeground(createForegroundInfo("Pomodoro Running"))
             //clear finished notification
-            notificationManager.cancel(NOTIFICATION_ID)
+            notificationManager.cancel(TIMER_NOTIFICATION_ID)
 
             repeat((leftTime / interval).toInt()) {
                 delay(interval)
@@ -57,13 +57,13 @@ class TimerWorker(
                 setProgress(workDataOf("Left" to left.toFloat() / startTime.toFloat()))
                 timeNotificationBuilder?.let {
                     it.setContentTitle(getLeftTime(left));
-                    notificationManager.notify(NOTIFICATION_ID, it.build());
+                    notificationManager.notify(TIMER_NOTIFICATION_ID, it.build());
                 }
 
             }
 
             finishNotificationBuilder?.let {
-                notificationManager.notify(NOTIFICATION_ID, it.build());
+                notificationManager.notify(FINISH_NOTIFICATION_ID, it.build());
             }
             return Result.success()
         } catch (
@@ -143,14 +143,17 @@ class TimerWorker(
             .setTicker(title)
             .setContentText(progress)
             .setAutoCancel(true)
-            .setSound(soundUri)
+            //.setSound(soundUri)
             .setSmallIcon(android.R.drawable.arrow_down_float)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
             .setContentIntent(pendingIntent)
 
+        val isSilent = inputData.getBoolean("IsSilent", false)
+        finishNotificationBuilder?.setSilent(isSilent)
 
-        return ForegroundInfo(123, timeNotificationBuilder!!.build())
+
+        return ForegroundInfo(TIMER_NOTIFICATION_ID, timeNotificationBuilder!!.build())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -167,11 +170,12 @@ class TimerWorker(
             Uri.parse("android.resource://" + applicationContext.packageName + "/" + R.raw.bellring)
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .build()
 
 
-        mChannel.setSound(soundUri, audioAttributes)
+            mChannel.setSound(soundUri, audioAttributes)
+
 
         val notificationManager =
             applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager

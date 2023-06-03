@@ -26,7 +26,6 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.presentation.screen.setting.SettingViewModel
-import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.presentation.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil.getMinute
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
@@ -67,9 +66,13 @@ fun SettingScreen(
                 },
                 onDecrease = { time ->
                     viewModel.decreaseTime(time)
-                },
+                }
+            ),
+            GeneralSettingsParameters(
                 toggleTheme = { viewModel.ToggleAppTheme() },
-                themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value
+                themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value,
+                tickSoundToggleState = viewModel.isSilentNotification.collectAsState(initial = false).value,
+                toggleThickSound = { viewModel.toggleTickSound() },
             )
         )
     }
@@ -82,7 +85,8 @@ fun SettingScreen(
 @Composable
 fun SettingScreenContent(
     modifier: Modifier = Modifier,
-    intervalSettingParameters: IntervalSettingParameters
+    intervalSettingParameters: IntervalSettingParameters,
+    generalSettingsParameters: GeneralSettingsParameters
 ) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
@@ -132,8 +136,7 @@ fun SettingScreenContent(
             ) { page ->
                 when (page) {
                     0 -> GeneralSetting(
-                        toggleTheme = intervalSettingParameters.toggleTheme,
-                        themeToogleState = intervalSettingParameters.themeToogleState
+                        generalSettingsParameters = generalSettingsParameters
                     )
 
                     1 -> IntervalSetting(
@@ -141,8 +144,7 @@ fun SettingScreenContent(
                     )
 
                     else -> GeneralSetting(
-                        toggleTheme = intervalSettingParameters.toggleTheme,
-                        themeToogleState = intervalSettingParameters.themeToogleState
+                        generalSettingsParameters = generalSettingsParameters
                     )
                 }
             }
@@ -154,8 +156,7 @@ fun SettingScreenContent(
 
 @Composable
 fun GeneralSetting(
-    toggleTheme: () -> Unit,
-    themeToogleState: Boolean
+    generalSettingsParameters: GeneralSettingsParameters,
 ) {
     Column(
         modifier = Modifier
@@ -216,7 +217,9 @@ fun GeneralSetting(
             ) {
                 Text(text = "Dark Theme")
 
-                Switch(checked = themeToogleState, onCheckedChange = { toggleTheme() })
+                Switch(
+                    checked = generalSettingsParameters.themeToogleState,
+                    onCheckedChange = { generalSettingsParameters.toggleTheme() })
             }
 
         }
@@ -234,8 +237,9 @@ fun GeneralSetting(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Enable Tick Sound")
-                var checkedState by remember { mutableStateOf<Boolean>(false) }
-                Switch(checked = checkedState, onCheckedChange = { checkedState = !checkedState })
+                Switch(
+                    checked = generalSettingsParameters.tickSoundToggleState,
+                    onCheckedChange = { generalSettingsParameters.toggleThickSound() })
             }
 
         }
@@ -427,6 +431,11 @@ data class IntervalSettingParameters(
     val longTime: Long = 0L,
     val onIncrease: (Times) -> Unit = {},
     val onDecrease: (Times) -> Unit = {},
+)
+
+data class GeneralSettingsParameters(
     val toggleTheme: () -> Unit = {},
-    val themeToogleState: Boolean
+    val toggleThickSound: () -> Unit = {},
+    val themeToogleState: Boolean,
+    val tickSoundToggleState: Boolean,
 )

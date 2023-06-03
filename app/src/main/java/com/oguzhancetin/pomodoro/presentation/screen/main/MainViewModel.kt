@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil
 import com.oguzhancetin.pomodoro.common.util.combine
+import com.oguzhancetin.pomodoro.common.util.preference.IS_SILENT_NOTIFICATION
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.common.util.preference.dataStore
 import com.oguzhancetin.pomodoro.common.util.removeDetails
@@ -15,6 +16,7 @@ import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -53,7 +55,12 @@ class MainViewModel @Inject constructor(
     init {
         WorkUtil.onFinishPomodoro = {
             viewModelScope.launch {
-                addPomodoroUseCase.invoke(Pomodoro(id = UUID.randomUUID(), doneDate  = calender.removeDetails().timeInMillis))
+                addPomodoroUseCase.invoke(
+                    Pomodoro(
+                        id = UUID.randomUUID(),
+                        doneDate = calender.removeDetails().timeInMillis
+                    )
+                )
             }
         }
     }
@@ -76,6 +83,11 @@ class MainViewModel @Inject constructor(
     private var _pomodoroTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
             preferences[Times.Pomodoro().getPrefKey()] ?: Times.Pomodoro().time
+        }
+
+    private var _isSilentNotification: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[IS_SILENT_NOTIFICATION] ?: false
         }
 
     private var _timerIsRunning = WorkUtil.timerIsRunning
@@ -117,15 +129,20 @@ class MainViewModel @Inject constructor(
 
 
     fun pauseOrPlayTimer() {
-        if (_timerIsRunning.value) {
-            WorkUtil.apply {
-                stopTimer(context)
-            }
-        } else {
-            WorkUtil.stopTimer(context)
-            WorkUtil.startTime(context)
+        viewModelScope.launch {
+            Log.d("isSilent", _isSilentNotification.first().toString())
+            if (_timerIsRunning.value) {
+                WorkUtil.apply {
+                    stopTimer(context)
+                }
+            } else {
+                WorkUtil.stopTimer(context)
+                WorkUtil.startTime(context, isSilent = _isSilentNotification.first())
 
+            }
         }
+
+
     }
 
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.common.util.preference.IS_DARK_MODE_KEY
+import com.oguzhancetin.pomodoro.common.util.preference.IS_SILENT_NOTIFICATION
 import com.oguzhancetin.pomodoro.common.util.preference.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,6 +38,10 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
         .map { preferences ->
             preferences[IS_DARK_MODE_KEY] ?: false
         }
+     var isSilentNotification: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[IS_SILENT_NOTIFICATION] ?: false
+        }
 
 
     fun increaseTime(time:Times) {
@@ -66,6 +71,15 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
             context.dataStore.edit { settings->
                 val isDarkTheme = settings[IS_DARK_MODE_KEY] ?: false
                 settings[IS_DARK_MODE_KEY] = !isDarkTheme
+            }
+        }
+    }
+
+    fun toggleTickSound() {
+        viewModelScope.launch (Dispatchers.IO){
+            context.dataStore.edit { settings->
+                val isSilentNotification = settings[IS_SILENT_NOTIFICATION] ?: false
+                settings[IS_SILENT_NOTIFICATION] = !isSilentNotification
             }
         }
     }
