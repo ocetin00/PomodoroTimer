@@ -213,7 +213,7 @@ fun StatelessTimer(
         Text(
             text = time,
             modifier = Modifier.align(Alignment.Center),
-            style = TextStyle(color =  textColor, fontSize = 55.sp, fontWeight = FontWeight.Bold)
+            style = TextStyle(color =  textColor, fontSize = 65.sp, fontWeight = FontWeight.Bold)
         )
 
 

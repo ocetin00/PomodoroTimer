@@ -126,8 +126,8 @@ object WorkUtil {
 
     }
 
-    fun changeCurrentTime(time: Times, context: Application) {
-        stopTimer(context)
+    fun changeCurrentTime(time: Times, context: Application? = null) {
+        context?.let { stopTimer(it) }
         runningTimeType.value = time
         cachedTime = runningTimeType.value.time
     }

@@ -65,6 +65,7 @@ fun MainScreen(
 ) {
 
     val uiState by viewModel.mainUiState.collectAsStateWithLifecycle()
+    val favoriteTaskUiState by viewModel.favoriteTaskUiState.collectAsStateWithLifecycle()
     val long = uiState.timePreferencesState.long
     val short = uiState.timePreferencesState.short
     val pomodoro = uiState.timePreferencesState.pomodoro
@@ -148,7 +149,7 @@ fun MainScreen(
                         timerIsRunning = uiState.timerIsRunning,
                         pauseOrPlayTimer = { viewModel.pauseOrPlayTimer() },
                         restart = { viewModel.restart() },
-                        favoriteTaskItems = uiState.favouriteTasks,
+                        favoriteTaskItems = favoriteTaskUiState.favouriteTasks,
                         onItemFavorite = { taskItem -> viewModel.updateTask(taskItem = taskItem) },
                         onItemFinish = { taskItem -> viewModel.onDoneTask(taskItem) },
                         onAddTaskButtonClicked = onAddTaskButtonClicked,
@@ -302,8 +303,7 @@ fun MainScreenContent(
                 restart = restart,
                 pauseOrPlayTimer = pauseOrPlayTimer
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
 
             if (selectedTimeType !is Times.Pomodoro) {
@@ -390,11 +390,13 @@ fun TimerBody2(
             handleColor = Color.Green,
             inactiveBarColor = light_RedBackgroundContainer,
             activeBarColor = Color.White,
-            modifier = Modifier.size(250.dp)
+            modifier = Modifier.size(300.dp)
         )
 
         Row(
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
 
@@ -407,17 +409,17 @@ fun TimerBody2(
                     },
                     contentDescription = "",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(40.dp)
 
                 )
             }
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             IconButton(modifier = Modifier,
                 onClick = { restart() })
             {
                 Icon(
                     Icons.Filled.Refresh, "",
-                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(35.dp)
+                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp)
                 )
             }
 
@@ -477,8 +479,8 @@ fun FavoriteTask(
         Row(
             modifier = modifier
                 .fillMaxSize()
-                .height(45.dp)
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .height(50.dp)
+                .padding(horizontal = 30.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

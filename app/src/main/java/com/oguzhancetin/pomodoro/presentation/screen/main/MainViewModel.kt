@@ -16,6 +16,7 @@ import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.*
@@ -28,12 +29,15 @@ data class MainUiState(
     val timeProgress: Float = 0f,
     val timerIsRunning: Boolean = false,
     val leftTime: String = "00:00",
-    val favouriteTasks: List<TaskItemEntity> = listOf(),
     val isLoading: Boolean = false,
     val userMessage: String? = null,
     val timePreferencesState: PreferencesState = PreferencesState(),
     val isPomodoroFinish: Boolean = false
 
+)
+
+data class FavoriteTaskUiState(
+    val favouriteTasks: List<TaskItemEntity> = listOf()
 )
 
 data class PreferencesState(
@@ -43,6 +47,7 @@ data class PreferencesState(
 )
 
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val context: Application,
@@ -63,9 +68,20 @@ class MainViewModel @Inject constructor(
                 )
             }
         }
+
     }
 
     private val _favoriteTaskItems = mainRepository.getFavoriteTaskItems()
+    val favoriteTaskUiState: StateFlow<FavoriteTaskUiState> =
+        combine(_favoriteTaskItems, transform = {
+            FavoriteTaskUiState(it.first())
+
+        })
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = FavoriteTaskUiState()
+            )
 
 
     /**
@@ -74,21 +90,28 @@ class MainViewModel @Inject constructor(
      */
     private var _longTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
-            preferences[Times.Long().getPrefKey()] ?: Times.Long().time
+            val time = preferences[Times.Long().getPrefKey()] ?: Times.Long().time
+            //updateCurrentTime(Times.Long(time))
+            return@map time
         }
     private var _shortTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
-            preferences[Times.Short().getPrefKey()] ?: Times.Short().time
+            val time = preferences[Times.Short().getPrefKey()] ?: Times.Short().time
+            //updateCurrentTime(Times.Short(time))
+            return@map time
         }
     private var _pomodoroTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
-            preferences[Times.Pomodoro().getPrefKey()] ?: Times.Pomodoro().time
+            val time = preferences[Times.Pomodoro().getPrefKey()] ?: Times.Pomodoro().time
+            updateCurrentTime(Times.Pomodoro(time))
+            return@map time
         }
 
     private var _isSilentNotification: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[IS_SILENT_NOTIFICATION] ?: false
         }
+
 
     private var _timerIsRunning = WorkUtil.timerIsRunning
     private var _runningTimeType = WorkUtil.runningTimeType
@@ -103,14 +126,13 @@ class MainViewModel @Inject constructor(
     val mainUiState =
         combine(
             _timePreferencesState,
-            _favoriteTaskItems,
             _progress,
             _timerIsRunning,
             _runningTimeType,
-            transform = { timePreferencesState, favoriteTaskItems, progress, timerIsRunning, runningTimeType ->
+            transform = { timePreferencesState, progress, timerIsRunning, runningTimeType ->
+                Log.d("timerPref", "$timePreferencesState.toString()")
                 MainUiState().copy(
                     timePreferencesState = timePreferencesState,
-                    favouriteTasks = favoriteTaskItems,
                     timeProgress = progress,
                     timerIsRunning = timerIsRunning,
                     leftTime = runningTimeType.getText(progress),
@@ -142,9 +164,7 @@ class MainViewModel @Inject constructor(
             }
         }
 
-
     }
-
 
     fun restart() =
         WorkUtil.restart(context)
