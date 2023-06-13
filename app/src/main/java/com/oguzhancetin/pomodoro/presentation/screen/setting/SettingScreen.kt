@@ -1,10 +1,10 @@
 package com.oguzhancetin.pomodoro.ui
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
-import androidx.compose.material.Switch
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
@@ -29,12 +29,50 @@ import com.oguzhancetin.pomodoro.presentation.screen.setting.SettingViewModel
 import com.oguzhancetin.pomodoro.presentation.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil.getMinute
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
+import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Composable
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+fun SettingScreenPreview() {
+
+
+    PomodoroTheme {
+        Scaffold(
+            topBar = {
+                MainAppBar(
+                    currentRoute = "Setting", canNavigateBack = true, navigateUp = { }
+                )
+
+            }
+        ) { innerPadding ->
+            SettingScreenContent(
+                modifier = Modifier.padding(innerPadding),
+                intervalSettingParameters = IntervalSettingParameters(
+                    pomodoroTime = 0L,
+                    longTime = 0L,
+                    shortTime = 0L,
+                    onIncrease = {
+                    },
+                    onDecrease = {
+                    }
+                ),
+                GeneralSettingsParameters(
+                    toggleTheme = { },
+                    themeToogleState = false,
+                    tickSoundToggleState = true,
+                    toggleThickSound = { },
+                )
+
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
@@ -93,15 +131,15 @@ fun SettingScreenContent(
 
 
     Surface(
-        color = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.primaryContainer
 
-        ) {
+    ) {
         Column(modifier = modifier) {
+
             TabRow(
                 modifier = Modifier.padding(paddingValues = PaddingValues(horizontal = 20.dp)),
-                backgroundColor = MaterialTheme.colorScheme.background,
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 selectedTabIndex = pagerState.currentPage,
-                divider = {},
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
                         Modifier
@@ -205,45 +243,67 @@ fun GeneralSetting(
            Spacer(modifier = Modifier.height(12.dp))*/
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface
-        ) {
-            Row(
+
+            ) {
+            Card(
                 modifier = Modifier
                     .height(55.dp)
-                    .fillMaxWidth(0.8f)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .background(color = MaterialTheme.colorScheme.onPrimary),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
             ) {
-                Text(text = "Dark Theme")
+                Row(
+                    modifier = Modifier
+                        .height(55.dp)
+                        .padding(paddingValues = PaddingValues(horizontal = 10.dp))
+                        .fillMaxWidth(0.8f),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                Switch(
-                    checked = generalSettingsParameters.themeToogleState,
-                    onCheckedChange = { generalSettingsParameters.toggleTheme() })
+                    Text(text = "Dark Theme", color = MaterialTheme.colorScheme.onPrimaryContainer)
+
+
+                    Switch(
+                        checked = generalSettingsParameters.themeToogleState,
+                        onCheckedChange = { generalSettingsParameters.toggleTheme() })
+                }
             }
+
 
         }
         Spacer(modifier = Modifier.height(12.dp))
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface
-        ) {
-            Row(
+
+            ) {
+            Card(
                 modifier = Modifier
                     .height(55.dp)
-                    .fillMaxWidth(0.8f)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .background(color = MaterialTheme.colorScheme.onPrimary),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
             ) {
-                Text(text = "Enable Tick Sound")
-                Switch(
-                    checked = generalSettingsParameters.tickSoundToggleState,
-                    onCheckedChange = { generalSettingsParameters.toggleThickSound() })
+                Row(
+                    modifier = Modifier
+                        .height(55.dp)
+                        .fillMaxWidth(0.8f)
+                        .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Enable Tick Sound",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Switch(
+                        checked = generalSettingsParameters.tickSoundToggleState,
+                        onCheckedChange = { generalSettingsParameters.toggleThickSound() })
+                }
+
+
             }
-
         }
-
 
     }
 }
