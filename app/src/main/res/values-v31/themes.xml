@@ -2,10 +2,13 @@
 <resources>
 
 
-    <style name="Theme.Pomodoro" parent="android:Theme.Material.Light.NoActionBar" >
-        <item name="android:statusBarColor">@color/black</item>
-        <item name="android:windowBackground">@color/black</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent</item>
+    <style name="Theme.Pomodoro" parent="Theme.AppCompat.DayNight" >
 
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
     </style>
+
 </resources>
