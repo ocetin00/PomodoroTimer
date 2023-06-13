@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -501,6 +502,7 @@ fun FavoriteTask(
             Text(
                 text = taskItem.description ?: "",
                 modifier = Modifier.padding(horizontal = 3.dp),
+                overflow = TextOverflow.Ellipsis,
                 style = TextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = MaterialTheme.typography.labelMedium.fontSize

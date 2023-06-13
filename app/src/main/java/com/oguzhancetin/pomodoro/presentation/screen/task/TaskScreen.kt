@@ -42,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -299,6 +300,7 @@ fun TaskCategoryItem(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
+                    overflow = TextOverflow.Ellipsis,
                     text = "$taskCount Task",
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
@@ -614,7 +616,9 @@ fun TaskBodyHeader(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { onClickNewTask() }) {
+            IconButton(onClick = {
+                onClickNewTask()
+            }) {
                 Icon(
                     imageVector = Icons.Filled.AddCircle,
                     "add task",
@@ -641,6 +645,28 @@ fun TaskBodyHeader(
 }
 
 @Composable
+@Preview
+fun TaskBodyItemPreview() {
+    Column {
+        TaskBodyItem(
+            taskItem = TaskItem(
+                UUID.randomUUID(),
+                "dasdsadsadsad sadsadsadsad asdsa" +
+                        " dsad sadasd sad sad sad sadasdasdadsad as" +
+                        " dasdsadsadsadasd asd sad asd asd sad asd"
+            ), onClickTaskItem = {}
+        )
+        TaskBodyItem(
+            taskItem = TaskItem(
+                UUID.randomUUID(),
+                "dasdsadsadsad sadsadsadsad asdsa"
+            ), onClickTaskItem = {}
+        )
+    }
+
+}
+
+@Composable
 fun TaskBodyItem(
     taskItem: TaskItem,
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
@@ -653,10 +679,7 @@ fun TaskBodyItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+
                 IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = false }) }) {
                     Icon(
                         imageVector = Icons.Filled.CheckCircle,
@@ -665,10 +688,12 @@ fun TaskBodyItem(
                     )
                 }
                 Text(
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .clickable {
                             onClickTaskItem(taskItem.id)
-                        },
+                        }
+                        .weight(1f),
                     text = taskItem.description ?: "",
                     style = TextStyle(
                         textDecoration = TextDecoration.LineThrough,
@@ -676,7 +701,6 @@ fun TaskBodyItem(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     )
                 )
-            }
 
             IconButton(onClick = { onItemFinish(taskItem.apply { isFavorite = !isFavorite }) }) {
                 Icon(
@@ -694,10 +718,7 @@ fun TaskBodyItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+
                 IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = true }) }) {
                     Icon(
                         imageVector = Icons.Filled.RadioButtonUnchecked,
@@ -708,13 +729,16 @@ fun TaskBodyItem(
                 Text(
                     modifier = Modifier.clickable {
                         onClickTaskItem(taskItem.id)
-                    },
+                    }
+                        .weight(1f),
                     text = taskItem.description ?: " ", style = TextStyle(
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    )
+                    ),
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
+
+
             IconButton(onClick = { onItemFinish(taskItem.apply { isFavorite = !isFavorite }) }) {
                 Icon(
                     imageVector = if (taskItem.isFavorite) Icons.Filled.Star else Icons.Outlined.Grade,

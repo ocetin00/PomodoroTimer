@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,20 +33,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.oguzhancetin.pomodoro.domain.model.Category
+import com.patrykandpatrick.vico.compose.component.shapeComponent
 import java.util.UUID
 
 //previewCategoryAlertDialog
 @Composable
 @Preview
 fun CategoryDialogPreview() {
-    CategoryDialog(
-        category = Category(
-            id = UUID.randomUUID(),
-            name = "Category 1",
-        ),
-        onDismissRequest = {},
-        onDeleteClick = {}
-    )
+    Column {
+        CategoryDialog(
+            category = Category(
+                id = UUID.randomUUID(),
+                name = "Category 1",
+            ),
+            onDismissRequest = {},
+            onDeleteClick = {}
+        )
+        CategoryDialog(
+            category = null,
+            onDismissRequest = {},
+            onDeleteClick = {}
+        )
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,27 +70,27 @@ fun CategoryDialog(
     val txtFieldError = remember { mutableStateOf("") }
     val txtField = remember { mutableStateOf(category?.name ?: "") }
 
-    Dialog(
-        onDismissRequest = {
-            category?.let {
-                onDismissRequest(category.also { it.name = txtField.value.trim() })
-            } ?: run {
-                if (txtField.value.isNotBlank()) {
-                    onDismissRequest(
-                        Category(
-                            id = UUID.randomUUID(),
-                            name = txtField.value.trim()
-                        )
+    val save = {
+        category?.let {
+            onDismissRequest(category.also { it.name = txtField.value.trim() })
+        } ?: run {
+            if (txtField.value.isNotBlank()) {
+                onDismissRequest(
+                    Category(
+                        id = UUID.randomUUID(),
+                        name = txtField.value.trim()
                     )
-                } else
-                    onDismissRequest(null)
-            }
-
-        },
+                )
+            } else
+                onDismissRequest(null)
+        }
+    }
+    Dialog(
+        onDismissRequest = save,
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            color = Color.White,
         ) {
             Box(
                 modifier = modifier,
@@ -103,22 +113,7 @@ fun CategoryDialog(
                                 .width(30.dp)
                                 .height(30.dp)
                                 .clickable {
-                                    category?.let {
-                                        onDismissRequest(category.also {
-                                            it.name = txtField.value.trim()
-                                        })
-                                    } ?: run {
-                                        if (txtField.value.isNotBlank()) {
-                                            onDismissRequest(
-                                                Category(
-                                                    id = UUID.randomUUID(),
-                                                    name = txtField.value.trim()
-                                                )
-                                            )
-                                        } else
-                                            onDismissRequest(null)
-
-                                    }
+                                    onDismissRequest(null)
                                 }
                         )
                     }
@@ -150,10 +145,9 @@ fun CategoryDialog(
                             txtField.value = it.take(10)
                         })
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(15.dp))
 
                     category?.let {
-                        Spacer(modifier = Modifier.height(10.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
@@ -166,6 +160,18 @@ fun CategoryDialog(
                                     onDeleteClick(category)
                                 }
                             )
+                        }
+                    } ?: run {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+
+                            ) {
+
+                            Button(onClick = { save() }) {
+                                Text(text = "Save")
+                            }
                         }
                     }
                 }
