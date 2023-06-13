@@ -174,7 +174,7 @@ class TimerWorker(
             .build()
 
 
-            mChannel.setSound(soundUri, audioAttributes)
+        mChannel.setSound(soundUri, audioAttributes)
 
 
         val notificationManager =

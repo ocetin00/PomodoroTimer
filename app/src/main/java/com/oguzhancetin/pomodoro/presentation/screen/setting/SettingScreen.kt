@@ -263,7 +263,6 @@ fun GeneralSetting(
 
                     Text(text = "Dark Theme", color = MaterialTheme.colorScheme.onPrimaryContainer)
 
-
                     Switch(
                         checked = generalSettingsParameters.themeToogleState,
                         onCheckedChange = { generalSettingsParameters.toggleTheme() })
