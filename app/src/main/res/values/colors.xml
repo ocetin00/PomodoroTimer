@@ -6,5 +6,7 @@
     <color name="colorAccent">#E30425</color>
     <color name="onPrimaryContainer">#1A1C1E</color>
     <color name="onPrimaryContainerDark">#E2E2E6</color>
+    <color name="transparent">#00FFFFFF</color>
+
 
 </resources>

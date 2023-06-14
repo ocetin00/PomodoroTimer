@@ -59,20 +59,7 @@ fun StatusScreen(
     if (reportUIState.isLoading) {
 
     } else {
-        val systemUiController = rememberSystemUiController()
-        val useDarkIcons = !isSystemInDarkTheme()
-        DisposableEffect(systemUiController, useDarkIcons) {
-            // Update all of the system bar colors to be transparent, and use
-            // dark icons if we're in light theme
-            systemUiController.setSystemBarsColor(
-                color = androidx.compose.ui.graphics.Color.Transparent,
-                darkIcons = useDarkIcons
-            )
 
-            // setStatusBarColor() and setNavigationBarColor() also exist
-
-            onDispose {}
-        }
         StatusScreenContent(
             modifier,
             reportUIState.pomodoroList,
