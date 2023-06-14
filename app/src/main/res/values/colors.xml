@@ -4,5 +4,7 @@
     <color name="colorPrimary">#FFD0E4FF</color>
     <color name="colorPrimaryDark">#FF004A7A</color>
     <color name="colorAccent">#E30425</color>
+    <color name="onPrimaryContainer">#1A1C1E</color>
+    <color name="onPrimaryContainerDark">#E2E2E6</color>
 
 </resources>

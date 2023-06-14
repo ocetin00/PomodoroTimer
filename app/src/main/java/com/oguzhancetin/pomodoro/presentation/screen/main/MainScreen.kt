@@ -201,7 +201,6 @@ fun SheetContent(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     FavoriteTask(
-                        modifier = Modifier.fillMaxSize(),
                         taskItem = task,
                         onItemFavorite = onItemFavorite,
                         onItemFinish = onItemFinish
@@ -324,7 +323,7 @@ fun MainScreenContent(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             FavoriteTask(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier,
                                 taskItem = task,
                                 onItemFavorite = onItemFavorite,
                                 onItemFinish = onItemFinish
@@ -441,7 +440,7 @@ fun AddTaskButton(
     ) {
         Row(
             modifier = modifier
-                .fillMaxWidth()
+                .fillMaxWidth(fraction = 0.8f)
                 .height(45.dp)
                 .padding(horizontal = 20.dp, vertical = 10.dp)
                 .clickable {
@@ -455,7 +454,7 @@ fun AddTaskButton(
                 imageVector = Icons.Outlined.AddCircle,
                 contentDescription = stringResource(R.string.add_task)
             )
-            Spacer(modifier = Modifier.width(30.dp))
+            Spacer(modifier = Modifier.width(20.dp))
 
             Text("Add Task", color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
@@ -479,9 +478,9 @@ fun FavoriteTask(
     ) {
         Row(
             modifier = modifier
-                .fillMaxSize()
-                .height(50.dp)
-                .padding(horizontal = 10.dp, vertical = 10.dp),
+                .fillMaxWidth(0.8f)
+                .height(45.dp)
+                .padding(vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -528,52 +527,4 @@ fun FavoriteTask(
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MainAppBar(
-    openDrawer: () -> Unit = {},
-    modifier: Modifier = Modifier,
-    topAppBarState: TopAppBarState = rememberTopAppBarState(),
-    canNavigateBack: Boolean = false,
-    scrollBehavior: TopAppBarScrollBehavior? =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState),
-    navigateUp: () -> Unit = {},
-    currentRoute: String
-) {
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = currentRoute, color = light_onRedBackground) },
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            } else {
-                IconButton(onClick = openDrawer) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = "Menu"
-                    )
-                }
-            }
-        }/*,
-        actions = {
-            IconButton(onClick = { *//* TODO: Open search *//* }) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = stringResource(R.string.menu),
-                    tint = light_onSurfaceRed
-                )
-            }
-        }*/,
-        scrollBehavior = scrollBehavior,
-        modifier = modifier
-    )
-}
 

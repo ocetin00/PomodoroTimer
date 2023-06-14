@@ -1,9 +1,12 @@
 package com.oguzhancetin.pomodoro.presentation.screen.report
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.common.Resource
+import com.oguzhancetin.pomodoro.common.util.preference.IS_DARK_MODE_KEY
+import com.oguzhancetin.pomodoro.common.util.preference.dataStore
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.common.util.removeDetails
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
@@ -12,6 +15,7 @@ import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.GetCurrentWeekPomodoroListUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetCurrentWeekDoneTaskItems
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -22,13 +26,15 @@ data class ReportUIState(
     val pomodoroList: List<Pomodoro> = listOf(),
     val taskList: List<TaskItem> = listOf(),
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isDarkTheme:Boolean? = false
 )
 
 @HiltViewModel
 class ReportViewModal @Inject constructor(
     private val getPomodoroListUseCase: GetCurrentWeekPomodoroListUseCase,
     private val getCurrentWeekDoneTaskItems: GetCurrentWeekDoneTaskItems,
+    @ApplicationContext val context: Context
 ) : ViewModel() {
 
     private var currentWeekMillis: Long = 0L
@@ -48,11 +54,16 @@ class ReportViewModal @Inject constructor(
     private val _pomodoroList = getPomodoroListUseCase.invoke(currentWeekMillis)
     private val _taskList = getCurrentWeekDoneTaskItems.invoke(currentWeekMillis)
 
+    private var _isDarkTheme:Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[IS_DARK_MODE_KEY] ?: false
+        }
+
 
     private val _isLoading = MutableStateFlow(false)
 
     val reportUIState: StateFlow<ReportUIState> =
-        combine(_pomodoroList, _taskList, _isLoading) { pomodoroList, taskList, _ ->
+        combine(_pomodoroList, _taskList, _isLoading,_isDarkTheme) { pomodoroList, taskList, _,isDarkTheme ->
             Log.d("pomodoroList", pomodoroList.toString())
             val state = when (pomodoroList) {
                 is Resource.Loading<*> -> ReportUIState().copy(
@@ -69,6 +80,7 @@ class ReportViewModal @Inject constructor(
                         ReportUIState().copy(
                             pomodoroList = it,
                             isLoading = false,
+                            isDarkTheme = isDarkTheme
                         )
                     } ?: ReportUIState().copy()
                 }

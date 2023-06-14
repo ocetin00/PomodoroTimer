@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Timelapse
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oguzhancetin.pomodoro.R
@@ -37,7 +39,7 @@ fun AppDrawer(
             selected = currentRoute == PomodoroDestinations.MAIN_ROUTE,
             onClick = {
                 closeDrawer();navigateToMain()
-                      },
+            },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
         Spacer(Modifier.height(12.dp))
@@ -69,7 +71,11 @@ fun AppDrawer(
 @Composable
 fun DrawerSheetHeader(modifier: Modifier = Modifier) {
     Row(modifier) {
-        Icon(imageVector = Icons.Filled.Timelapse, contentDescription = "pomodoro_icon")
+        Icon(
+            imageVector = Icons.Filled.Timer,
+            tint = MaterialTheme.colorScheme.primary,
+            contentDescription = "Pomodoro Icon"
+        )
         Spacer(Modifier.width(8.dp))
         Text("Pomodoro")
     }
