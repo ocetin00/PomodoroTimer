@@ -1,7 +1,6 @@
 package com.oguzhancetin.pomodoro.presentation.ui.commonUI
 
 import android.graphics.Color
-import android.icu.text.NumberFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.mikephil.charting.data.Entry
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.entryModelOf
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.rememberChartStyle
+import com.patrykandpatrick.vico.compose.axis.axisLabelComponent
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
@@ -22,12 +21,10 @@ import com.patrykandpatrick.vico.compose.style.currentChartStyle
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.axis.formatter.DecimalFormatAxisValueFormatter
-import com.patrykandpatrick.vico.core.axis.formatter.PercentageFormatAxisValueFormatter
-import com.patrykandpatrick.vico.core.chart.values.ChartValues
 import com.patrykandpatrick.vico.core.component.shape.LineComponent
-import com.patrykandpatrick.vico.core.formatter.DecimalFormatValueFormatter
-import java.text.DecimalFormat
+import java.math.RoundingMode
 
+@Preview()
 @Composable
 fun PomodoroAppChart(
     chartPair: List<Pair<Int, Int>> = listOf(
@@ -35,11 +32,13 @@ fun PomodoroAppChart(
         Pair(1, 3),
         Pair(2, 3),
         Pair(3, 2),
-        Pair(4, 9),
+        Pair(4, 5),
         Pair(5, 1),
-        Pair(6, 1)
+        Pair(6, 1),
+
     ),
-    bottomAxisValueFormatter: AxisValueFormatter<AxisPosition.Horizontal.Bottom>?,
+    bottomAxisValueFormatter: AxisValueFormatter<AxisPosition.Horizontal.Bottom>? = null,
+    startAxisValueFormatter: AxisValueFormatter<AxisPosition.Vertical.Start>? = null,
 ) {
 
 
@@ -50,7 +49,7 @@ fun PomodoroAppChart(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-        ProvideChartStyle(rememberChartStyle(listOf(entityColor))) {
+        ProvideChartStyle(rememberChartStyle(listOf(entityColor,labelColor))) {
             val defaultColumns = currentChartStyle.columnChart.columns
             Chart(
                 chart = columnChart(
@@ -65,13 +64,19 @@ fun PomodoroAppChart(
                     }
                 ),
                 model = entryModelOf(chartPair),
-                startAxis =
+                startAxis = startAxisValueFormatter?.let {
                     startAxis(
+                        valueFormatter = it,
+                        label = rememberAxisLabel(),
+                        maxLabelCount = 10,
                     )
+                }
+
                 ,
                 bottomAxis = bottomAxisValueFormatter?.let {
                     bottomAxis(
                         valueFormatter = it,
+                        label = rememberAxisLabel(),
                         guideline = LineComponent(
                             color = Color.TRANSPARENT,
                             thicknessDp = 0f
@@ -81,3 +86,8 @@ fun PomodoroAppChart(
         }
     }
 }
+
+@Composable
+private fun rememberAxisLabel() = axisLabelComponent(
+    color = MaterialTheme.colorScheme.onSurface,
+)

@@ -481,7 +481,7 @@ fun FavoriteTask(
             modifier = modifier
                 .fillMaxSize()
                 .height(50.dp)
-                .padding(horizontal = 30.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -501,7 +501,9 @@ fun FavoriteTask(
 
             Text(
                 text = taskItem.description ?: "",
-                modifier = Modifier.padding(horizontal = 3.dp),
+                modifier = Modifier
+                    .padding(horizontal = 3.dp)
+                    .weight(1f),
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,

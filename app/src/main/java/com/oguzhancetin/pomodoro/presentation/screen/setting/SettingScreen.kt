@@ -9,14 +9,12 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,9 +22,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
-import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.presentation.screen.setting.SettingViewModel
-import com.oguzhancetin.pomodoro.presentation.ui.theme.light_onRedBackground
 import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil.getMinute
 import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
 import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
@@ -128,8 +124,6 @@ fun SettingScreenContent(
 ) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
-
-
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer
 
@@ -191,6 +185,119 @@ fun SettingScreenContent(
 
 }
 
+@Composable
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+fun GeneralSettingsRowPreview() {
+    PomodoroTheme {
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                IntervalSettingRow(
+                    title = "Short Time",
+                    onDecrease = { },
+                    onIncrease = { },
+                    time = "12"
+                )
+            }
+
+        }
+    }
+
+
+}
+
+@Composable
+fun GeneralSettingRow(title: String, checkedState: Boolean, onChecked: (Boolean) -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Card(
+            modifier = Modifier
+                .height(55.dp)
+                .background(color = MaterialTheme.colorScheme.onPrimary),
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+        ) {
+            Row(
+                modifier = Modifier
+                    .height(55.dp)
+                    .padding(paddingValues = PaddingValues(horizontal = 10.dp))
+                    .fillMaxWidth(0.8f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(text = title, color = MaterialTheme.colorScheme.onPrimaryContainer)
+
+                Switch(
+                    checked = checkedState,
+                    onCheckedChange = { onChecked(it) })
+            }
+        }
+
+
+    }
+}
+
+@Composable
+fun IntervalSettingRow(
+    title: String, onDecrease: (Times) -> Unit, onIncrease: (Times) -> Unit,
+    time: String
+) {
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Card(
+            modifier = Modifier
+                .height(55.dp)
+                .background(color = MaterialTheme.colorScheme.onPrimary),
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+        ) {
+            Row(
+                modifier = Modifier
+                    .height(55.dp)
+                    .padding(paddingValues = PaddingValues(horizontal = 10.dp))
+                    .fillMaxWidth(0.8f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(text = title)
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { onDecrease(Times.Pomodoro()) }) {
+                        Icon(imageVector = Icons.Filled.Remove, "decrease")
+                    }
+
+                    Box(
+                        contentAlignment = Alignment.Center, modifier = Modifier
+                            .width(40.dp)
+                            .clip(shape = MaterialTheme.shapes.extraLarge)
+                            .background(MaterialTheme.colorScheme.inverseOnSurface)
+                    ) {
+                        Text(
+                            time,
+                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
+                        )
+                    }
+
+                    IconButton(onClick = { onIncrease(Times.Pomodoro()) }) {
+                        Icon(imageVector = Icons.Filled.Add, "increase")
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun GeneralSetting(
@@ -201,112 +308,21 @@ fun GeneralSetting(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        /*   Surface(
-               shape = MaterialTheme.shapes.extraLarge,
-               contentColor = MaterialTheme.colorScheme.inverseSurface
-           ) {
-               Row(
-                   modifier = Modifier
-                       .height(55.dp)
-                       .fillMaxWidth(0.8f)
-                       .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                   horizontalArrangement = Arrangement.SpaceBetween,
-                   verticalAlignment = Alignment.CenterVertically
-               ) {
-                   Text(text = "Dark Theme")
-                   Switch(
-                       checked = themeToogleState,
-                       onCheckedChange = { toggleTheme() })
-               }
 
-           }
-           Spacer(modifier = Modifier.height(12.dp))
-
-           Surface(
-               shape = MaterialTheme.shapes.extraLarge,
-               contentColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)
-           ) {
-               Row(
-                   modifier = Modifier
-                       .height(55.dp)
-                       .fillMaxWidth(0.8f)
-                       .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                   horizontalArrangement = Arrangement.SpaceBetween,
-                   verticalAlignment = Alignment.CenterVertically
-               ) {
-                   Text(text = "Daily Notification")
-                   var checkedState by remember { mutableStateOf<Boolean>(false) }
-                   Switch(checked = checkedState, onCheckedChange = { checkedState = !checkedState })
-               }
-
-           }
-           Spacer(modifier = Modifier.height(12.dp))*/
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-
-            ) {
-            Card(
-                modifier = Modifier
-                    .height(55.dp)
-                    .background(color = MaterialTheme.colorScheme.onPrimary),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .height(55.dp)
-                        .padding(paddingValues = PaddingValues(horizontal = 10.dp))
-                        .fillMaxWidth(0.8f),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(text = "Dark Theme", color = MaterialTheme.colorScheme.onPrimaryContainer)
-
-                    Switch(
-                        checked = generalSettingsParameters.themeToogleState,
-                        onCheckedChange = { generalSettingsParameters.toggleTheme() })
-                }
-            }
-
-
-        }
+        GeneralSettingRow(
+            title = "Dark Theme",
+            checkedState = generalSettingsParameters.themeToogleState,
+            onChecked = { generalSettingsParameters.toggleTheme() }
+        )
         Spacer(modifier = Modifier.height(12.dp))
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-
-            ) {
-            Card(
-                modifier = Modifier
-                    .height(55.dp)
-                    .background(color = MaterialTheme.colorScheme.onPrimary),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .height(55.dp)
-                        .fillMaxWidth(0.8f)
-                        .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Enable Tick Sound",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Switch(
-                        checked = generalSettingsParameters.tickSoundToggleState,
-                        onCheckedChange = { generalSettingsParameters.toggleThickSound() })
-                }
-
-
-            }
-        }
-
+        GeneralSettingRow(
+            title = "Enable Tick Sound",
+            checkedState = generalSettingsParameters.tickSoundToggleState,
+            onChecked = { generalSettingsParameters.toggleThickSound() }
+        )
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
-
 
 @Composable
 fun IntervalSetting(
@@ -317,171 +333,29 @@ fun IntervalSetting(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
-
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface
-        ) {
-
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(55.dp)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(text = "Pomodoro Time")
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { parameters.onDecrease(Times.Pomodoro()) }) {
-                        Icon(imageVector = Icons.Filled.Remove, "decrease")
-                    }
-
-                    Box(
-                        contentAlignment = Alignment.Center, modifier = Modifier
-                            .width(40.dp)
-                            .clip(shape = MaterialTheme.shapes.extraLarge)
-                            .background(MaterialTheme.colorScheme.inverseOnSurface)
-                    ) {
-                        Text(
-                            parameters.pomodoroTime.getMinute().toString(),
-                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
-                        )
-                    }
-
-                    IconButton(onClick = { parameters.onIncrease(Times.Pomodoro()) }) {
-                        Icon(imageVector = Icons.Filled.Add, "increase")
-                    }
-
-                }
-
-
-            }
-
-        }
+        IntervalSettingRow(
+            title = "Pomodoro Time",
+            onDecrease = { parameters.onDecrease(Times.Pomodoro()) },
+            onIncrease = { parameters.onIncrease(Times.Pomodoro()) },
+            time = parameters.pomodoroTime.getMinute().toString()
+        )
         Spacer(modifier = Modifier.height(12.dp))
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(55.dp)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(text = "Short Time")
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { parameters.onDecrease(Times.Short()) }) {
-                        Icon(imageVector = Icons.Filled.Remove, "decrease")
-                    }
-
-
-                    Box(
-                        contentAlignment = Alignment.Center, modifier = Modifier
-                            .width(40.dp)
-                            .clip(shape = MaterialTheme.shapes.extraLarge)
-                            .background(MaterialTheme.colorScheme.inverseOnSurface)
-
-                    ) {
-                        Text(
-                            parameters.shortTime.getMinute().toString(),
-                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
-                        )
-                    }
-
-                    IconButton(onClick = { parameters.onIncrease(Times.Short()) }) {
-                        Icon(imageVector = Icons.Filled.Add, "increase")
-                    }
-
-                }
-
-
-            }
-
-        }
+        IntervalSettingRow(
+            title = "Short Time",
+            onDecrease = { parameters.onDecrease(Times.Short()) },
+            onIncrease = { parameters.onIncrease(Times.Short()) },
+            time = parameters.shortTime.getMinute().toString()
+        )
         Spacer(modifier = Modifier.height(12.dp))
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            contentColor = MaterialTheme.colorScheme.inverseSurface
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(55.dp)
-                    .padding(paddingValues = PaddingValues(horizontal = 10.dp)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(text = "Long Time")
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { parameters.onDecrease(Times.Long()) }) {
-                        Icon(imageVector = Icons.Filled.Remove, "decrease")
-                    }
-                    Box(
-                        contentAlignment = Alignment.Center, modifier = Modifier
-                            .width(40.dp)
-                            .clip(shape = MaterialTheme.shapes.extraLarge)
-                            .background(MaterialTheme.colorScheme.inverseOnSurface)
-                    ) {
-                        Text(
-                            parameters.longTime.getMinute().toString(),
-                            modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp)
-                        )
-                    }
-
-                    IconButton(onClick = { parameters.onIncrease(Times.Long()) }) {
-                        Icon(imageVector = Icons.Filled.Add, "increase")
-                    }
-
-                }
-
-
-            }
-
-        }
+        IntervalSettingRow(
+            title = "Long Time",
+            onDecrease = { parameters.onDecrease(Times.Long()) },
+            onIncrease = { parameters.onIncrease(Times.Long()) },
+            time = parameters.longTime.getMinute().toString()
+        )
         Spacer(modifier = Modifier.height(12.dp))
 
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SettingAppBar(
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val title = stringResource(id = R.string.app_name)
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
-        title = { Text(text = title, color = light_onRedBackground) },
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.cd_open_navigation_drawer),
-                    tint = light_onRedBackground
-                )
-            }
-        },
-        modifier = modifier
-    )
 }
 
 data class IntervalSettingParameters(
