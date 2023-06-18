@@ -1,6 +1,7 @@
 package com.oguzhancetin.pomodoro.common.util.Time
 
 import android.app.Application
+import android.text.format.Time
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -65,7 +66,7 @@ object WorkUtil {
     /**
      * Start timer according to selected timer
      */
-    fun startTime(context: Application,isSilent: Boolean = false) {
+    fun startTime(context: Application, isSilent: Boolean = false) {
         timerIsRunning.value = true
         request = workRequestBuilder.setInputData(
             workDataOf(
@@ -86,6 +87,7 @@ object WorkUtil {
                                 timerIsRunning.value = true
                                 return@switchMap MutableLiveData(cachedTimePercentage)
                             }
+
                             WorkInfo.State.RUNNING -> {
 
                                 val progress = workInfo?.progress?.getFloat(
@@ -96,17 +98,19 @@ object WorkUtil {
 
                                 return@switchMap MutableLiveData(progress)
                             }
+
                             WorkInfo.State.SUCCEEDED -> {
                                 val progress = workInfo?.progress?.getFloat(
                                     "Left", 1f
                                 ) ?: -1f
                                 timerIsRunning.value = false
                                 showFinishNotification()
-                                if (this::onFinishPomodoro.isInitialized) {
+                                if (this::onFinishPomodoro.isInitialized && runningTimeType.value is Times.Pomodoro) {
                                     onFinishPomodoro()
                                 }
                                 return@switchMap MutableLiveData(progress)
                             }
+
                             else -> {
                                 return@switchMap MutableLiveData(
                                     cachedTimePercentage
