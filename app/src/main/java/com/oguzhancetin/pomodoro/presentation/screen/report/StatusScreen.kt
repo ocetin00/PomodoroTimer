@@ -189,14 +189,6 @@ fun TaskChart(
 ) {
 
     val daysOfWeek = listOf("Mo", "Tu", "Wd", "Th", "Fr", "St", "Sn")
-    val bottomAxisValueFormatter =
-        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
-
-    val y = listOf("0", "1", "2", "3", "4", "5", "6")
-    val startAxisValueFormatter = AxisValueFormatter<AxisPosition.Vertical.Start> { x, y ->
-        Log.d("x,y", "$x , $y")
-        "${x + 2}"
-    }
 
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -307,7 +299,7 @@ fun CustomView(
             // Creates view
             BarChart(
                 context
-            )//.also { it.animateY(500) }
+            ).also { it.animateY(500) }
         },
         update = { view ->
             // View's been inflated or state read in this block has been updated
@@ -341,12 +333,14 @@ fun CustomView(
             view.axisRight.isEnabled = false
             view.description = Description().also { it.text = "" }
             view.legend.form = Legend.LegendForm.NONE
-            view.renderer =
-                CustomBarChartRender(view, view.animator, view.viewPortHandler).also {
-                    it.setRadius(
-                        30
-                    )
-                }
+            if (!chartPair.isNullOrEmpty())
+                view.renderer =
+                    CustomBarChartRender(view, view.animator, view.viewPortHandler).also {
+                        it.setRadius(
+                            30
+                        )
+                    }
+
             view.invalidate()
 
         }

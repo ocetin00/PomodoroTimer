@@ -3,6 +3,7 @@
 
     <style name="Theme.Pomodoro" parent="Theme.AppCompat.DayNight.NoActionBar" >
 
+        <item name="windowActionBar">false</item>
 
         <item name="colorPrimaryDark">@color/transparent</item>
         <item name="colorAccent">@color/transparent</item>

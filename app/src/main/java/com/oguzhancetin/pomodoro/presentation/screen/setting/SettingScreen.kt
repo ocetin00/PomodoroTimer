@@ -3,18 +3,23 @@ package com.oguzhancetin.pomodoro.ui
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,8 +44,8 @@ fun SettingScreenPreview() {
     PomodoroTheme {
         Scaffold(
             topBar = {
-                MainAppBar(
-                    currentRoute = "Setting", canNavigateBack = true, navigateUp = { }
+                SettingTopBar(
+                    currentRoute = "Setting", navigateUp = { }
                 )
 
             }
@@ -83,8 +88,8 @@ fun SettingScreen(
 
     Scaffold(
         topBar = {
-            MainAppBar(
-                currentRoute = "Setting", canNavigateBack = true, navigateUp = onBack
+            SettingTopBar(
+                currentRoute = "Setting", navigateUp = onBack
             )
 
         }
@@ -197,7 +202,7 @@ fun GeneralSettingsRowPreview() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
                 IntervalSettingRow(
                     title = "Short Time",
                     onDecrease = { },
@@ -358,6 +363,30 @@ fun IntervalSetting(
     }
 }
 
+@ExperimentalMaterial3Api
+@Composable
+fun SettingTopBar(
+    modifier: Modifier = Modifier,
+    navigateUp: () -> Unit = {},
+    currentRoute: String,
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        title = { Text(text = currentRoute, color = MaterialTheme.colorScheme.onPrimaryContainer) },
+        navigationIcon = {
+            IconButton(onClick = navigateUp) {
+                Icon(
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    imageVector = Icons.Filled.ExpandMore,
+                    contentDescription = "Back"
+                )
+            }
+
+        },
+        modifier = modifier
+    )
+}
+
 data class IntervalSettingParameters(
     val pomodoroTime: Long = 0L,
     val shortTime: Long = 0L,
@@ -372,3 +401,4 @@ data class GeneralSettingsParameters(
     val themeToogleState: Boolean,
     val tickSoundToggleState: Boolean,
 )
+

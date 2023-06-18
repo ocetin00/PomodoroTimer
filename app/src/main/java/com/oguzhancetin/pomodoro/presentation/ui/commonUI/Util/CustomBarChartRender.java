@@ -81,6 +81,10 @@ public class CustomBarChartRender extends BarChartRenderer {
             }
         }
 
+
+        if (mBarBuffers == null) {
+            return;
+        }
         // initialize the buffer
         BarBuffer buffer = mBarBuffers[index];
         buffer.setPhases(phaseX, phaseY);
@@ -201,4 +205,5 @@ public class CustomBarChartRender extends BarChartRenderer {
         path.close();//Given close, last lineto can be removed.
 
         return path;
-    }}
+    }
+}

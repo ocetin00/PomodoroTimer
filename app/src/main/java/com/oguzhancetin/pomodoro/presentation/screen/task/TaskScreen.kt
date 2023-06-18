@@ -680,27 +680,27 @@ fun TaskBodyItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-                IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = false }) }) {
-                    Icon(
-                        imageVector = Icons.Filled.CheckCircle,
-                        "add task",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Text(
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .clickable {
-                            onClickTaskItem(taskItem.id)
-                        }
-                        .weight(1f),
-                    text = taskItem.description ?: "",
-                    style = TextStyle(
-                        textDecoration = TextDecoration.LineThrough,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    )
+            IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = false }) }) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    "add task",
+                    tint = MaterialTheme.colorScheme.primary
                 )
+            }
+            Text(
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .clickable {
+                        onClickTaskItem(taskItem.id)
+                    }
+                    .weight(1f),
+                text = taskItem.description ?: "",
+                style = TextStyle(
+                    textDecoration = TextDecoration.LineThrough,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                )
+            )
 
             IconButton(onClick = { onItemFinish(taskItem.apply { isFavorite = !isFavorite }) }) {
                 Icon(
@@ -714,29 +714,31 @@ fun TaskBodyItem(
     } else {
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(45.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-                IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = true }) }) {
-                    Icon(
-                        imageVector = Icons.Filled.RadioButtonUnchecked,
-                        "add task",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Text(
-                    modifier = Modifier.clickable {
+            IconButton(onClick = { onItemFinish(taskItem.apply { isFinished = true }) }) {
+                Icon(
+                    imageVector = Icons.Filled.RadioButtonUnchecked,
+                    "add task",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(
+                modifier = Modifier
+                    .clickable {
                         onClickTaskItem(taskItem.id)
                     }
-                        .weight(1f),
-                    text = taskItem.description ?: " ", style = TextStyle(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    ),
-                    overflow = TextOverflow.Ellipsis
-                )
+                    .weight(1f),
+                text = taskItem.description ?: " ", style = TextStyle(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                ),
+                overflow = TextOverflow.Ellipsis
+            )
 
 
             IconButton(onClick = { onItemFinish(taskItem.apply { isFavorite = !isFavorite }) }) {

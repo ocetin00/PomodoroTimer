@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
                         backGroundColor
                     )
                 )
+
             }
             PomodoroApp(isDarkMode)
         }
