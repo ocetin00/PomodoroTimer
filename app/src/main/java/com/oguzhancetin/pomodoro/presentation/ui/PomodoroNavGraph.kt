@@ -1,31 +1,24 @@
 package com.oguzhancetin.pomodoro.presentation.ui
 
-import androidx.compose.animation.AnimatedContentScope
+
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+
 import androidx.navigation.NavHostController
 
 import androidx.navigation.NavType
-import com.google.accompanist.navigation.animation.navigation
+
 import com.google.accompanist.navigation.animation.composable
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.oguzhancetin.pomodoro.presentation.screen.TestScreen
+
 import com.oguzhancetin.pomodoro.presentation.screen.main.MainScreen
 import com.oguzhancetin.pomodoro.presentation.screen.task.TaskScreen
 import com.oguzhancetin.pomodoro.ui.SettingScreen
 import com.oguzhancetin.pomodoro.presentation.screen.report.StatusScreen
-import com.oguzhancetin.pomodoro.presentation.screen.splash.SplashScreen
 import com.oguzhancetin.pomodoro.presentation.screen.task.TaskDetailScreen
 
 
@@ -54,7 +47,7 @@ fun PomodoroNavGraph(
                     PomodoroDestinations.MAIN_ROUTE ->
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Up,
-                            animationSpec = tween(700)
+                            animationSpec = tween(500)
                         )
 
                     else -> null
@@ -65,7 +58,7 @@ fun PomodoroNavGraph(
                     PomodoroDestinations.MAIN_ROUTE ->
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Down,
-                            animationSpec = tween(700)
+                            animationSpec = tween(500)
                         )
 
                     else -> null
@@ -74,7 +67,31 @@ fun PomodoroNavGraph(
         ) {
             SettingScreen(modifier = modifier, onBack = { onBack.invoke() })
         }
-        composable(PomodoroDestinations.TASK_ROUTE) { navBackStackEntry ->
+        composable(
+            PomodoroDestinations.TASK_ROUTE,
+            enterTransition = {
+                when (initialState.destination.route) {
+                    PomodoroDestinations.MAIN_ROUTE ->
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(500)
+                        )
+
+                    else -> null
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    PomodoroDestinations.MAIN_ROUTE ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(500)
+                        )
+
+                    else -> null
+                }
+            },
+        ) { navBackStackEntry ->
             TaskScreen(
                 modifier = modifier,
                 onBack = { onBack.invoke() },
@@ -87,15 +104,62 @@ fun PomodoroNavGraph(
 
                 })
         }
-        composable(PomodoroDestinations.STATUS_ROUTE) {
+        composable(
+            PomodoroDestinations.STATUS_ROUTE,
+            enterTransition = {
+                when (initialState.destination.route) {
+                    PomodoroDestinations.MAIN_ROUTE ->
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(500)
+                        )
+
+                    else -> null
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    PomodoroDestinations.MAIN_ROUTE ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(500)
+                        )
+
+                    else -> null
+                }
+            },
+        ) {
             StatusScreen(modifier = modifier, onBack = { onBack.invoke() })
         }
         composable(
-            "${PomodoroDestinations.TASK_DETAIL_ROUTE}/{taskId}/{selectedCategoryId}",
+            route = "${PomodoroDestinations.TASK_DETAIL_ROUTE}/{taskId}/{selectedCategoryId}",
             arguments = listOf(
                 navArgument("taskId") { type = NavType.StringType },
-                navArgument("selectedCategoryId") { type = NavType.StringType })
-        ) {
+                navArgument("selectedCategoryId") { type = NavType.StringType }),
+            enterTransition = {
+                when (initialState.destination.route) {
+                    PomodoroDestinations.TASK_ROUTE ->
+                        slideIntoContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(500)
+                        )
+
+                    else -> null
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    PomodoroDestinations.TASK_ROUTE ->
+                        slideOutOfContainer(
+                            AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(500)
+                        )
+
+                    else -> null
+                }
+            },
+
+            ) {
             TaskDetailScreen(modifier = modifier,
                 onBack = { navController.popBackStack() }
             )
