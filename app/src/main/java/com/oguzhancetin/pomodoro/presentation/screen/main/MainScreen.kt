@@ -3,6 +3,7 @@
 package com.oguzhancetin.pomodoro.presentation.screen.main
 
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -73,6 +74,7 @@ fun MainScreen(
 
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Pomodoro", "Task", "Chart", "Setting")
+    Log.d("time", "MainScreen: $pomodoro")
 
 
     val scope = rememberCoroutineScope()
@@ -306,33 +308,30 @@ fun MainScreenContent(
             Spacer(modifier = Modifier.height(30.dp))
 
 
-            if (selectedTimeType !is Times.Pomodoro) {
-                BreakBody(time = selectedTimeType)
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 30.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (favoriteTaskItems.isNotEmpty()) {
-                        items(
-                            items = favoriteTaskItems,
-                            key = { task -> task.id }
-                        ) { task ->
-                            Spacer(modifier = Modifier.height(8.dp))
 
-                            FavoriteTask(
-                                modifier = Modifier,
-                                taskItem = task,
-                                onItemFavorite = onItemFavorite,
-                                onItemFinish = onItemFinish
-                            )
-                        }
-                    } else {
-                        item {
-                            AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
-                        }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (favoriteTaskItems.isNotEmpty()) {
+                    items(
+                        items = favoriteTaskItems,
+                        key = { task -> task.id }
+                    ) { task ->
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        FavoriteTask(
+                            modifier = Modifier,
+                            taskItem = task,
+                            onItemFavorite = onItemFavorite,
+                            onItemFinish = onItemFinish
+                        )
+                    }
+                } else {
+                    item {
+                        AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
                     }
                 }
             }

@@ -1,11 +1,16 @@
 package com.oguzhancetin.pomodoro.presentation.ui
 
+import android.Manifest
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.ColorRes
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -44,10 +49,28 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var appDb: PomodoroDatabase
 
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
     val viewModel: MainActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Sets up permissions request launcher.
+        requestPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+
+            }
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         var uiState: MainActivityUiState by mutableStateOf(MainActivityUiState.Loading)
 
@@ -96,7 +119,7 @@ class MainActivity : ComponentActivity() {
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    val  context: Application,
+    val context: Application,
 ) : ViewModel() {
 
 

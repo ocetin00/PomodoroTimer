@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
@@ -85,7 +87,7 @@ class TimerWorker(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        return super.getForegroundInfo()
+        return createForegroundInfo("Pomodoro Running")
     }
 
     private val notificationManager =
@@ -110,7 +112,7 @@ class TimerWorker(
         //tab intent
         val mainActivityIntent = Intent(applicationContext, MainActivity::class.java).also {
             it.action = Intent.ACTION_MAIN;
-            it.addCategory(Intent.CATEGORY_LAUNCHER);
+            it.addCategory(Intent.CATEGORY_LAUNCHER)
         }
 
 
@@ -121,6 +123,8 @@ class TimerWorker(
                 mainActivityIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+        val soundUri =
+            Uri.parse("android.resource://" + applicationContext.packageName + "/" + R.raw.bellring)
 
         timeNotificationBuilder = NotificationCompat.Builder(applicationContext, id)
             .setSilent(true)
@@ -130,20 +134,23 @@ class TimerWorker(
             .setAutoCancel(false)
             .setSmallIcon(android.R.drawable.arrow_down_float)
             .setOngoing(true)
+            .setSound(soundUri)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
             .setContentIntent(pendingIntent)
 
 
-        val soundUri =
-            Uri.parse("android.resource://" + applicationContext.packageName + "/" + R.raw.bellring)
+
+
         finishNotificationBuilder = NotificationCompat.Builder(applicationContext, id)
             .setContentTitle("Finished")
             .setTicker(title)
             .setContentText(progress)
             .setAutoCancel(true)
-            //.setSound(soundUri)
+            .setSound(soundUri)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setSmallIcon(android.R.drawable.arrow_down_float)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
@@ -153,7 +160,8 @@ class TimerWorker(
         finishNotificationBuilder?.setSilent(isSilent)
 
 
-        return ForegroundInfo(TIMER_NOTIFICATION_ID, timeNotificationBuilder!!.build())
+        return ForegroundInfo(TIMER_NOTIFICATION_ID, timeNotificationBuilder!!.build(),
+            FOREGROUND_SERVICE_TYPE_NONE)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

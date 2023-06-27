@@ -7,17 +7,16 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil
-import com.oguzhancetin.pomodoro.common.util.combine
 import com.oguzhancetin.pomodoro.common.util.preference.IS_SILENT_NOTIFICATION
 import com.oguzhancetin.pomodoro.util.Times
 import com.oguzhancetin.pomodoro.common.util.preference.dataStore
 import com.oguzhancetin.pomodoro.common.util.removeDetails
+import com.oguzhancetin.pomodoro.data.repository.MainRepository
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -84,6 +83,11 @@ class MainViewModel @Inject constructor(
             )
 
 
+    private var _timerIsRunning = WorkUtil.timerIsRunning
+    private var _runningTimeType = WorkUtil.runningTimeType
+    private var _progress = WorkUtil.progress.asFlow()
+
+
     /**
      * Get times for time types,
      * For example Pomodoro: 25dk,Short: 10 dk ...
@@ -103,7 +107,8 @@ class MainViewModel @Inject constructor(
     private var _pomodoroTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
             val time = preferences[Times.Pomodoro().getPrefKey()] ?: Times.Pomodoro().time
-            updateCurrentTime(Times.Pomodoro(time))
+            if (_timerIsRunning.first().not()) // if timer is not running update current time because of not blocking timer
+                updateCurrentTime(Times.Pomodoro(time))
             return@map time
         }
 
@@ -111,11 +116,6 @@ class MainViewModel @Inject constructor(
         .map { preferences ->
             preferences[IS_SILENT_NOTIFICATION] ?: false
         }
-
-
-    private var _timerIsRunning = WorkUtil.timerIsRunning
-    private var _runningTimeType = WorkUtil.runningTimeType
-    private var _progress = WorkUtil.progress.asFlow()
 
 
     private val _timePreferencesState =

@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.presentation.screen.main
+package com.oguzhancetin.pomodoro.data.repository
 
 import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
