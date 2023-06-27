@@ -35,11 +35,10 @@ import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 fun SettingScreenPreview() {
-
 
     PomodoroTheme {
         Scaffold(
@@ -47,33 +46,43 @@ fun SettingScreenPreview() {
                 SettingTopBar(
                     currentRoute = "Setting", navigateUp = { }
                 )
-
             }
         ) { innerPadding ->
-            SettingScreenContent(
-                modifier = Modifier.padding(innerPadding),
-                intervalSettingParameters = IntervalSettingParameters(
-                    pomodoroTime = 0L,
-                    longTime = 0L,
-                    shortTime = 0L,
-                    onIncrease = {
-                    },
-                    onDecrease = {
-                    }
-                ),
-                GeneralSettingsParameters(
-                    toggleTheme = { },
-                    themeToogleState = false,
-                    tickSoundToggleState = true,
-                    toggleThickSound = { },
-                )
 
-            )
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer
+
+            ) {
+
+                SettingTopBar(
+                    currentRoute = "Setting", navigateUp = { }
+                )
+                SettingScreenContent(
+                    modifier = Modifier.padding(innerPadding),
+                    intervalSettingParameters = IntervalSettingParameters(
+                        pomodoroTime = 0L,
+                        longTime = 0L,
+                        shortTime = 0L,
+                        onIncrease = {
+                        },
+                        onDecrease = {
+                        }
+                    ),
+                    GeneralSettingsParameters(
+                        toggleTheme = { },
+                        themeToogleState = false,
+                        tickSoundToggleState = true,
+                        toggleThickSound = { },
+                    )
+
+                )
+            }
+
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
@@ -89,33 +98,39 @@ fun SettingScreen(
     Scaffold(
         topBar = {
             SettingTopBar(
-                currentRoute = "Setting", navigateUp = onBack
+                currentRoute = "Setting",
+                navigateUp = onBack
             )
-
         }
     ) { innerPadding ->
-        SettingScreenContent(
-            modifier = modifier.padding(innerPadding),
-            intervalSettingParameters = IntervalSettingParameters(
-                pomodoroTime = pomodoroTime,
-                longTime = longTime,
-                shortTime = shortTime,
-                onIncrease = { time ->
-                    viewModel.increaseTime(time)
-                },
-                onDecrease = { time ->
-                    viewModel.decreaseTime(time)
-                }
-            ),
-            GeneralSettingsParameters(
-                toggleTheme = { viewModel.ToggleAppTheme() },
-                themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value,
-                tickSoundToggleState = viewModel.isSilentNotification.collectAsState(initial = false).value,
-                toggleThickSound = { viewModel.toggleTickSound() },
-            )
-        )
-    }
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer
 
+        ) {
+            SettingScreenContent(
+                modifier = modifier.padding(innerPadding),
+                intervalSettingParameters = IntervalSettingParameters(
+                    pomodoroTime = pomodoroTime,
+                    longTime = longTime,
+                    shortTime = shortTime,
+                    onIncrease = { time ->
+                        viewModel.increaseTime(time)
+                    },
+                    onDecrease = { time ->
+                        viewModel.decreaseTime(time)
+                    }
+                ),
+                GeneralSettingsParameters(
+                    toggleTheme = { viewModel.ToggleAppTheme() },
+                    themeToogleState = viewModel.isDarkTheme.collectAsState(initial = false).value,
+                    tickSoundToggleState = viewModel.isSilentNotification.collectAsState(
+                        initial = false
+                    ).value,
+                    toggleThickSound = { viewModel.toggleTickSound() },
+                )
+            )
+        }
+    }
 
 }
 
@@ -129,65 +144,59 @@ fun SettingScreenContent(
 ) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer
 
-    ) {
-        Column(modifier = modifier) {
-
-            TabRow(
-                modifier = Modifier.padding(paddingValues = PaddingValues(horizontal = 20.dp)),
-                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                selectedTabIndex = pagerState.currentPage,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        Modifier
-                            .wrapContentWidth()
-                            .pagerTabIndicatorOffset(pagerState, tabPositions)
-                            .padding(horizontal = 50.dp)
-                    )
-                }
-            ) {
-                Tab(
-                    modifier = Modifier.wrapContentWidth(),
-                    text = { Text("General Setting") },
-                    selected = pagerState.currentPage == 0,
-                    onClick = {
-                        scope.launch { pagerState.scrollToPage(0) }
-                    },
-                )
-                Tab(
-                    modifier = Modifier.wrapContentWidth(),
-                    text = { Text("Interval Setting") },
-                    selected = pagerState.currentPage == 1,
-                    onClick = {
-                        scope.launch { pagerState.scrollToPage(1) }
-                    },
+    Column(modifier = modifier) {
+        TabRow(
+            modifier = Modifier.padding(paddingValues = PaddingValues(horizontal = 20.dp)),
+            backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedTabIndex = pagerState.currentPage,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    Modifier
+                        .wrapContentWidth()
+                        .pagerTabIndicatorOffset(pagerState, tabPositions)
+                        .padding(horizontal = 50.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(40.dp))
-            HorizontalPager(
-                userScrollEnabled = false,
-                count = 2,
-                state = pagerState,
-            ) { page ->
-                when (page) {
-                    0 -> GeneralSetting(
-                        generalSettingsParameters = generalSettingsParameters
-                    )
+        ) {
+            Tab(
+                modifier = Modifier.wrapContentWidth(),
+                text = { Text("General Setting") },
+                selected = pagerState.currentPage == 0,
+                onClick = {
+                    scope.launch { pagerState.scrollToPage(0) }
+                },
+            )
+            Tab(
+                modifier = Modifier.wrapContentWidth(),
+                text = { Text("Interval Setting") },
+                selected = pagerState.currentPage == 1,
+                onClick = {
+                    scope.launch { pagerState.scrollToPage(1) }
+                },
+            )
+        }
+        Spacer(modifier = Modifier.height(40.dp))
+        HorizontalPager(
+            userScrollEnabled = false,
+            count = 2,
+            state = pagerState,
+        ) { page ->
+            when (page) {
+                0 -> GeneralSetting(
+                    generalSettingsParameters = generalSettingsParameters
+                )
 
-                    1 -> IntervalSetting(
-                        parameters = intervalSettingParameters
-                    )
+                1 -> IntervalSetting(
+                    parameters = intervalSettingParameters
+                )
 
-                    else -> GeneralSetting(
-                        generalSettingsParameters = generalSettingsParameters
-                    )
-                }
+                else -> GeneralSetting(
+                    generalSettingsParameters = generalSettingsParameters
+                )
             }
         }
     }
-
 }
 
 @Composable
@@ -369,9 +378,12 @@ fun SettingTopBar(
     modifier: Modifier = Modifier,
     navigateUp: () -> Unit = {},
     currentRoute: String,
+    colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
 ) {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent,
+        ),
         title = { Text(text = currentRoute, color = MaterialTheme.colorScheme.onPrimaryContainer) },
         navigationIcon = {
             IconButton(onClick = navigateUp) {

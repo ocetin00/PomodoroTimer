@@ -27,7 +27,7 @@ import com.oguzhancetin.pomodoro.presentation.screen.task.TaskDetailScreen
 fun PomodoroNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = PomodoroDestinations.MAIN_ROUTE,
+    startDestination: String = PomodoroDestinations.SETTING_ROUTE,
 ) {
 
     val onBack: () -> Unit = PomodoroNavigationActions(navController).navigateToMain
