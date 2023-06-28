@@ -41,8 +41,16 @@ object WorkUtil {
      */
     var progress = MediatorLiveData(1f)
 
+    val constraints = Constraints.Builder()
+        .setRequiresDeviceIdle(false)
+        .build()
+
+
     private var request: OneTimeWorkRequest? = null
-    private val workRequestBuilder = OneTimeWorkRequestBuilder<TimerWorker>()
+    private val workRequestBuilder = OneTimeWorkRequestBuilder<TimerWorker>().also {
+        it.setConstraints(constraints)
+    }
+
 
     lateinit var onFinishPomodoro: () -> Unit
 
