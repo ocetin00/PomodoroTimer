@@ -1,9 +1,15 @@
 package com.oguzhancetin.pomodoro
 
 import android.Manifest
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Application
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -36,8 +42,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS
+private const val IGNORE_BATTERY_OPTIMIZATIONS =
+    Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
 
     @Inject
     lateinit var appDb: PomodoroDatabase
@@ -48,6 +60,36 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent()
+            val packageName = packageName
+            val pm = getSystemService(POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
+            }
+        }
+
+  /*      // Register the contract in your fragment/activity and handle the result
+        val permissionRequest =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+
+            }
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                this,
+                IGNORE_BATTERY_OPTIMIZATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+
+        } else {
+            permissionRequest.launch(arrayOf(POST_NOTIFICATIONS, IGNORE_BATTERY_OPTIMIZATIONS))
+        }*/
 
         // Sets up permissions request launcher.
         requestPermissionLauncher =
@@ -143,3 +185,4 @@ private fun shouldUseDarkTheme(
     MainActivityUiState.Loading -> isSystemInDarkTheme()
     is MainActivityUiState.Success -> uiState.isDarkModel
 }
+
