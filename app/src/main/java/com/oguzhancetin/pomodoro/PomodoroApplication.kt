@@ -2,7 +2,7 @@ package com.oguzhancetin.pomodoro
 
 import android.app.Application
 import androidx.datastore.preferences.core.edit
-import com.oguzhancetin.pomodoro.common.util.preference.dataStore
+import com.oguzhancetin.pomodoro.core.preference.dataStore
 import com.oguzhancetin.pomodoro.util.Times
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope

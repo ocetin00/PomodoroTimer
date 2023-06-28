@@ -1,7 +1,7 @@
 package com.oguzhancetin.pomodoro.domain.repository
 
-import com.oguzhancetin.pomodoro.common.Resource
-import com.oguzhancetin.pomodoro.common.util.FilterType
+import com.oguzhancetin.pomodoro.core.Resource
+import com.oguzhancetin.pomodoro.core.util.FilterType
 import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import kotlinx.coroutines.flow.Flow

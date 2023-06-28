@@ -1,10 +1,8 @@
 package com.oguzhancetin.pomodoro.presentation.screen.task
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.common.Resource
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.data.mapper.toMapTaskItem
 import com.oguzhancetin.pomodoro.domain.model.Category
@@ -12,18 +10,14 @@ import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.repository.CategoryRepository
 import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
 import com.oguzhancetin.pomodoro.domain.use_case.category.AddCategoryUseCase
-import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryWithTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksByCategoryIdUseCase
-import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksByCategoryNameUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.UUID

@@ -4,20 +4,17 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.common.Resource
-import com.oguzhancetin.pomodoro.common.util.preference.IS_DARK_MODE_KEY
-import com.oguzhancetin.pomodoro.common.util.preference.dataStore
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
-import com.oguzhancetin.pomodoro.common.util.removeDetails
+import com.oguzhancetin.pomodoro.core.Resource
+import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
+import com.oguzhancetin.pomodoro.core.preference.dataStore
+import com.oguzhancetin.pomodoro.core.util.removeDetails
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.GetCurrentWeekPomodoroListUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetCurrentWeekDoneTaskItems
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 

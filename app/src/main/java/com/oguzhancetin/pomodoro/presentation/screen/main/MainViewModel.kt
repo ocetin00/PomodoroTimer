@@ -6,11 +6,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
-import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil
-import com.oguzhancetin.pomodoro.common.util.preference.IS_SILENT_NOTIFICATION
+import com.oguzhancetin.pomodoro.core.Time.WorkUtil
+import com.oguzhancetin.pomodoro.core.preference.IS_SILENT_NOTIFICATION
 import com.oguzhancetin.pomodoro.util.Times
-import com.oguzhancetin.pomodoro.common.util.preference.dataStore
-import com.oguzhancetin.pomodoro.common.util.removeDetails
+import com.oguzhancetin.pomodoro.core.preference.dataStore
+import com.oguzhancetin.pomodoro.core.util.removeDetails
 import com.oguzhancetin.pomodoro.data.repository.MainRepository
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase

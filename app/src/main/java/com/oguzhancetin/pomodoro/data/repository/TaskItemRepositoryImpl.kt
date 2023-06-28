@@ -1,19 +1,16 @@
 package com.oguzhancetin.pomodoro.data.repository
 
-import com.oguzhancetin.pomodoro.common.Resource
-import com.oguzhancetin.pomodoro.common.util.FilterType
+import com.oguzhancetin.pomodoro.core.Resource
+import com.oguzhancetin.pomodoro.core.util.FilterType
 import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
-import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
 import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
 import com.oguzhancetin.pomodoro.data.mapper.toCategory
 import com.oguzhancetin.pomodoro.data.mapper.toMapTaskEntity
 import com.oguzhancetin.pomodoro.data.mapper.toMapTaskItem
-import com.oguzhancetin.pomodoro.data.mapper.toPomodoro
 import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.handleCoroutineException
 import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject

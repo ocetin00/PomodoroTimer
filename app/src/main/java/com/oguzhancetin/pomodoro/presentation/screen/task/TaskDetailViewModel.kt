@@ -3,7 +3,7 @@ package com.oguzhancetin.pomodoro.presentation.screen.task
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.common.Resource
+import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.domain.model.Category
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
@@ -12,23 +12,16 @@ import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTaskByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
-import com.oguzhancetin.pomodoro.presentation.screen.util.clearSufAndPrefix
+import com.oguzhancetin.pomodoro.presentation.commonUI.Util.clearSufAndPrefix
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.switchMap
 import javax.inject.Inject
 
 

@@ -5,9 +5,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.util.Times
-import com.oguzhancetin.pomodoro.common.util.preference.IS_DARK_MODE_KEY
-import com.oguzhancetin.pomodoro.common.util.preference.IS_SILENT_NOTIFICATION
-import com.oguzhancetin.pomodoro.common.util.preference.dataStore
+import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
+import com.oguzhancetin.pomodoro.core.preference.IS_SILENT_NOTIFICATION
+import com.oguzhancetin.pomodoro.core.preference.dataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

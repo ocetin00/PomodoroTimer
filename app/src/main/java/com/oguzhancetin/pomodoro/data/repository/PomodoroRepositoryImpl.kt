@@ -1,6 +1,6 @@
 package com.oguzhancetin.pomodoro.data.repository
 
-import com.oguzhancetin.pomodoro.common.Resource
+import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.data.local.dao.PomodoroDao
 import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
 import com.oguzhancetin.pomodoro.data.mapper.toPomodoro

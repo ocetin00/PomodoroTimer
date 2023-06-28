@@ -1,6 +1,6 @@
 package com.oguzhancetin.pomodoro.domain.use_case.pomodoro
 
-import com.oguzhancetin.pomodoro.common.Resource
+import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.repository.PomodoroRepository
 import kotlinx.coroutines.flow.Flow

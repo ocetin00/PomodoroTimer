@@ -1,6 +1,6 @@
 package com.oguzhancetin.pomodoro.domain.repository
 
-import com.oguzhancetin.pomodoro.common.Resource
+import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.domain.model.Category
 import kotlinx.coroutines.flow.Flow

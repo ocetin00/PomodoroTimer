@@ -1,11 +1,9 @@
 package com.oguzhancetin.pomodoro.domain.use_case.task
 
-import com.oguzhancetin.pomodoro.common.Resource
-import com.oguzhancetin.pomodoro.data.repository.TaskItemRepositoryImpl
+import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
 import javax.inject.Singleton
 

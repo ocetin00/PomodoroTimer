@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AddCircle
@@ -48,12 +47,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oguzhancetin.pomodoro.R
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
-import com.oguzhancetin.pomodoro.common.util.removeDetails
+import com.oguzhancetin.pomodoro.presentation.commonUI.MainAppBar
+import com.oguzhancetin.pomodoro.core.util.removeDetails
 import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.data.mapper.toCategory
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
+import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import java.util.*
 import com.oguzhancetin.pomodoro.domain.model.Category
 

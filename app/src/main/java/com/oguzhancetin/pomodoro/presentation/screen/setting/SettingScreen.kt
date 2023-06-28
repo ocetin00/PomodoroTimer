@@ -3,16 +3,13 @@ package com.oguzhancetin.pomodoro.ui
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,9 +25,8 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.oguzhancetin.pomodoro.presentation.screen.setting.SettingViewModel
-import com.oguzhancetin.pomodoro.common.util.Time.WorkUtil.getMinute
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
-import com.oguzhancetin.pomodoro.presentation.ui.theme.PomodoroTheme
+import com.oguzhancetin.pomodoro.core.Time.WorkUtil.getMinute
+import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.launch
 

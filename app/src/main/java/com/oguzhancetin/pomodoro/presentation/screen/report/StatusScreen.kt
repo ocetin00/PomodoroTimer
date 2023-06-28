@@ -4,15 +4,12 @@ package com.oguzhancetin.pomodoro.presentation.screen.report
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Color
 import android.graphics.DashPathEffect
-import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddChart
 import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,15 +28,11 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.oguzhancetin.pomodoro.domain.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.MainAppBar
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.PomodoroAppChart
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.CustomBarChartRender
-import com.oguzhancetin.pomodoro.presentation.ui.commonUI.Util.convertListToXYPairs
-import com.patrykandpatrick.vico.core.axis.AxisPosition
-import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
+import com.oguzhancetin.pomodoro.presentation.commonUI.MainAppBar
+import com.oguzhancetin.pomodoro.presentation.commonUI.Util.CustomBarChartRender
+import com.oguzhancetin.pomodoro.presentation.commonUI.Util.convertListToXYPairs
 import java.util.*
 
 
