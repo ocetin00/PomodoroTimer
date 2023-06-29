@@ -292,7 +292,7 @@ fun CustomView(
             // Creates view
             BarChart(
                 context
-            ).also { it.animateY(500) }
+            )
         },
         update = { view ->
             // View's been inflated or state read in this block has been updated
@@ -335,6 +335,7 @@ fun CustomView(
                     }
 
             view.invalidate()
+            view.animateY(500)
 
         }
     )
