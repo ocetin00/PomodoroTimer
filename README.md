@@ -45,6 +45,36 @@ The architecture follows a reactive programming model with [unidirectional data 
 
 The data flow is achieved using streams, implemented using [Kotlin Flows](https://developer.android.com/kotlin/flow).
 
+## Data layer
+
+![Diagram showing the data layer architecture](https://github.com/ocetin00/temp/blob/main/architecture-3-data-layer-2.png "Diagram showing the data layer architecture")
+
+The data layer is implemented as an source of app data and business logic. It is the source of truth for all data in the app.
+
+Repositories are the public API for other layers, they provide the only way to access the app data. The repositories typically offer one or more methods for reading and writing data.
+
+
+
+## Domain layer
+The [domain layer](https://developer.android.com/topic/architecture/domain-layer) contains use cases. These are classes which have a single invocable method (`operator fun invoke`) containing business logic. 
+
+These use cases are used to simplify and remove duplicate logic from ViewModels. They typically combine and transform data from repositories. 
+
+## UI Layer
+
+The [UI layer](https://github.com/ocetin00/temp/blob/main/architecture-4-ui-layer.png) comprises:
+
+
+
+*   UI elements built using [Jetpack Compose](https://developer.android.com/jetpack/compose)
+*   [Android ViewModels](https://developer.android.com/topic/libraries/architecture/viewmodel)
+
+The ViewModels receive streams of data from use cases and repositories, and transforms them into UI state. The UI elements reflect this state, and provide ways for the user to interact with the app. These interactions are passed as events to the ViewModel where they are processed.
+
+
+![Diagram showing the UI layer architecture](images/architecture-4-ui-layer.png "Diagram showing the UI layer architecture")
+
+
 
 ## Tech stack & Open-source libraries
 - Minimum SDK level 24
