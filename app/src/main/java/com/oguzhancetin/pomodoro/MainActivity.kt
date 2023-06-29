@@ -61,35 +61,35 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val intent = Intent()
-            val packageName = packageName
-            val pm = getSystemService(POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-        }
+        /*
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                  val intent = Intent()
+                  val packageName = packageName
+                  val pm = getSystemService(POWER_SERVICE) as PowerManager
+                  if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                      intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                      intent.data = Uri.parse("package:$packageName")
+                      startActivity(intent)
+                  }
+              }
+           // Register the contract in your fragment/activity and handle the result
+              val permissionRequest =
+                  registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
 
-  /*      // Register the contract in your fragment/activity and handle the result
-        val permissionRequest =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                  }
 
-            }
+              if (ContextCompat.checkSelfPermission(
+                      this,
+                      POST_NOTIFICATIONS,
+                  ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                      this,
+                      IGNORE_BATTERY_OPTIMIZATIONS,
+                  ) == PackageManager.PERMISSION_GRANTED
+              ) {
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                this,
-                IGNORE_BATTERY_OPTIMIZATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-
-        } else {
-            permissionRequest.launch(arrayOf(POST_NOTIFICATIONS, IGNORE_BATTERY_OPTIMIZATIONS))
-        }*/
+              } else {
+                  permissionRequest.launch(arrayOf(POST_NOTIFICATIONS, IGNORE_BATTERY_OPTIMIZATIONS))
+              }*/
 
         // Sets up permissions request launcher.
         requestPermissionLauncher =

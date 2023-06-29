@@ -217,47 +217,16 @@ fun SheetContent(
 
 @Composable
 fun BreakBody(time: Times) {
-    if (time is Times.Long) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "How About Some Relaxation?",
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
-            )
 
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .padding(bottom = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(painter = painterResource(id = R.drawable.long_break), "long", alpha = 0.5f)
-        }
-    } else if (time is Times.Short) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "How About A Coffee Break?",
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 1f)
-            )
-
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .padding(bottom = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(painter = painterResource(id = R.drawable.short_break), "long", alpha = 0.5f)
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.7f)
+            .padding(bottom = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(painter = painterResource(id = R.drawable.short_break), "long", alpha = 0.5f)
     }
+
 
 }
 
@@ -304,34 +273,36 @@ fun MainScreenContent(
             Spacer(modifier = Modifier.height(30.dp))
 
 
+            if (selectedTimeType !is Times.Pomodoro) {
+                BreakBody(time = selectedTimeType)
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (favoriteTaskItems.isNotEmpty()) {
+                        items(
+                            items = favoriteTaskItems,
+                            key = { task -> task.id }
+                        ) { task ->
+                            Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (favoriteTaskItems.isNotEmpty()) {
-                    items(
-                        items = favoriteTaskItems,
-                        key = { task -> task.id }
-                    ) { task ->
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        FavoriteTask(
-                            modifier = Modifier,
-                            taskItem = task,
-                            onItemFavorite = onItemFavorite,
-                            onItemFinish = onItemFinish
-                        )
-                    }
-                } else {
-                    item {
-                        AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
+                            FavoriteTask(
+                                modifier = Modifier,
+                                taskItem = task,
+                                onItemFavorite = onItemFavorite,
+                                onItemFinish = onItemFinish
+                            )
+                        }
+                    } else {
+                        item {
+                            AddTaskButton(onAddTaskButtonClicked = onAddTaskButtonClicked)
+                        }
                     }
                 }
             }
-
 
         }
     }
