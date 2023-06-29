@@ -51,7 +51,7 @@ The data flow is achieved using streams, implemented using [Kotlin Flows](https:
 
 The data layer is implemented as an source of app data and business logic. It is the source of truth for all data in the app.
 
-Repositories are the public API for other layers, they provide the only way to access the app data. The repositories typically offer one or more methods for reading and writing data.
+Repositories are the public API for other packages, they provide the only way to access the app data. The repositories typically offer one or more methods for reading and writing data.
 
 
 
@@ -59,6 +59,7 @@ Repositories are the public API for other layers, they provide the only way to a
 The [domain layer](https://developer.android.com/topic/architecture/domain-layer) contains use cases. These are classes which have a single invocable method (`operator fun invoke`) containing business logic. 
 
 These use cases are used to simplify and remove duplicate logic from ViewModels. They typically combine and transform data from repositories. 
+Used use case for most of repository call but it is not necessary
 
 ## UI Layer
 
