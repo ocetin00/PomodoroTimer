@@ -168,7 +168,7 @@ fun TaskDetailScreenContentPreview() {
                             text = "Delete Category",
                             color = Color.Red,
                             modifier = Modifier.clickable {
-                                /*TODO*/
+
                             }
                         )
 

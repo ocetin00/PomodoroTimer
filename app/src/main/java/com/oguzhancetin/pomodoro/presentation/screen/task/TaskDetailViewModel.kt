@@ -70,6 +70,7 @@ class TaskDetailViewModel
                 val taskItem =
                     getTaskByIdUseCase.invoke(UUID.fromString(taskId))
                 _text.emit(taskItem.description ?: "")
+                _task.emit(taskItem)
             }
             //get Category
             selectedCategoryId?.let {
@@ -135,6 +136,7 @@ class TaskDetailViewModel
             }
         }
     }
+
 
     fun onTextChange(it: String) {
         _text.value = it
