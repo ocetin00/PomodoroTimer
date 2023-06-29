@@ -1,5 +1,5 @@
 # 
-The Pomodoro Timer makes it easy to manage time and tasks
+The Pomodoro Timer makes it easy to manage time and tasks and support dark mode
 
 
 <h1 align="center">Pomodoro Timer</h1>
