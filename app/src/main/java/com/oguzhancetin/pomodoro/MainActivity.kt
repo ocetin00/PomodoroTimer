@@ -1,20 +1,15 @@
 package com.oguzhancetin.pomodoro
 
 import android.Manifest
-import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Application
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.ColorRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
@@ -28,7 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
 import com.oguzhancetin.pomodoro.core.preference.dataStore
-import com.oguzhancetin.pomodoro.data.local.PomodoroDatabase
+import com.oguzhancetin.pomodoro.core.database.PomodoroDatabase
 import com.oguzhancetin.pomodoro.presentation.PomodoroApp
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,10 +36,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-private const val POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS
-private const val IGNORE_BATTERY_OPTIMIZATIONS =
-    Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 
 
 @AndroidEntryPoint
@@ -62,6 +53,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         /*
+
+        private const val POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS
+        private const val IGNORE_BATTERY_OPTIMIZATIONS =
+    Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                   val intent = Intent()
                   val packageName = packageName
@@ -138,9 +133,18 @@ class MainActivity : ComponentActivity() {
             val systemUiController = rememberSystemUiController()
             val isDarkMode = shouldUseDarkTheme(uiState)
 
+
             // Update the dark content of the system bars to match the theme
             DisposableEffect(systemUiController, isDarkMode) {
                 systemUiController.systemBarsDarkContentEnabled = !isDarkMode
+                @ColorRes val backGroundColor =
+                    if (isDarkMode) R.color.colorPrimaryDark else R.color.colorPrimary
+                window.decorView.setBackgroundColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        backGroundColor
+                    )
+                )
                 onDispose {}
             }
             PomodoroTheme(darkTheme = isDarkMode) {

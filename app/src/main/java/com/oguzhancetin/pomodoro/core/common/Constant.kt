@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.core
+package com.oguzhancetin.pomodoro.core.common
 
 
 object Constant {

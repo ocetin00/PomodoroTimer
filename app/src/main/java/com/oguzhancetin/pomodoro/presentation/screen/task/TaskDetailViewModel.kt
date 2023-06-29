@@ -3,16 +3,15 @@ package com.oguzhancetin.pomodoro.presentation.screen.task
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.core.Resource
-import com.oguzhancetin.pomodoro.domain.model.Category
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
+import com.oguzhancetin.pomodoro.core.model.Category
+import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetAllCategoryUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.category.GetCategoryByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.AddTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTaskByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
-import com.oguzhancetin.pomodoro.presentation.commonUI.Util.clearSufAndPrefix
+import com.oguzhancetin.pomodoro.presentation.common.util.clearSufAndPrefix
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,7 +59,7 @@ class TaskDetailViewModel
 
     private val _text = MutableStateFlow("")
 
-    private val _task: MutableStateFlow<Resource<TaskItem>> = MutableStateFlow(Resource.Loading())
+    private val _task: MutableStateFlow<TaskItem?> = MutableStateFlow(null)
 
 
     init {
@@ -70,7 +69,6 @@ class TaskDetailViewModel
             if (!taskId.isNullOrEmpty()) {
                 val taskItem =
                     getTaskByIdUseCase.invoke(UUID.fromString(taskId))
-                _task.emit(Resource.Success(taskItem))
                 _text.emit(taskItem.description ?: "")
             }
             //get Category
@@ -132,7 +130,7 @@ class TaskDetailViewModel
 
     fun deleteTask() {
         viewModelScope.launch {
-            _task.value.data?.let {
+            _task.value?.let {
                 deleteTaskItemUseCase.invoke(it)
             }
         }

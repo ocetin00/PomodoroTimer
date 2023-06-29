@@ -1,8 +1,7 @@
 package com.oguzhancetin.pomodoro.domain.use_case.pomodoro
 
-import com.oguzhancetin.pomodoro.core.Resource
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.domain.repository.PomodoroRepository
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
+import com.oguzhancetin.pomodoro.data.repository.PomodoroRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -11,7 +10,7 @@ import javax.inject.Inject
  */
 class GetPomodoroByFinishUserCase  @Inject constructor(private val pomodoroRepository: PomodoroRepository) {
 
-    operator fun invoke(): Flow<Resource<List<Pomodoro>>> {
+    operator fun invoke(): Flow<List<Pomodoro>> {
         return pomodoroRepository.getAllPomodoro()
     }
 

@@ -1,7 +1,7 @@
 package com.oguzhancetin.pomodoro.data.repository
 
-import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.core.database.dao.TaskItemDao
+import com.oguzhancetin.pomodoro.core.database.entity.TaskItemEntity
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(private val taskItemDao: TaskItemDao) {

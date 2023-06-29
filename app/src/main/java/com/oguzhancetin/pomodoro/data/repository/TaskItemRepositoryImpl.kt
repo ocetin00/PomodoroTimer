@@ -1,17 +1,13 @@
 package com.oguzhancetin.pomodoro.data.repository
 
-import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.core.util.FilterType
-import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
-import com.oguzhancetin.pomodoro.data.mapper.toCategory
-import com.oguzhancetin.pomodoro.data.mapper.toMapTaskEntity
-import com.oguzhancetin.pomodoro.data.mapper.toMapTaskItem
-import com.oguzhancetin.pomodoro.domain.model.Category
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
+import com.oguzhancetin.pomodoro.core.database.dao.TaskItemDao
+import com.oguzhancetin.pomodoro.core.mapper.toCategory
+import com.oguzhancetin.pomodoro.core.mapper.toMapTaskEntity
+import com.oguzhancetin.pomodoro.core.mapper.toMapTaskItem
+import com.oguzhancetin.pomodoro.core.model.Category
+import com.oguzhancetin.pomodoro.core.model.TaskItem
 import kotlinx.coroutines.flow.*
-import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,44 +15,28 @@ import javax.inject.Singleton
 @Singleton
 class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskItemDao) :
     TaskItemRepository {
-    override fun getTaskItems(): Flow<Resource<List<TaskItem>>> {
+    override fun getTaskItems(): Flow<List<TaskItem>> {
         return taskItemDao.tasKItems()
-            .onStart {
-                Resource.Loading<List<TaskItemEntity>>()
-            }
+
             .map {
-                Resource.Success(it.map { m -> m.toMapTaskItem() })
+                it.map { m -> m.toMapTaskItem() }
             }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
+
     }
 
-    override fun getCurrentWeekTaskList(currentWeekMilist: Long): Flow<Resource<List<TaskItem>>> {
+    override fun getCurrentWeekTaskList(currentWeekMilist: Long): Flow<List<TaskItem>> {
         return taskItemDao.doneTaskItems(currentWeekMilist)
-            .onStart {
-                Resource.Loading<List<TaskItemEntity>>()
-            }
             .map {
-                Resource.Success(it.map { m -> m.toMapTaskItem() })
+                it.map { m -> m.toMapTaskItem() }
             }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
-
     }
 
-    override fun getFavoriteTaskItems(): Flow<Resource<List<TaskItem>>> {
+    override fun getFavoriteTaskItems(): Flow<List<TaskItem>> {
         return taskItemDao.favoriteTaskItems()
-            .onStart {
-                Resource.Loading<List<TaskItemEntity>>()
-            }
             .map {
-                Resource.Success(it.map { m -> m.toMapTaskItem() })
+                it.map { m -> m.toMapTaskItem() }
             }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
+
     }
 
     override suspend fun deleteTaskItem(taskItem: TaskItem) =
@@ -86,7 +66,6 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
             .mapValues {
                 it.value.map { it.toMapTaskItem() }
             }
-
     }
 
     override suspend fun getTaskByCategoryId(id: UUID): Map<Category, List<TaskItem>> {
@@ -96,7 +75,6 @@ class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskIt
             }.mapValues {
                 it.value.map { it.toMapTaskItem() }
             }
-
     }
 
     override suspend fun deleteByCategoryId(categoryId: UUID) {

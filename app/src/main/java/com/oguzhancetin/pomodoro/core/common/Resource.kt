@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.core
+package com.oguzhancetin.pomodoro.core.common
 
 /**
  * Created by ocetin00 on 15.01.2023

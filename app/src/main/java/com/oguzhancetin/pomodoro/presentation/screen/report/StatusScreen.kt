@@ -28,11 +28,11 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.presentation.commonUI.MainAppBar
-import com.oguzhancetin.pomodoro.presentation.commonUI.Util.CustomBarChartRender
-import com.oguzhancetin.pomodoro.presentation.commonUI.Util.convertListToXYPairs
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
+import com.oguzhancetin.pomodoro.core.model.TaskItem
+import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
+import com.oguzhancetin.pomodoro.presentation.common.util.CustomBarChartRender
+import com.oguzhancetin.pomodoro.presentation.common.util.convertListToXYPairs
 import java.util.*
 
 

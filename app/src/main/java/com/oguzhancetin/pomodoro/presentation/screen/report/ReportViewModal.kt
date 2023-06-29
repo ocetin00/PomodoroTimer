@@ -4,12 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.core.Resource
 import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
 import com.oguzhancetin.pomodoro.core.preference.dataStore
 import com.oguzhancetin.pomodoro.core.util.removeDetails
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
+import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.GetCurrentWeekPomodoroListUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetCurrentWeekDoneTaskItems
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,13 +23,13 @@ data class ReportUIState(
     val taskList: List<TaskItem> = listOf(),
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
-    val isDarkTheme:Boolean? = false
+    val isDarkTheme: Boolean? = false
 )
 
 @HiltViewModel
 class ReportViewModal @Inject constructor(
-    private val getPomodoroListUseCase: GetCurrentWeekPomodoroListUseCase,
-    private val getCurrentWeekDoneTaskItems: GetCurrentWeekDoneTaskItems,
+    getPomodoroListUseCase: GetCurrentWeekPomodoroListUseCase,
+    getCurrentWeekDoneTaskItems: GetCurrentWeekDoneTaskItems,
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
@@ -51,7 +50,7 @@ class ReportViewModal @Inject constructor(
     private val _pomodoroList = getPomodoroListUseCase.invoke(currentWeekMillis)
     private val _taskList = getCurrentWeekDoneTaskItems.invoke(currentWeekMillis)
 
-    private var _isDarkTheme:Flow<Boolean> = context.dataStore.data
+    private var _isDarkTheme: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[IS_DARK_MODE_KEY] ?: false
         }
@@ -60,47 +59,19 @@ class ReportViewModal @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
 
     val reportUIState: StateFlow<ReportUIState> =
-        combine(_pomodoroList, _taskList, _isLoading,_isDarkTheme) { pomodoroList, taskList, _,isDarkTheme ->
-            Log.d("pomodoroList", pomodoroList.toString())
-            val state = when (pomodoroList) {
-                is Resource.Loading<*> -> ReportUIState().copy(
-                    isLoading = true
-                )
+        combine(
+            _pomodoroList,
+            _taskList,
+            _isLoading,
+            _isDarkTheme
+        ) { pomodoroList, taskList, _, isDarkTheme ->
+            ReportUIState().copy(
+                pomodoroList = pomodoroList,
+                isLoading = false,
+                isDarkTheme = isDarkTheme,
+                taskList = taskList,
 
-                is Resource.Error<*> -> ReportUIState().copy(
-                    errorMessage = pomodoroList.message
                 )
-
-                is Resource.Success -> {
-                    Log.d("pomodoroList", pomodoroList.data.toString())
-                    pomodoroList.data?.let {
-                        ReportUIState().copy(
-                            pomodoroList = it,
-                            isLoading = false,
-                            isDarkTheme = isDarkTheme
-                        )
-                    } ?: ReportUIState().copy()
-                }
-            }
-            when (taskList) {
-                is Resource.Loading<*> -> state.copy(
-                    isLoading = true
-                )
-
-                is Resource.Error<*> -> state.copy(
-                    errorMessage = taskList.message
-                )
-
-                is Resource.Success -> {
-                    Log.d("pomodoroList", taskList.data.toString())
-                    taskList.data?.let {
-                        state.copy(
-                            taskList = it,
-                            isLoading = false,
-                        )
-                    } ?: ReportUIState().copy()
-                }
-            }
 
         }.stateIn(
             scope = viewModelScope,

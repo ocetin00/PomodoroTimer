@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.oguzhancetin.pomodoro.data.local.PomodoroDatabase
-import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao
-import com.oguzhancetin.pomodoro.data.local.dao.PomodoroDao
-import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
-import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
+import com.oguzhancetin.pomodoro.core.database.PomodoroDatabase
+import com.oguzhancetin.pomodoro.core.database.dao.CategoryDao
+import com.oguzhancetin.pomodoro.core.database.dao.PomodoroDao
+import com.oguzhancetin.pomodoro.core.database.dao.TaskItemDao
+import com.oguzhancetin.pomodoro.core.database.entity.CategoryEntity
 
 import dagger.Module
 import dagger.Provides

@@ -1,7 +1,7 @@
 package com.oguzhancetin.pomodoro.domain.use_case.pomodoro
 
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.domain.repository.PomodoroRepository
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
+import com.oguzhancetin.pomodoro.data.repository.PomodoroRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

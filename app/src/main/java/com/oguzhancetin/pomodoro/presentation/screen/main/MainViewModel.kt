@@ -5,14 +5,14 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
-import com.oguzhancetin.pomodoro.core.Time.WorkUtil
+import com.oguzhancetin.pomodoro.core.database.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.core.time.WorkUtil
 import com.oguzhancetin.pomodoro.core.preference.IS_SILENT_NOTIFICATION
-import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.core.time.Time
 import com.oguzhancetin.pomodoro.core.preference.dataStore
 import com.oguzhancetin.pomodoro.core.util.removeDetails
 import com.oguzhancetin.pomodoro.data.repository.MainRepository
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +24,7 @@ import java.util.*
 import javax.inject.Inject
 
 data class MainUiState(
-    val runningTimeType: Times = Times.Pomodoro(),
+    val runningTimeType: Time = Time.Pomodoro(),
     val timeProgress: Float = 0f,
     val timerIsRunning: Boolean = false,
     val leftTime: String = "00:00",
@@ -94,21 +94,21 @@ class MainViewModel @Inject constructor(
      */
     private var _longTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
-            val time = preferences[Times.Long().getPrefKey()] ?: Times.Long().time
+            val time = preferences[Time.Long().getPrefKey()] ?: Time.Long().time
             //updateCurrentTime(Times.Long(time))
             return@map time
         }
     private var _shortTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
-            val time = preferences[Times.Short().getPrefKey()] ?: Times.Short().time
+            val time = preferences[Time.Short().getPrefKey()] ?: Time.Short().time
             //updateCurrentTime(Times.Short(time))
             return@map time
         }
     private var _pomodoroTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
-            val time = preferences[Times.Pomodoro().getPrefKey()] ?: Times.Pomodoro().time
+            val time = preferences[Time.Pomodoro().getPrefKey()] ?: Time.Pomodoro().time
             if (_timerIsRunning.first().not()) // if timer is not running update current time because of not blocking timer
-                updateCurrentTime(Times.Pomodoro(time))
+                updateCurrentTime(Time.Pomodoro(time))
             return@map time
         }
 
@@ -169,7 +169,7 @@ class MainViewModel @Inject constructor(
     fun restart() =
         WorkUtil.restart(context)
 
-    fun updateCurrentTime(time: Times) =
+    fun updateCurrentTime(time: Time) =
         WorkUtil.changeCurrentTime(time, context)
 
     fun updateTask(taskItem: TaskItemEntity) {

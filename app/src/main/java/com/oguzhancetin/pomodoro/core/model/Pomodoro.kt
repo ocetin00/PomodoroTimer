@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.domain.model
+package com.oguzhancetin.pomodoro.core.model
 
 import java.util.*
 

@@ -1,8 +1,7 @@
-package com.oguzhancetin.pomodoro.data.mapper
+package com.oguzhancetin.pomodoro.core.mapper
 
-import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.core.database.entity.PomodoroEntity
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
 
 /**
  * Created by ocetin00 on 12.02.2023

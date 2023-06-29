@@ -1,17 +1,13 @@
-package com.oguzhancetin.pomodoro.data.local.dao
+package com.oguzhancetin.pomodoro.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
-import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
-import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
-import com.oguzhancetin.pomodoro.domain.model.Category
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
+import com.oguzhancetin.pomodoro.core.database.entity.CategoryEntity
+import com.oguzhancetin.pomodoro.core.database.entity.relation.CategoryWithTask
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 

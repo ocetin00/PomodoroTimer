@@ -1,8 +1,7 @@
 package com.oguzhancetin.pomodoro.domain.use_case.task
 
-import com.oguzhancetin.pomodoro.core.Resource
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
+import com.oguzhancetin.pomodoro.core.model.TaskItem
+import com.oguzhancetin.pomodoro.data.repository.TaskItemRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,7 +14,7 @@ import javax.inject.Singleton
 class GetTasksUseCase @Inject constructor(
     private val taskItemRepository: TaskItemRepository
     ) {
-    operator fun invoke(): Flow<Resource<List<TaskItem>>> {
+    operator fun invoke(): Flow<List<TaskItem>> {
         return taskItemRepository.getTaskItems()
     }
 }

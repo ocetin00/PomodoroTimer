@@ -1,7 +1,7 @@
 package com.oguzhancetin.pomodoro.domain.use_case.task
 
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
-import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
+import com.oguzhancetin.pomodoro.core.model.TaskItem
+import com.oguzhancetin.pomodoro.data.repository.TaskItemRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -1,17 +1,11 @@
 package com.oguzhancetin.pomodoro.data.repository
 
-import com.oguzhancetin.pomodoro.core.Resource
-import com.oguzhancetin.pomodoro.data.local.dao.PomodoroDao
-import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
-import com.oguzhancetin.pomodoro.data.mapper.toPomodoro
-import com.oguzhancetin.pomodoro.data.mapper.toPomodoroEntity
-import com.oguzhancetin.pomodoro.domain.model.Pomodoro
-import com.oguzhancetin.pomodoro.domain.repository.PomodoroRepository
+import com.oguzhancetin.pomodoro.core.database.dao.PomodoroDao
+import com.oguzhancetin.pomodoro.core.mapper.toPomodoro
+import com.oguzhancetin.pomodoro.core.mapper.toPomodoroEntity
+import com.oguzhancetin.pomodoro.core.model.Pomodoro
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -19,44 +13,29 @@ import javax.inject.Inject
  */
 class PomodoroRepositoryImpl @Inject constructor(private val pomodoroDao: PomodoroDao) :
     PomodoroRepository {
-    override fun getAllPomodoro(): Flow<Resource<List<Pomodoro>>> {
+    override fun getAllPomodoro(): Flow<List<Pomodoro>> {
         return pomodoroDao.getAllPomodoro()
-            .onStart {
-                Resource.Loading<List<PomodoroEntity>>()
-            }
             .map {
-                Resource.Success(it.map { m -> m.toPomodoro() })
+                it.map { m -> m.toPomodoro() }
             }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
+
     }
 
-    override fun getCurrentWeekPomodoroList(currentWeekMilist: Long): Flow<Resource<List<Pomodoro>>> {
+    override fun getCurrentWeekPomodoroList(currentWeekMilist: Long): Flow<List<Pomodoro>> {
         return pomodoroDao.finishPomodoroListForCurrentWeek(currentWeekMilist)
-            .onStart {
-                Resource.Loading<List<PomodoroEntity>>()
-            }
             .map {
-                Resource.Success(it.map { m -> m.toPomodoro() })
+                it.map { m -> m.toPomodoro() }
             }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
+
 
     }
 
-    override fun getPomodoroItemsByFinish(isFinish: Int): Flow<Resource<List<Pomodoro>>> {
+    override fun getPomodoroItemsByFinish(isFinish: Int): Flow<List<Pomodoro>> {
         return pomodoroDao.pomodoroListByFinish(isFinish)
-            .onStart {
-                Resource.Loading<List<PomodoroEntity>>()
-            }
             .map {
-                Resource.Success(it.map { m -> m.toPomodoro() })
+                it.map { m -> m.toPomodoro() }
             }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
-            }
+
 
     }
 
@@ -68,16 +47,10 @@ class PomodoroRepositoryImpl @Inject constructor(private val pomodoroDao: Pomodo
         pomodoroDao.insert(pomodoro.toPomodoroEntity())
     }
 
-    override fun getPomodoroById(id: Int): Flow<Resource<Pomodoro>> {
+    override fun getPomodoroById(id: Int): Flow<Pomodoro> {
         return pomodoroDao.getPomodoroById(id)
-            .onStart {
-                Resource.Loading<PomodoroEntity>()
-            }
             .map {
-                Resource.Success(it.toPomodoro())
-            }
-            .catch { e ->
-                if (e is IOException) Resource.Error(e.message ?: "An error occured", null)
+                it.toPomodoro()
             }
     }
 

@@ -35,15 +35,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.oguzhancetin.pomodoro.R
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
-import com.oguzhancetin.pomodoro.presentation.commonUI.AppDrawer
+import com.oguzhancetin.pomodoro.core.database.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.presentation.common.AppDrawer
 import com.oguzhancetin.pomodoro.presentation.PomodoroDestinations
 import com.oguzhancetin.pomodoro.presentation.PomodoroNavigationActions
-import com.oguzhancetin.pomodoro.presentation.commonUI.StatelessTimer
-import com.oguzhancetin.pomodoro.presentation.commonUI.Util.ToggleTab
+import com.oguzhancetin.pomodoro.presentation.common.StatelessTimer
+import com.oguzhancetin.pomodoro.presentation.common.util.ToggleTab
 import com.oguzhancetin.pomodoro.ui.*
-import com.oguzhancetin.pomodoro.presentation.commonUI.MainAppBar
-import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
+import com.oguzhancetin.pomodoro.core.time.Time
 import com.oguzhancetin.pomodoro.core.util.withNotNull
 import com.oguzhancetin.pomodoro.presentation.theme.light_RedBackgroundContainer
 import kotlinx.coroutines.launch
@@ -133,9 +133,9 @@ fun MainScreen(
                                 viewModel.updateCurrentTime(
                                     timeType.also {
                                         when (it) {
-                                            is Times.Long -> it.time = long
-                                            is Times.Short -> it.time = short
-                                            is Times.Pomodoro -> it.time = pomodoro
+                                            is Time.Long -> it.time = long
+                                            is Time.Short -> it.time = short
+                                            is Time.Pomodoro -> it.time = pomodoro
                                             else -> {}
                                         }
                                     }
@@ -216,7 +216,7 @@ fun SheetContent(
 }
 
 @Composable
-fun BreakBody(time: Times) {
+fun BreakBody(time: Time) {
 
     Column(
         modifier = Modifier
@@ -233,10 +233,10 @@ fun BreakBody(time: Times) {
 @Composable
 fun MainScreenContent(
     modifier: Modifier = Modifier,
-    onTimeTypeChange: (Times) -> Unit,
+    onTimeTypeChange: (Time) -> Unit,
     left: String,
     progress: Float,
-    selectedTimeType: Times,
+    selectedTimeType: Time,
     timerIsRunning: Boolean,
     restart: () -> Unit,
     pauseOrPlayTimer: () -> Unit,
@@ -273,7 +273,7 @@ fun MainScreenContent(
             Spacer(modifier = Modifier.height(30.dp))
 
 
-            if (selectedTimeType !is Times.Pomodoro) {
+            if (selectedTimeType !is Time.Pomodoro) {
                 BreakBody(time = selectedTimeType)
             } else {
                 LazyColumn(
@@ -310,17 +310,17 @@ fun MainScreenContent(
 
 @Composable
 private fun TopButtons(
-    onClickButton: (Times) -> Unit,
-    currentTimeType: Times
+    onClickButton: (Time) -> Unit,
+    currentTimeType: Time
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         val currentTimeTypeIndex = when (currentTimeType) {
-            is Times.Long -> 0
-            is Times.Short -> 1
-            is Times.Pomodoro -> 2
+            is Time.Long -> 0
+            is Time.Short -> 1
+            is Time.Pomodoro -> 2
             else -> 0
         }
         ToggleTab(
@@ -331,9 +331,9 @@ private fun TopButtons(
             titleList = listOf("Long", "Short", "Pomodoro"),
             onTabSelected = {
                 when (it) {
-                    0 -> onClickButton(Times.Long())
-                    1 -> onClickButton(Times.Short())
-                    2 -> onClickButton(Times.Pomodoro())
+                    0 -> onClickButton(Time.Long())
+                    1 -> onClickButton(Time.Short())
+                    2 -> onClickButton(Time.Pomodoro())
                 }
             })
     }

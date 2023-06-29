@@ -47,14 +47,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oguzhancetin.pomodoro.R
-import com.oguzhancetin.pomodoro.presentation.commonUI.MainAppBar
+import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
 import com.oguzhancetin.pomodoro.core.util.removeDetails
-import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
-import com.oguzhancetin.pomodoro.data.mapper.toCategory
-import com.oguzhancetin.pomodoro.domain.model.TaskItem
+import com.oguzhancetin.pomodoro.core.database.entity.relation.CategoryWithTask
+import com.oguzhancetin.pomodoro.core.mapper.toCategory
+import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import java.util.*
-import com.oguzhancetin.pomodoro.domain.model.Category
+import com.oguzhancetin.pomodoro.core.model.Category
 
 
 @OptIn(ExperimentalMaterial3Api::class)

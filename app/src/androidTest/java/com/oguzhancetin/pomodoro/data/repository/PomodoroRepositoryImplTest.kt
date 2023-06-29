@@ -4,20 +4,14 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.oguzhancetin.pomodoro.data.local.PomodoroDatabase
-import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao
-import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
-import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
-import com.oguzhancetin.pomodoro.data.local.entity.relation.CategoryWithTask
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
-import kotlinx.coroutines.test.runTest
+import com.oguzhancetin.pomodoro.core.database.PomodoroDatabase
+import com.oguzhancetin.pomodoro.core.database.dao.CategoryDao
+import com.oguzhancetin.pomodoro.core.database.dao.TaskItemDao
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class PomodoroRepositoryImplTest {

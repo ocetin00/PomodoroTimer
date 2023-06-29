@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.data.local.entity
+package com.oguzhancetin.pomodoro.core.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

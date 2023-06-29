@@ -45,8 +45,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.oguzhancetin.pomodoro.domain.model.Category
-import com.oguzhancetin.pomodoro.presentation.commonUI.DetailTopBar
+import com.oguzhancetin.pomodoro.core.model.Category
+import com.oguzhancetin.pomodoro.presentation.common.DetailTopBar
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import java.util.Calendar
 import java.util.Locale

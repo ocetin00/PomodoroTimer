@@ -1,15 +1,14 @@
 package com.oguzhancetin.pomodoro.di
 
-import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao
-import com.oguzhancetin.pomodoro.data.local.dao.CategoryDao_Impl
-import com.oguzhancetin.pomodoro.data.local.dao.PomodoroDao
-import com.oguzhancetin.pomodoro.data.local.dao.TaskItemDao
+import com.oguzhancetin.pomodoro.core.database.dao.CategoryDao
+import com.oguzhancetin.pomodoro.core.database.dao.PomodoroDao
+import com.oguzhancetin.pomodoro.core.database.dao.TaskItemDao
 import com.oguzhancetin.pomodoro.data.repository.CategoryRepositoryImpl
 import com.oguzhancetin.pomodoro.data.repository.PomodoroRepositoryImpl
 import com.oguzhancetin.pomodoro.data.repository.TaskItemRepositoryImpl
-import com.oguzhancetin.pomodoro.domain.repository.CategoryRepository
-import com.oguzhancetin.pomodoro.domain.repository.PomodoroRepository
-import com.oguzhancetin.pomodoro.domain.repository.TaskItemRepository
+import com.oguzhancetin.pomodoro.data.repository.CategoryRepository
+import com.oguzhancetin.pomodoro.data.repository.PomodoroRepository
+import com.oguzhancetin.pomodoro.data.repository.TaskItemRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

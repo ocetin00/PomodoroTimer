@@ -1,9 +1,9 @@
-package com.oguzhancetin.pomodoro.data.local.entity.relation
+package com.oguzhancetin.pomodoro.core.database.entity.relation
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.oguzhancetin.pomodoro.data.local.entity.CategoryEntity
-import com.oguzhancetin.pomodoro.data.local.entity.TaskItemEntity
+import com.oguzhancetin.pomodoro.core.database.entity.CategoryEntity
+import com.oguzhancetin.pomodoro.core.database.entity.TaskItemEntity
 
 class CategoryWithTask (
     @Embedded val category: CategoryEntity,

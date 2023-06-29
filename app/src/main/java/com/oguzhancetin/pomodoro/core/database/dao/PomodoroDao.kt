@@ -1,7 +1,7 @@
-package com.oguzhancetin.pomodoro.data.local.dao
+package com.oguzhancetin.pomodoro.core.database.dao
 
 import androidx.room.*
-import com.oguzhancetin.pomodoro.data.local.entity.PomodoroEntity
+import com.oguzhancetin.pomodoro.core.database.entity.PomodoroEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
