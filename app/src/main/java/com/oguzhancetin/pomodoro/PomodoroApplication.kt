@@ -3,7 +3,7 @@ package com.oguzhancetin.pomodoro
 import android.app.Application
 import androidx.datastore.preferences.core.edit
 import com.oguzhancetin.pomodoro.core.preference.dataStore
-import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.core.time.Time
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,21 +29,21 @@ class PomodoroApplication : Application() {
 
     private suspend fun initializeDataStoreValues() {
         this.dataStore.edit { settings ->
-            val currentValue = settings[Times.Pomodoro().getPrefKey()]
+            val currentValue = settings[Time.Pomodoro().getPrefKey()]
             if (currentValue == null) {
-                settings[Times.Pomodoro().getPrefKey()] = 1500000
+                settings[Time.Pomodoro().getPrefKey()] = 1500000
             }
         }
         this.dataStore.edit { settings ->
-            val currentValue = settings[Times.Long().getPrefKey()]
+            val currentValue = settings[Time.Long().getPrefKey()]
             if (currentValue == null) {
-                settings[Times.Long().getPrefKey()] = 900000
+                settings[Time.Long().getPrefKey()] = 900000
             }
         }
         this.dataStore.edit { settings ->
-            val currentValue = settings[Times.Short().getPrefKey()]
+            val currentValue = settings[Time.Short().getPrefKey()]
             if (currentValue == null) {
-                settings[Times.Short().getPrefKey()] = 300000
+                settings[Time.Short().getPrefKey()] = 300000
             }
         }
     }

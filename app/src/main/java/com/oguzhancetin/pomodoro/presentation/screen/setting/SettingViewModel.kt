@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.core.time.Time
 import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
 import com.oguzhancetin.pomodoro.core.preference.IS_SILENT_NOTIFICATION
 import com.oguzhancetin.pomodoro.core.preference.dataStore
@@ -23,15 +23,15 @@ const val MIN_MINUTE = 0
 class SettingViewModel @Inject constructor(@ApplicationContext val context: Context) : ViewModel() {
     var longTime:Flow<Long> = context.dataStore.data
         .map { preferences ->
-            preferences[Times.Long().getPrefKey()] ?: 0
+            preferences[Time.Long().getPrefKey()] ?: 0
         }
     var shortTime:Flow<Long> = context.dataStore.data
         .map { preferences ->
-            preferences[Times.Short().getPrefKey()] ?: 0
+            preferences[Time.Short().getPrefKey()] ?: 0
         }
     var pomodoroTime:Flow<Long> = context.dataStore.data
         .map { preferences ->
-            preferences[Times.Pomodoro().getPrefKey()] ?: 0
+            preferences[Time.Pomodoro().getPrefKey()] ?: 0
         }
 
     var isDarkTheme:Flow<Boolean> = context.dataStore.data
@@ -44,7 +44,7 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
         }
 
 
-    fun increaseTime(time:Times) {
+    fun increaseTime(time: Time) {
         viewModelScope.launch (Dispatchers.IO){
             context.dataStore.edit { settings->
                 val currentValue = settings[time.getPrefKey()] ?: 0
@@ -55,7 +55,7 @@ class SettingViewModel @Inject constructor(@ApplicationContext val context: Cont
             }
         }
     }
-    fun decreaseTime(time:Times) {
+    fun decreaseTime(time: Time) {
         viewModelScope.launch (Dispatchers.IO){
             context.dataStore.edit { settings->
                 val currentValue = settings[time.getPrefKey()] ?: 0

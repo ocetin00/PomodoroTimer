@@ -1,25 +1,22 @@
-package com.oguzhancetin.pomodoro.util
+package com.oguzhancetin.pomodoro.core.time
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.longPreferencesKey
 
-sealed class Times(open var time: kotlin.Long) {
+sealed class Time(open var time: kotlin.Long) {
     private var left: kotlin.Long? = null
 
-    data class Long(override var time: kotlin.Long = 900000) : Times(time) {
+    data class Long(override var time: kotlin.Long = 900000) : Time(time) {
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("long_time")
     }
 
-    data class Short(override var time: kotlin.Long = 300000) : Times(time) {
+    data class Short(override var time: kotlin.Long = 300000) : Time(time) {
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("short_time")
     }
 
-    data class Pomodoro(override var time: kotlin.Long = 1500000) : Times(time) {
+    data class Pomodoro(override var time: kotlin.Long = 1500000) : Time(time) {
         override fun getPrefKey(): Preferences.Key<kotlin.Long> =
             longPreferencesKey("pomodoro_time")
     }

@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.presentation.commonUI
+package com.oguzhancetin.pomodoro.presentation.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

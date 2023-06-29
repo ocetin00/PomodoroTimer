@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.presentation.commonUI.Util
+package com.oguzhancetin.pomodoro.presentation.common.util
 
 import android.content.Context
 import android.util.TypedValue

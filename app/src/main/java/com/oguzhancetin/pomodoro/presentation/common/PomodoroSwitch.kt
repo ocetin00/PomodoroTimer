@@ -1,10 +1,6 @@
-package com.oguzhancetin.pomodoro.presentation.commonUI
+package com.oguzhancetin.pomodoro.presentation.common
 
-import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.compose.material.Switch
-import androidx.compose.material.SwitchColors
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 

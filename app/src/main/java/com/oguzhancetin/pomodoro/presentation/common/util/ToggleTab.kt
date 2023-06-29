@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.presentation.commonUI.Util
+package com.oguzhancetin.pomodoro.presentation.common.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

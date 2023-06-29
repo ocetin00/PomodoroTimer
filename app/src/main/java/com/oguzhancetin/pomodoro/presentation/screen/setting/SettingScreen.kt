@@ -25,9 +25,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.oguzhancetin.pomodoro.presentation.screen.setting.SettingViewModel
-import com.oguzhancetin.pomodoro.core.Time.WorkUtil.getMinute
+import com.oguzhancetin.pomodoro.core.time.WorkUtil.getMinute
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
-import com.oguzhancetin.pomodoro.util.Times
+import com.oguzhancetin.pomodoro.core.time.Time
 import kotlinx.coroutines.launch
 
 
@@ -257,7 +257,7 @@ fun GeneralSettingRow(title: String, checkedState: Boolean, onChecked: (Boolean)
 
 @Composable
 fun IntervalSettingRow(
-    title: String, onDecrease: (Times) -> Unit, onIncrease: (Times) -> Unit,
+    title: String, onDecrease: (Time) -> Unit, onIncrease: (Time) -> Unit,
     time: String
 ) {
     Surface(
@@ -284,7 +284,7 @@ fun IntervalSettingRow(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { onDecrease(Times.Pomodoro()) }) {
+                    IconButton(onClick = { onDecrease(Time.Pomodoro()) }) {
                         Icon(imageVector = Icons.Filled.Remove, "decrease")
                     }
 
@@ -300,7 +300,7 @@ fun IntervalSettingRow(
                         )
                     }
 
-                    IconButton(onClick = { onIncrease(Times.Pomodoro()) }) {
+                    IconButton(onClick = { onIncrease(Time.Pomodoro()) }) {
                         Icon(imageVector = Icons.Filled.Add, "increase")
                     }
                 }
@@ -345,22 +345,22 @@ fun IntervalSetting(
     ) {
         IntervalSettingRow(
             title = "Pomodoro Time",
-            onDecrease = { parameters.onDecrease(Times.Pomodoro()) },
-            onIncrease = { parameters.onIncrease(Times.Pomodoro()) },
+            onDecrease = { parameters.onDecrease(Time.Pomodoro()) },
+            onIncrease = { parameters.onIncrease(Time.Pomodoro()) },
             time = parameters.pomodoroTime.getMinute().toString()
         )
         Spacer(modifier = Modifier.height(12.dp))
         IntervalSettingRow(
             title = "Short Time",
-            onDecrease = { parameters.onDecrease(Times.Short()) },
-            onIncrease = { parameters.onIncrease(Times.Short()) },
+            onDecrease = { parameters.onDecrease(Time.Short()) },
+            onIncrease = { parameters.onIncrease(Time.Short()) },
             time = parameters.shortTime.getMinute().toString()
         )
         Spacer(modifier = Modifier.height(12.dp))
         IntervalSettingRow(
             title = "Long Time",
-            onDecrease = { parameters.onDecrease(Times.Long()) },
-            onIncrease = { parameters.onIncrease(Times.Long()) },
+            onDecrease = { parameters.onDecrease(Time.Long()) },
+            onIncrease = { parameters.onIncrease(Time.Long()) },
             time = parameters.longTime.getMinute().toString()
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -399,8 +399,8 @@ data class IntervalSettingParameters(
     val pomodoroTime: Long = 0L,
     val shortTime: Long = 0L,
     val longTime: Long = 0L,
-    val onIncrease: (Times) -> Unit = {},
-    val onDecrease: (Times) -> Unit = {},
+    val onIncrease: (Time) -> Unit = {},
+    val onDecrease: (Time) -> Unit = {},
 )
 
 data class GeneralSettingsParameters(

@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.presentation.commonUI.Util
+package com.oguzhancetin.pomodoro.presentation.common.util
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.oguzhancetin.pomodoro.core.util.removeDetails
-import com.oguzhancetin.pomodoro.domain.model.Doneable
+import com.oguzhancetin.pomodoro.core.model.Doneable
 import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
 import com.patrykandpatrick.vico.compose.style.ChartStyle
 import com.patrykandpatrick.vico.core.DefaultAlpha

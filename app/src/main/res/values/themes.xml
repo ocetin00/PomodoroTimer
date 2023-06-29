@@ -26,7 +26,7 @@
     <!-- Allows us to override platform level specific attributes in their
          respective values-vXX folder. -->
     <style name="PlatformAdjusted.Theme.Pomodoro" parent="NightAdjusted.Theme.Pomodoro">
-        <item name="android:statusBarColor">@color/black30</item>
+        <item name="android:statusBarColor">@color/transparent</item>
     </style>
 
     <!-- The final theme we use -->

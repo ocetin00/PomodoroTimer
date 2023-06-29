@@ -1,4 +1,4 @@
-package com.oguzhancetin.pomodoro.core.Time
+package com.oguzhancetin.pomodoro.core.time
 
 import android.app.Application
 import android.util.Log
@@ -13,14 +13,13 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.oguzhancetin.pomodoro.util.Times
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
 object WorkUtil {
 
     var timerIsRunning = MutableStateFlow(false)
-    var runningTimeType: MutableStateFlow<Times> = MutableStateFlow(Times.Pomodoro())
+    var runningTimeType: MutableStateFlow<Time> = MutableStateFlow(Time.Pomodoro())
 
     /**
      * Time is cached when timer is stop, if timer type change or restart same time type
@@ -115,7 +114,7 @@ object WorkUtil {
                                 ) ?: -1f
                                 timerIsRunning.value = false
                                 showFinishNotification()
-                                if (this::onFinishPomodoro.isInitialized && runningTimeType.value is Times.Pomodoro) {
+                                if (this::onFinishPomodoro.isInitialized && runningTimeType.value is Time.Pomodoro) {
                                     onFinishPomodoro()
                                 }
                                 return@switchMap MutableLiveData(progress)
@@ -140,7 +139,7 @@ object WorkUtil {
 
     }
 
-    fun changeCurrentTime(time: Times, context: Application? = null) {
+    fun changeCurrentTime(time: Time, context: Application? = null) {
         context?.let { stopTimer(it) }
         runningTimeType.value = time
         cachedTime = runningTimeType.value.time
