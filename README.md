@@ -51,7 +51,7 @@ The data flow is achieved using streams, implemented using [Kotlin Flows](https:
 - Jetpack Compose
 - Hilt 
 - Navigation 
-- Flow
+- Flow, Coroutine
 - Splash Screen Api
 - Data Store
 - Toggle Tab  => com.github.ocetin00:ToggleTab
