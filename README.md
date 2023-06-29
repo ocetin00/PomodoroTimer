@@ -62,8 +62,7 @@ These use cases are used to simplify and remove duplicate logic from ViewModels.
 
 ## UI Layer
 
-The [UI layer](https://github.com/ocetin00/temp/blob/main/architecture-4-ui-layer.png) comprises:
-
+The [UI layer](https://developer.android.com/topic/architecture/ui-layer) comprises:
 
 
 *   UI elements built using [Jetpack Compose](https://developer.android.com/jetpack/compose)
@@ -72,7 +71,7 @@ The [UI layer](https://github.com/ocetin00/temp/blob/main/architecture-4-ui-laye
 The ViewModels receive streams of data from use cases and repositories, and transforms them into UI state. The UI elements reflect this state, and provide ways for the user to interact with the app. These interactions are passed as events to the ViewModel where they are processed.
 
 
-![Diagram showing the UI layer architecture](images/architecture-4-ui-layer.png "Diagram showing the UI layer architecture")
+![Diagram showing the UI layer architecture](https://github.com/ocetin00/temp/blob/main/architecture-4-ui-layer-2.png "Diagram showing the UI layer architecture")
 
 
 
