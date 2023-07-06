@@ -96,7 +96,8 @@ class TimerWorker(
     private fun createForegroundInfo(progress: String): ForegroundInfo {
         val id = CHANNEL_ID
         val title = "Pomodoro Running"
-        val cancel = "cancel"
+        val cancel = "Cancel"
+        val pause = "Pause"
         // This PendingIntent can be used to cancel the worker
         val intent = WorkManager.getInstance(applicationContext)
             .createCancelPendingIntent(getId())
@@ -131,11 +132,12 @@ class TimerWorker(
             .setTicker(title)
             .setContentText(progress)
             .setAutoCancel(false)
-            .setSmallIcon(R.drawable.app_icon)
+            .setSmallIcon(R.drawable.notification_icon)
             .setOngoing(true)
             .setSound(soundUri)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addAction(android.R.drawable.ic_delete, cancel, intent)
+            //.addAction(android.R.drawable.ic_delete, pause, intent)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
             .setContentIntent(pendingIntent)
@@ -148,9 +150,10 @@ class TimerWorker(
             .setTicker(title)
             .setContentText(progress)
             .setAutoCancel(true)
+
             .setSound(soundUri)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSmallIcon(R.drawable.app_icon)
+            .setSmallIcon(R.drawable.notification_icon)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
             .setContentIntent(pendingIntent)
@@ -161,7 +164,8 @@ class TimerWorker(
 
         return ForegroundInfo(
             TIMER_NOTIFICATION_ID, timeNotificationBuilder!!.build(),
-            FOREGROUND_SERVICE_TYPE_NONE)
+            FOREGROUND_SERVICE_TYPE_NONE
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

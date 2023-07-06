@@ -334,8 +334,8 @@ fun CustomView(
                         )
                     }
 
-            view.invalidate()
             view.animateY(500)
+            view.invalidate()
 
         }
     )

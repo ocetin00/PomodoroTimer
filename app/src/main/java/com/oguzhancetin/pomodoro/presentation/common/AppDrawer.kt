@@ -1,11 +1,13 @@
 package com.oguzhancetin.pomodoro.presentation.common
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oguzhancetin.pomodoro.R
@@ -65,10 +67,10 @@ fun AppDrawer(
 @Composable
 fun DrawerSheetHeader(modifier: Modifier = Modifier) {
     Row(modifier) {
-        Icon(
-            imageVector = Icons.Filled.Timer,
-            tint = MaterialTheme.colorScheme.primary,
-            contentDescription = "Pomodoro Icon"
+        Image(
+            painterResource(R.drawable.pomodoro_app_icon),
+            "content description",
+            Modifier.size(24.dp)
         )
         Spacer(Modifier.width(8.dp))
         Text("Pomodoro")
