@@ -32,6 +32,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -611,19 +612,18 @@ fun TaskBodyHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Row(modifier = Modifier.onKeyEvent {
+        },
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {
-                onClickNewTask()
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.AddCircle,
-                    "add task",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+
+            Icon(
+                imageVector = Icons.Filled.AddCircle,
+                "add task",
+                tint = MaterialTheme.colorScheme.primary
+            )
+
             Text(
                 "Add New Task", style = TextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
