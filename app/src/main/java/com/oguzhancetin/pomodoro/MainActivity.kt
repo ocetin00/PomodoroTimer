@@ -1,9 +1,12 @@
 package com.oguzhancetin.pomodoro
 
 import android.Manifest
+import android.app.Activity
 import android.app.Application
 import android.content.pm.PackageManager
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -11,7 +14,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.ColorRes
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -130,13 +137,29 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
+
             val systemUiController = rememberSystemUiController()
             val isDarkMode = shouldUseDarkTheme(uiState)
 
+            systemUiController.systemBarsDarkContentEnabled = !isDarkMode
 
-            // Update the dark content of the system bars to match the theme
+            if (isDarkMode) {
+                systemUiController.setSystemBarsColor(color = Color.Transparent, darkIcons = false)
+                systemUiController.setNavigationBarColor(
+                    color = Color.Transparent,
+                    darkIcons = false
+                )
+            } else {
+                systemUiController.setSystemBarsColor(color = Color.Transparent, darkIcons = true)
+                systemUiController.setNavigationBarColor(
+                    color = Color.Transparent,
+                    darkIcons = true
+                )
+            }
+
+           /* // Update the dark content of the system bars to match the theme
             DisposableEffect(systemUiController, isDarkMode) {
-                systemUiController.systemBarsDarkContentEnabled = !isDarkMode
+
                 @ColorRes val backGroundColor =
                     if (isDarkMode) R.color.colorPrimaryDark else R.color.colorPrimary
                 window.decorView.setBackgroundColor(
@@ -146,7 +169,8 @@ class MainActivity : ComponentActivity() {
                     )
                 )
                 onDispose {}
-            }
+            }*/
+
             PomodoroTheme(darkTheme = isDarkMode) {
                 PomodoroApp()
             }

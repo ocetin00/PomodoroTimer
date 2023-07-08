@@ -17,6 +17,8 @@
 <resources>
 
     <style name="PlatformAdjusted.Theme.Pomodoro" parent="NightAdjusted.Theme.Pomodoro">
+
+        <item name="android:navigationBarColor">@color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 </resources>

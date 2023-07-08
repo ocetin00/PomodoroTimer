@@ -21,6 +21,7 @@
     <style name="NightAdjusted.Theme.Pomodoro" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
     </style>
 
     <!-- Allows us to override platform level specific attributes in their
@@ -35,6 +36,8 @@
     <style name="NightAdjusted.Theme.Splash" parent="Theme.SplashScreen">
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
+
     </style>
 
     <style name="Theme.Pomodoro.Splash" parent="NightAdjusted.Theme.Splash">

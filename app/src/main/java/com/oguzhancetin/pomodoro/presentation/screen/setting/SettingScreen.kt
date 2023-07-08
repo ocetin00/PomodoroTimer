@@ -326,7 +326,7 @@ fun GeneralSetting(
         )
         Spacer(modifier = Modifier.height(12.dp))
         GeneralSettingRow(
-            title = "Enable Tick Sound",
+            title = "Disable Sounds",
             checkedState = generalSettingsParameters.tickSoundToggleState,
             onChecked = { generalSettingsParameters.toggleThickSound() }
         )

@@ -14,20 +14,31 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +63,7 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(
@@ -61,19 +73,19 @@ fun TaskDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+
     when (val state = uiState) {
         is TaskDetailUIState.Success -> {
 
             Scaffold(
                 topBar = {
-                    DetailTopBar(
-                        currentRoute = if (state.text.isNotEmpty()) "Task Update" else "New Task",
-                        canNavigateBack = true,
+                    TaskDetailTopBar(
+                        currentRoute = if (state.isUpdate) "Task Update" else "New Task",
                         navigateUp = { onBack() }
                     )
                 },
                 bottomBar = {
-                    Column {
+                    Column(Modifier.imePadding()) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -93,14 +105,16 @@ fun TaskDetailScreen(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "Delete Task",
-                                color = Color.Red,
-                                modifier = Modifier.clickable {
-                                    viewModel.deleteTask()
-                                    onBack()
-                                }
-                            )
+                            if (state.isUpdate.not())
+                                Text(
+                                    text = "Delete Task",
+                                    color = Color.Red,
+                                    modifier = Modifier.clickable {
+                                        viewModel.deleteTask()
+                                        onBack()
+                                    }
+                                )
+
 
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -168,7 +182,7 @@ fun TaskDetailScreenContentPreview() {
                             text = "Delete Category",
                             color = Color.Red,
                             modifier = Modifier.clickable {
-
+                                /*TODO*/
                             }
                         )
 
@@ -252,7 +266,8 @@ fun TextBody(
     Column {
         Row(modifier = modifier) {
             TextField(
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier
+                    .fillMaxHeight()
                     .focusRequester(focusRequester)
                     .fillMaxWidth()
                     .background(color = MaterialTheme.colorScheme.surface),
@@ -386,4 +401,31 @@ fun SelectCategoryDropDown(
             }
         }
     }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+fun TaskDetailTopBar(
+    modifier: Modifier = Modifier,
+    navigateUp: () -> Unit = {},
+    currentRoute: String,
+    colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
+) {
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+        ),
+        title = { Text(text = currentRoute, color = MaterialTheme.colorScheme.onPrimaryContainer) },
+        navigationIcon = {
+            IconButton(onClick = navigateUp) {
+                Icon(
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+
+        },
+        modifier = modifier
+    )
 }

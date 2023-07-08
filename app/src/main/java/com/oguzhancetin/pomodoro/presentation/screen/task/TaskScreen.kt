@@ -612,20 +612,22 @@ fun TaskBodyHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(modifier = Modifier.onKeyEvent {
-        },
+        Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            Icon(
-                imageVector = Icons.Filled.AddCircle,
-                "add task",
-                tint = MaterialTheme.colorScheme.primary
-            )
-
+            IconButton(onClick = {
+                onClickNewTask()
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    "add task",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
             Text(
-                "Add New Task", style = TextStyle(
+                modifier = Modifier.clickable { onClickNewTask() },
+                text = "Add New Task", style = TextStyle(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 )

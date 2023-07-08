@@ -30,6 +30,7 @@ sealed class TaskDetailUIState {
         val selectedCategory: Category? = null,
         val text: String = "",
         val isSaveButtonActive: Boolean = false,
+        val isUpdate: Boolean = false,
     ) : TaskDetailUIState()
 
     data class Error(val message: String) : TaskDetailUIState()
@@ -89,6 +90,7 @@ class TaskDetailViewModel
                 selectedCategory = category,
                 text = text,
                 isSaveButtonActive = text.isNotEmpty(),
+                isUpdate = taskId.value?.clearSufAndPrefix().isNullOrEmpty()
             )
 
         }.stateIn(
