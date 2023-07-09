@@ -21,11 +21,12 @@ import com.patrykandpatrick.vico.core.entry.ChartEntryModel
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryOf
 import java.util.Calendar
+import java.util.GregorianCalendar
 import java.util.TimeZone
 
 fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> {
 
-    val calendar = Calendar.getInstance(TimeZone.getDefault())
+    val calendar = GregorianCalendar(TimeZone.getDefault())
     val daysValue = mutableMapOf<Long, Int>()
     calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
     calendar.removeDetails()
@@ -45,11 +46,14 @@ fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> 
             }
         }
     }
+    val sortedDays = daysValue.toSortedMap(
+        compareBy<Long> { it }.thenBy { it }.reversed()
+    )
 
     //convert to pair
     var tempCounter = 0
     val dayToValue = mutableListOf<Pair<Int, Int>>()
-    daysValue.values.forEach {
+    sortedDays.values.forEach {
         dayToValue.add(Pair(tempCounter, it))
         tempCounter++
     }

@@ -1,6 +1,7 @@
 package com.oguzhancetin.pomodoro.presentation.screen.report
 
 
+import android.app.Activity
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Color
 import android.graphics.DashPathEffect
@@ -15,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.AxisBase
@@ -28,6 +31,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.core.model.Pomodoro
 import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
@@ -263,6 +267,7 @@ fun CustomView(
     ),
     isDarkTheme: Boolean = false
 ) {
+    val activity = LocalContext.current as Activity
     val labelColor =
         if (isDarkTheme) Color.parseColor("#E2E2E6") else Color.parseColor("#1A1C1E")
     val barColor =
@@ -326,7 +331,7 @@ fun CustomView(
             view.axisRight.isEnabled = false
             view.description = Description().also { it.text = "" }
             view.legend.form = Legend.LegendForm.NONE
-            if (!chartPair.isNullOrEmpty())
+            if (chartPair.isNotEmpty())
                 view.renderer =
                     CustomBarChartRender(view, view.animator, view.viewPortHandler).also {
                         it.setRadius(
