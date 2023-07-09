@@ -32,7 +32,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -529,7 +528,7 @@ fun TaskItemContent(
 fun TaskListBodyPreview() {
 
     val taskList = listOf(
-        TaskItem(description = "Task1", id = UUID.randomUUID()),
+        TaskItem(description = "Task1", id = UUID.randomUUID(), isFinished = true),
         TaskItem(description = "Task2", id = UUID.randomUUID(), doneDate = 12321),
         TaskItem(description = "Task3", id = UUID.randomUUID()),
         TaskItem(description = "Task4", id = UUID.randomUUID()),
@@ -714,9 +713,7 @@ fun TaskBodyItem(
         }
     } else {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

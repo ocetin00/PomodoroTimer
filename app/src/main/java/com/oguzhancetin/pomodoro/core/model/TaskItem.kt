@@ -9,7 +9,7 @@ import java.util.*
 data class TaskItem(
     val id: UUID,
     val description: String?,
-    override val doneDate: Long? = null,
+    override var doneDate: Long? = null,
     var isFavorite: Boolean = true,
     var isFinished: Boolean = false,
     val createdDate: Long? = null,

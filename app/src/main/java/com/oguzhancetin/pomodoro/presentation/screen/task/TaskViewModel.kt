@@ -7,6 +7,7 @@ import com.oguzhancetin.pomodoro.core.database.entity.relation.CategoryWithTask
 import com.oguzhancetin.pomodoro.core.mapper.toMapTaskItem
 import com.oguzhancetin.pomodoro.core.model.Category
 import com.oguzhancetin.pomodoro.core.model.TaskItem
+import com.oguzhancetin.pomodoro.core.util.removeDetails
 import com.oguzhancetin.pomodoro.data.repository.CategoryRepository
 import com.oguzhancetin.pomodoro.data.repository.TaskItemRepository
 import com.oguzhancetin.pomodoro.domain.use_case.category.AddCategoryUseCase
@@ -20,8 +21,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
+
 sealed class DialogState {
     object DismissDialog : DialogState()
     data class ShowDialog(val category: Category?) : DialogState()
@@ -63,6 +66,7 @@ class TaskViewModel @Inject constructor(
     private val emptyUUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     private val _selectedTaskCategory = MutableStateFlow<UUID?>(emptyUUID)
 
+    private val calender = Calendar.getInstance()
 
     init {
 
@@ -119,7 +123,14 @@ class TaskViewModel @Inject constructor(
 
     fun updateTask(taskItem: TaskItem) {
         viewModelScope.launch(Dispatchers.IO) {
+            taskItem.apply {
+                doneDate = if (isFinished)
+                    calender.removeDetails().timeInMillis
+                else
+                    null
+            }
             updateTaskItemUseCase.invoke(taskItem = taskItem)
+
         }
     }
 
@@ -156,7 +167,7 @@ class TaskViewModel @Inject constructor(
 
     fun showCategoryDialog() {
         viewModelScope.launch {
-                _dialogState.value = DialogState.ShowDialog(null)
+            _dialogState.value = DialogState.ShowDialog(null)
         }
     }
 
