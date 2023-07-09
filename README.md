@@ -5,7 +5,7 @@ The Pomodoro Timer makes it easy to manage time and tasks and support dark mode
 <h1 align="center">Pomodoro Timer</h1>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
+  <a href="https://creativecommons.org/licenses/by-nc/4.0"><img alt="License" src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg"/></a>
   <a href="https://android-arsenal.com/api?level=21"><img alt="API" src="https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat"/></a>
 </p>
 
@@ -95,11 +95,9 @@ The ViewModels receive streams of data from use cases and repositories, and tran
 ```xml
 Developed by 2022 ocetin00 (Oğuzhan Çetin) and designed Burak Koçak 
  
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
+This project is licensed under the Creative Commons Attribution-NonCommercial (CC BY-NC) license.
+This license allows others to use, distribute, and build upon your code for non-commercial purposes.
+This license prohibits the use of your code for commercial purposes without obtaining additional permission from me.
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
