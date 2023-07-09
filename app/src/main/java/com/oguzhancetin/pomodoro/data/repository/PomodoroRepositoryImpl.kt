@@ -26,8 +26,6 @@ class PomodoroRepositoryImpl @Inject constructor(private val pomodoroDao: Pomodo
             .map {
                 it.map { m -> m.toPomodoro() }
             }
-
-
     }
 
     override fun getPomodoroItemsByFinish(isFinish: Int): Flow<List<Pomodoro>> {
@@ -56,5 +54,9 @@ class PomodoroRepositoryImpl @Inject constructor(private val pomodoroDao: Pomodo
 
     override suspend fun updatePomodoro(pomodoro: Pomodoro) {
         pomodoroDao.updatePomodoro(pomodoro.toPomodoroEntity())
+    }
+
+    override suspend fun isAnyPomodoroFinish(): Boolean {
+        return pomodoroDao.isAnyPomodoroFinish() == 1
     }
 }

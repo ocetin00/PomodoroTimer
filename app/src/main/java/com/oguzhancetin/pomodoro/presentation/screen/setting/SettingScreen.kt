@@ -1,5 +1,6 @@
 package com.oguzhancetin.pomodoro.ui
 
+import android.app.Activity
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,7 +37,6 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 fun SettingScreenPreview() {
-
     PomodoroTheme {
         Scaffold(
             topBar = {
@@ -127,6 +128,7 @@ fun SettingScreen(
             )
         }
     }
+
 
 }
 

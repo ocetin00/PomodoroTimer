@@ -34,6 +34,9 @@ interface PomodoroDao {
     @Query("SELECT * FROM pomodoro WHERE id = :id ")
     fun getPomodoroById(id: Int): Flow<PomodoroEntity>
 
+    @Query("SELECT COUNT(*) FROM pomodoro")
+    fun isAnyPomodoroFinish(): Int
+
 
 
 

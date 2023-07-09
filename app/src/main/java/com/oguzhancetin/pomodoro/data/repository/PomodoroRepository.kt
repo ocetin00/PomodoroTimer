@@ -9,10 +9,11 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PomodoroRepository {
     fun getAllPomodoro(): Flow<List<Pomodoro>>
-    fun getCurrentWeekPomodoroList(currentWeekMillis:Long): Flow<List<Pomodoro>>
-    fun getPomodoroItemsByFinish(isFinish:Int): Flow<List<Pomodoro>>
+    fun getCurrentWeekPomodoroList(currentWeekMillis: Long): Flow<List<Pomodoro>>
+    fun getPomodoroItemsByFinish(isFinish: Int): Flow<List<Pomodoro>>
     suspend fun deletePomodoro(pomodoro: Pomodoro)
     suspend fun insertPomodoro(pomodoro: Pomodoro)
     fun getPomodoroById(id: Int): Flow<Pomodoro>
     suspend fun updatePomodoro(pomodoro: Pomodoro)
+    suspend fun isAnyPomodoroFinish(): Boolean
 }
