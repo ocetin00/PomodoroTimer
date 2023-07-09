@@ -22,6 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.GregorianCalendar
+import java.util.TimeZone
 import java.util.UUID
 import javax.inject.Inject
 
@@ -66,7 +68,7 @@ class TaskViewModel @Inject constructor(
     private val emptyUUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     private val _selectedTaskCategory = MutableStateFlow<UUID?>(emptyUUID)
 
-    private val calender = Calendar.getInstance()
+    private val calender = GregorianCalendar(TimeZone.getDefault())
 
     init {
 

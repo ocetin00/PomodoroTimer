@@ -54,7 +54,7 @@ class MainViewModel @Inject constructor(
     private val addPomodoroUseCase: AddPomodoroUseCase
 ) : AndroidViewModel(context) {
 
-    private val calender = Calendar.getInstance()
+    private val calender = GregorianCalendar(TimeZone.getDefault())
 
     init {
         WorkUtil.onFinishPomodoro = {
