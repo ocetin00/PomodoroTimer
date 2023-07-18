@@ -38,9 +38,9 @@ class ReportViewModal @Inject constructor(
     init {
 
         //start date of current week
-        val calendar: Calendar = Calendar.getInstance()
+        val calendar = GregorianCalendar(TimeZone.getDefault())
         Log.d("date_current", calendar.timeInMillis.toString())
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        calendar.set(GregorianCalendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
         Log.d("date_current", calendar.timeInMillis.toString())
         calendar.removeDetails()
 

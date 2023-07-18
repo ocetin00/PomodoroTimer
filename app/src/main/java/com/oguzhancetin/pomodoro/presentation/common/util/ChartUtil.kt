@@ -20,7 +20,6 @@ import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders
 import com.patrykandpatrick.vico.core.entry.ChartEntryModel
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.entryOf
-import java.util.Calendar
 import java.util.GregorianCalendar
 import java.util.TimeZone
 
@@ -28,13 +27,14 @@ fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> 
 
     val calendar = GregorianCalendar(TimeZone.getDefault())
     val daysValue = mutableMapOf<Long, Int>()
-    calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+    calendar.firstDayOfWeek = GregorianCalendar.MONDAY;
+    calendar.set(GregorianCalendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
     calendar.removeDetails()
 
     //add week days
     repeat(7) {
         daysValue[calendar.timeInMillis] = 0
-        calendar.add(Calendar.DATE, 1)
+        calendar.add(GregorianCalendar.DATE, 1)
     }
 
     //sorted to obtain which day and added to days hasMap
@@ -46,14 +46,15 @@ fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> 
             }
         }
     }
-    val sortedDays = daysValue.toSortedMap(
+
+  /*  val sortedDays = daysValue.toSortedMap(
         compareBy<Long> { it }.thenBy { it }.reversed()
     )
-
+*/
     //convert to pair
     var tempCounter = 0
     val dayToValue = mutableListOf<Pair<Int, Int>>()
-    sortedDays.values.forEach {
+    daysValue.values.forEach {
         dayToValue.add(Pair(tempCounter, it))
         tempCounter++
     }

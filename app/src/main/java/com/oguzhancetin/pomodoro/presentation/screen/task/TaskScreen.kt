@@ -484,7 +484,7 @@ fun TaskItemContent(
     val song: MediaPlayer =
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
 
-    val calendar: Calendar = Calendar.getInstance()
+    val calendar = GregorianCalendar(TimeZone.getDefault())
     calendar.removeDetails()
     Card(
         shape = MaterialTheme.shapes.extraLarge,
