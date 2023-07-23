@@ -35,6 +35,7 @@ import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.core.model.Pomodoro
 import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
+import com.oguzhancetin.pomodoro.presentation.common.RoundedBarChart
 import com.oguzhancetin.pomodoro.presentation.common.util.CustomBarChartRender
 import com.oguzhancetin.pomodoro.presentation.common.util.convertListToXYPairs
 import java.util.*
@@ -56,7 +57,6 @@ fun StatusScreen(
     if (reportUIState.isLoading) {
 
     } else {
-
         StatusScreenContent(
             modifier,
             reportUIState.pomodoroList,
@@ -64,9 +64,7 @@ fun StatusScreen(
             onBack,
             reportUIState.isDarkTheme ?: false
         )
-
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -295,7 +293,7 @@ fun CustomView(
         modifier = Modifier.fillMaxSize(), // Occupy the max size in the Compose UI tree
         factory = { context ->
             // Creates view
-            BarChart(
+            RoundedBarChart(
                 context
             )
         },
@@ -307,6 +305,7 @@ fun CustomView(
             // whenever the state changes
             // Example of Compose -> View communication
             view.data = barData
+            view.setRadius(30)
             view.xAxis.apply {
                 valueFormatter = MyXAxisFormatter()
                 position = XAxis.XAxisPosition.BOTTOM
@@ -331,17 +330,7 @@ fun CustomView(
             view.axisRight.isEnabled = false
             view.description = Description().also { it.text = "" }
             view.legend.form = Legend.LegendForm.NONE
-            if (chartPair.isNotEmpty())
-                view.renderer =
-                    CustomBarChartRender(view, view.animator, view.viewPortHandler).also {
-                        it.setRadius(
-                            30
-                        )
-                    }
-
             view.animateY(500)
-            view.invalidate()
-
         }
     )
 }

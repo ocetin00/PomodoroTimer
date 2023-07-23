@@ -47,6 +47,7 @@ fun convertListToXYPairs(sortedTaskItems: List<Doneable>): List<Pair<Int, Int>> 
         }
     }
 
+
   /*  val sortedDays = daysValue.toSortedMap(
         compareBy<Long> { it }.thenBy { it }.reversed()
     )
