@@ -10,7 +10,7 @@ The Pomodoro Timer makes it easy to manage time and tasks and support dark mode
 </p>
 
 <p align="center">  
-This app has these features: task management, time management, and statistics graphs
+Pomodoro app has three features: task management, time management, and statistics graphs
   <br>
 </p>
 </br>
