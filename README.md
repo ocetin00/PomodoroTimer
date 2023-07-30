@@ -24,7 +24,7 @@ Pomodoro app has three features: task management, time management, and statistic
 
 # Download
 
-<a href='' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://developer.android.com/images/brand/en_app_rgb_wo_45.png' border='0'  /></a>
+<a href='https://play.google.com/store/apps/details?id=com.oguzhancetin.pomodoro' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://developer.android.com/images/brand/en_app_rgb_wo_45.png' border='0'  /></a>
 
 ## Architecture overview
 
