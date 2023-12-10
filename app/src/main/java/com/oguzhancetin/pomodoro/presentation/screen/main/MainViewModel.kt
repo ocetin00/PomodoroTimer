@@ -14,9 +14,7 @@ import com.oguzhancetin.pomodoro.core.util.removeDetails
 import com.oguzhancetin.pomodoro.data.repository.MainRepository
 import com.oguzhancetin.pomodoro.core.model.Pomodoro
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.AddPomodoroUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -46,9 +44,7 @@ data class PreferencesState(
 )
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class MainViewModel @Inject constructor(
+class MainViewModel (
     private val context: Application,
     private val mainRepository: MainRepository,
     private val addPomodoroUseCase: AddPomodoroUseCase

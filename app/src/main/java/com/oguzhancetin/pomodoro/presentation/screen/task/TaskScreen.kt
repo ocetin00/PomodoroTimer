@@ -44,8 +44,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
 import com.oguzhancetin.pomodoro.core.util.removeDetails
@@ -55,13 +55,14 @@ import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import java.util.*
 import com.oguzhancetin.pomodoro.core.model.Category
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     modifier: Modifier = Modifier,
-    viewModel: TaskViewModel = hiltViewModel(),
+    viewModel: TaskViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     onNavigateTaskDetail: (id: String?, categoryId: UUID?) -> Unit = { _, _ -> }
 ) {
