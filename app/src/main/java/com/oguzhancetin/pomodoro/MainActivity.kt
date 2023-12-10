@@ -1,46 +1,35 @@
 package com.oguzhancetin.pomodoro
 
 import android.Manifest
-import android.app.Activity
 import android.app.Application
 import android.content.pm.PackageManager
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.annotation.ColorRes
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
 import com.oguzhancetin.pomodoro.core.preference.dataStore
 import com.oguzhancetin.pomodoro.core.database.PomodoroDatabase
 import com.oguzhancetin.pomodoro.data.repository.PomodoroRepository
+import com.oguzhancetin.pomodoro.presentation.MainActivityViewModel
 import com.oguzhancetin.pomodoro.presentation.PomodoroApp
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,23 +40,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-@AndroidEntryPoint
+
 class MainActivity : ComponentActivity() {
-
-
-    @Inject
-    lateinit var appDb: PomodoroDatabase
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
-    val viewModel: MainActivityViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        val viewModel: MainActivityViewModel =  getViewModel()
         /*
 
         private const val POST_NOTIFICATIONS = Manifest.permission.POST_NOTIFICATIONS
@@ -105,7 +93,6 @@ class MainActivity : ComponentActivity() {
         // Sets up permissions request launcher.
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-
             }
 
         if (ContextCompat.checkSelfPermission(
@@ -208,44 +195,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@HiltViewModel
-class MainActivityViewModel @Inject constructor(
-    val context: Application,
-    val pomodoroRepository: PomodoroRepository
-) : ViewModel() {
 
-
-    private val _enableDarkMode = context.dataStore.data
-        .map { preferences ->
-            preferences[IS_DARK_MODE_KEY] ?: false
-        }
-    private val _isAnyPomodoro = MutableStateFlow(false)
-
-    val uiState: StateFlow<MainActivityUiState> =
-        combine(_isAnyPomodoro, _enableDarkMode) { isAnyPomodoro, enableDarkMode ->
-            MainActivityUiState.Success(
-                isDarkModel = enableDarkMode,
-                isAnyPomodoro = isAnyPomodoro
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = MainActivityUiState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000),
-        )
-
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            /**
-             * if any pomodoro added to database then show in app review
-             */
-            val isAnyPomodoro = pomodoroRepository.isAnyPomodoroFinish()
-            _isAnyPomodoro.value = isAnyPomodoro
-        }
-    }
-
-
-}
 
 sealed interface MainActivityUiState {
     object Loading : MainActivityUiState

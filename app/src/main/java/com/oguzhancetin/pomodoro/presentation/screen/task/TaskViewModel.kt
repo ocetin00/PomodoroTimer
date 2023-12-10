@@ -17,7 +17,6 @@ import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksByCategoryIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTasksUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -43,19 +42,14 @@ sealed class UIState {
     data class Error(val message: String) : UIState()
 }
 
-
-@HiltViewModel
 class TaskViewModel @Inject constructor(
-    getTasksUseCase: GetTasksUseCase,
     private val addTaskItemUseCase: AddTaskItemUseCase,
     private val updateTaskItemUseCase: UpdateTaskItemUseCase,
-    private val deleteTaskItemUseCase: DeleteTaskItemUseCase,
     private val addCategoryUseCase: AddCategoryUseCase,
-    private val getAllCategoryWithTasksUseCase: GetAllCategoryWithTasksUseCase,
-    private val getTasksByCategoryIdUseCase: GetTasksByCategoryIdUseCase,
+    getAllCategoryWithTasksUseCase: GetAllCategoryWithTasksUseCase,
     private val categoryRepository: CategoryRepository,
     private val taskItemRepository: TaskItemRepository,
-    private val saveStateHandle: SavedStateHandle
+
 ) :
     ViewModel() {
 

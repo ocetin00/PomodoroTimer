@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 
-class CategoryRepositoryImpl @Inject constructor(private val categoryDao: CategoryDao) :
+class CategoryRepositoryImpl  constructor(private val categoryDao: CategoryDao) :
     CategoryRepository {
     override suspend fun upsertCategory(category: Category) {
         categoryDao.upsert(category.toCategoryEntity())

@@ -11,7 +11,7 @@ import javax.inject.Inject
 /**
  * Created by ocetin00 on 12.02.2023
  */
-class PomodoroRepositoryImpl @Inject constructor(private val pomodoroDao: PomodoroDao) :
+class PomodoroRepositoryImpl  constructor(private val pomodoroDao: PomodoroDao) :
     PomodoroRepository {
     override fun getAllPomodoro(): Flow<List<Pomodoro>> {
         return pomodoroDao.getAllPomodoro()

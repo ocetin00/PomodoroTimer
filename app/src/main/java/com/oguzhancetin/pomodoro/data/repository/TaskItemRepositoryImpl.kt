@@ -12,8 +12,7 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class TaskItemRepositoryImpl @Inject constructor(private val taskItemDao: TaskItemDao) :
+class TaskItemRepositoryImpl  constructor(private val taskItemDao: TaskItemDao) :
     TaskItemRepository {
     override fun getTaskItems(): Flow<List<TaskItem>> {
         return taskItemDao.tasKItems()

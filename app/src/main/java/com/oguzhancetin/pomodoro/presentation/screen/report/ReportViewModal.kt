@@ -11,8 +11,6 @@ import com.oguzhancetin.pomodoro.core.model.Pomodoro
 import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.pomodoro.GetCurrentWeekPomodoroListUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetCurrentWeekDoneTaskItems
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import java.util.*
 import javax.inject.Inject
@@ -26,11 +24,11 @@ data class ReportUIState(
     val isDarkTheme: Boolean? = false
 )
 
-@HiltViewModel
+
 class ReportViewModal @Inject constructor(
     getPomodoroListUseCase: GetCurrentWeekPomodoroListUseCase,
     getCurrentWeekDoneTaskItems: GetCurrentWeekDoneTaskItems,
-    @ApplicationContext val context: Context
+    val context: Context
 ) : ViewModel() {
 
     private var currentWeekMillis: Long = 0L

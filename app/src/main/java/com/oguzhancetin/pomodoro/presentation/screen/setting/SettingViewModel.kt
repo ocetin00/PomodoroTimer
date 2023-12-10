@@ -8,8 +8,6 @@ import com.oguzhancetin.pomodoro.core.time.Time
 import com.oguzhancetin.pomodoro.core.preference.IS_DARK_MODE_KEY
 import com.oguzhancetin.pomodoro.core.preference.IS_SILENT_NOTIFICATION
 import com.oguzhancetin.pomodoro.core.preference.dataStore
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,8 +17,8 @@ import javax.inject.Inject
 const val MAX_MINUTE = 99
 const val MIN_MINUTE = 0
 
-@HiltViewModel
-class SettingViewModel @Inject constructor(@ApplicationContext val context: Context) : ViewModel() {
+
+class SettingViewModel @Inject constructor( val context: Context) : ViewModel() {
     var longTime:Flow<Long> = context.dataStore.data
         .map { preferences ->
             preferences[Time.Long().getPrefKey()] ?: 0
