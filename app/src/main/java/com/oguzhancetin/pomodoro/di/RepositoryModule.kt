@@ -9,15 +9,13 @@ import com.oguzhancetin.pomodoro.data.repository.TaskItemRepositoryImpl
 import com.oguzhancetin.pomodoro.data.repository.CategoryRepository
 import com.oguzhancetin.pomodoro.data.repository.PomodoroRepository
 import com.oguzhancetin.pomodoro.data.repository.TaskItemRepository
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+
 import javax.inject.Singleton
 
 /**
  * Created by ocetin00 on 17.02.2023
  */
+/*
 @Module
 @InstallIn(SingletonComponent::class)
 class RepositoryModule {
@@ -40,4 +38,4 @@ class RepositoryModule {
         return CategoryRepositoryImpl(categoryDao)
     }
 
-}
+}*/

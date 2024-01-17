@@ -2,6 +2,7 @@ package com.oguzhancetin.pomodoro.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -37,7 +38,7 @@ interface CategoryDao {
     @Query("Select * from task_category where name= :name")
     fun getCategoryByName(name:String): Flow<CategoryEntity>
 
-    @Upsert()
+    @Insert
     suspend fun upsert(categoryEntity: CategoryEntity)
 
     @Update

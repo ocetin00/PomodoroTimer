@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -31,6 +31,7 @@ import com.oguzhancetin.pomodoro.core.time.WorkUtil.getMinute
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
 import com.oguzhancetin.pomodoro.core.time.Time
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -84,7 +85,7 @@ fun SettingScreenPreview() {
 fun SettingScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
-    viewModel: SettingViewModel = hiltViewModel()
+    viewModel: SettingViewModel = koinViewModel()
 ) {
     val pomodoroTime by viewModel.pomodoroTime.collectAsState(initial = 0L)
     val longTime by viewModel.longTime.collectAsState(initial = 0L)

@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.oguzhancetin.pomodoro.R
@@ -47,6 +46,7 @@ import com.oguzhancetin.pomodoro.core.time.Time
 import com.oguzhancetin.pomodoro.core.util.withNotNull
 import com.oguzhancetin.pomodoro.presentation.theme.light_RedBackgroundContainer
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(
@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: MainViewModel = hiltViewModel(),
+    viewModel: MainViewModel = koinViewModel(),
     onAddTaskButtonClicked: () -> Unit = {}
 ) {
 

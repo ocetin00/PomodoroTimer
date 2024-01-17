@@ -12,7 +12,6 @@ import com.oguzhancetin.pomodoro.domain.use_case.task.DeleteTaskItemUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.GetTaskByIdUseCase
 import com.oguzhancetin.pomodoro.domain.use_case.task.UpdateTaskItemUseCase
 import com.oguzhancetin.pomodoro.presentation.common.util.clearSufAndPrefix
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +36,6 @@ sealed class TaskDetailUIState {
 }
 
 
-@HiltViewModel
 class TaskDetailViewModel
 @Inject constructor(
     private val savedStateHandle: SavedStateHandle,

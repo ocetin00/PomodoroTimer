@@ -54,11 +54,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oguzhancetin.pomodoro.core.model.Category
 import com.oguzhancetin.pomodoro.presentation.common.DetailTopBar
 import com.oguzhancetin.pomodoro.presentation.theme.PomodoroTheme
+import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
@@ -68,7 +69,7 @@ import java.util.UUID
 @Composable
 fun TaskDetailScreen(
     modifier: Modifier = Modifier,
-    viewModel: TaskDetailViewModel = hiltViewModel(),
+    viewModel: TaskDetailViewModel = koinViewModel(),
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

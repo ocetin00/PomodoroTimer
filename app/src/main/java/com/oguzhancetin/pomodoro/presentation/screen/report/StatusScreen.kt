@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.Description
@@ -38,6 +38,7 @@ import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
 import com.oguzhancetin.pomodoro.presentation.common.RoundedBarChart
 import com.oguzhancetin.pomodoro.presentation.common.util.CustomBarChartRender
 import com.oguzhancetin.pomodoro.presentation.common.util.convertListToXYPairs
+import org.koin.androidx.compose.koinViewModel
 import java.util.*
 
 
@@ -45,7 +46,7 @@ import java.util.*
 fun StatusScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
-    viewModel: ReportViewModal = hiltViewModel()
+    viewModel: ReportViewModal = koinViewModel()
 ) {
 
     val reportUIState by viewModel.reportUIState.collectAsState()
