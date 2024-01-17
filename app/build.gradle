@@ -5,21 +5,37 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'com.google.firebase.crashlytics'
+    id("app.cash.sqldelight") version "2.0.0-alpha05"
+}
+
+
+
+sqldelight {
+    databases {
+        create("PomodoroDb") {
+            packageName.set("com.oguzhancetin.pomodoro")
+        }
+    }
 }
 
 android {
-    compileSdk 33
-
+    compileSdk 34
     defaultConfig {
         applicationId "com.oguzhancetin.pomodoro"
         minSdk 24
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        targetSdk 34
+        versionCode 3
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] =
+                        "$projectDir/schemas"
+            }
         }
     }
 
@@ -48,6 +64,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.2"
     }
+    namespace 'com.oguzhancetin.pomodoro'
 }
 
 dependencies {
@@ -152,5 +169,8 @@ dependencies {
     //in app review
     implementation 'com.google.android.play:review-ktx:2.0.1'
     implementation "com.google.android.play:review-ktx:2.0.1"
+
+    //sqlDelight
+    implementation("app.cash.sqldelight:android-driver:2.0.1")
 
 }
