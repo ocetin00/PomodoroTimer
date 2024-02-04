@@ -1,0 +1,25 @@
+CREATE TABLE  TaskItemEntity(
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ description TEXT,
+ create_date INTEGER,
+ done_date INTEGER,
+ is_favorite INTEGER NOT NULL,
+ is_finished INTEGER NOT NULL,
+ categoryId INTEGER NOT NULL
+ );
+
+
+ selectAll:
+ SELECT *
+ FROM TaskItemEntity;
+
+insertOrRelace:
+INSERT OR REPLACE INTO TaskItemEntity (
+id,
+description, create_date, done_date, is_favorite, is_finished, categoryId)
+  VALUES (?,?, ?, ?, ?, ?, ?);
+
+delete:
+DELETE FROM TaskItemEntity
+WHERE id = ?;
+

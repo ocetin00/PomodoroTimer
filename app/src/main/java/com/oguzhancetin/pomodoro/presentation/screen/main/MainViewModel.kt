@@ -1,8 +1,11 @@
 package com.oguzhancetin.pomodoro.presentation.screen.main
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.oguzhancetin.pomodoro.core.database.entity.TaskItemEntity
@@ -44,11 +47,11 @@ data class PreferencesState(
 )
 
 
-class MainViewModel (
-    private val context: Application,
+class MainViewModel(
+    @SuppressLint("StaticFieldLeak") val context: Context,
     private val mainRepository: MainRepository,
     private val addPomodoroUseCase: AddPomodoroUseCase
-) : AndroidViewModel(context) {
+) : ViewModel() {
 
     private val calender = GregorianCalendar(TimeZone.getDefault())
 
@@ -103,7 +106,9 @@ class MainViewModel (
     private var _pomodoroTime: Flow<Long> = context.dataStore.data
         .map { preferences ->
             val time = preferences[Time.Pomodoro().getPrefKey()] ?: Time.Pomodoro().time
-            if (_timerIsRunning.first().not()) // if timer is not running update current time because of not blocking timer
+            if (_timerIsRunning.first()
+                    .not()
+            ) // if timer is not running update current time because of not blocking timer
                 updateCurrentTime(Time.Pomodoro(time))
             return@map time
         }

@@ -45,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
 import java.util.UUID
@@ -52,14 +53,14 @@ import java.util.UUID
 
 val appModule = module {
     viewModelOf(::MainActivityViewModel)
-    viewModelOf(::MainViewModel)
+    viewModel { MainViewModel(androidContext(), get(), get()) }
     viewModelOf(::ReportViewModal)
     viewModelOf(::SettingViewModel)
     viewModelOf(::TaskViewModel)
     viewModelOf(::TaskDetailViewModel)
 }
 val dbModule = module {
-    single  {
+    single {
         Room.databaseBuilder(
             androidContext(),
             PomodoroDatabase::class.java,
@@ -77,13 +78,13 @@ val dbModule = module {
             }
         ).fallbackToDestructiveMigration().build()
     }
-    single <TaskItemDao> { get<PomodoroDatabase>().taskItemDao() }
-    single <PomodoroDao> { get<PomodoroDatabase>().pomodoroDao() }
-    single <CategoryDao> { get<PomodoroDatabase>().taskCategoryDao() }
-    single <TaskItemRepository>{ TaskItemRepositoryImpl(get()) }
-    single <PomodoroRepository>{ PomodoroRepositoryImpl(get())}
-    single <CategoryRepository>{ CategoryRepositoryImpl(get()) }
-    single <MainRepository>{ MainRepositoryImpl(get()) }
+    single<TaskItemDao> { get<PomodoroDatabase>().taskItemDao() }
+    single<PomodoroDao> { get<PomodoroDatabase>().pomodoroDao() }
+    single<CategoryDao> { get<PomodoroDatabase>().taskCategoryDao() }
+    single<TaskItemRepository> { TaskItemRepositoryImpl(get()) }
+    single<PomodoroRepository> { PomodoroRepositoryImpl(get()) }
+    single<CategoryRepository> { CategoryRepositoryImpl(get()) }
+    single<MainRepository> { MainRepositoryImpl(get()) }
 }
 val repositoryModule = module {
     single { TaskItemRepositoryImpl(get()) }
@@ -94,7 +95,7 @@ val repositoryModule = module {
 val useCaseModule = module {
     single { AddCategoryUseCase(get()) }
     single { GetAllCategoryUseCase(get()) }
-    single {GetAllCategoryWithTasksUseCase(get())}
+    single { GetAllCategoryWithTasksUseCase(get()) }
     single { GetCategoryByIdUseCase(get()) }
     single { AddPomodoroUseCase(get()) }
     single { GetAllPomodoroUseCase(get()) }

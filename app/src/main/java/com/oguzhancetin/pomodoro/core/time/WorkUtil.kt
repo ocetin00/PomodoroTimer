@@ -1,6 +1,7 @@
 package com.oguzhancetin.pomodoro.core.time
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -54,7 +55,7 @@ object WorkUtil {
     lateinit var onFinishPomodoro: () -> Unit
 
 
-    fun stopTimer(context: Application) {
+    fun stopTimer(context: Context) {
         cachedTime = (progress.value?.times(runningTimeType.value.time))?.toLong()
         request?.id?.let {
             WorkManager.getInstance(context).cancelAllWork()
@@ -62,7 +63,7 @@ object WorkUtil {
         timerIsRunning.value = false
     }
 
-    fun restart(context: Application) {
+    fun restart(context: Context) {
         cachedTime = runningTimeType.value.time
         request?.id?.let {
             WorkManager.getInstance(context).cancelAllWork()
@@ -73,7 +74,7 @@ object WorkUtil {
     /**
      * Start timer according to selected timer
      */
-    fun startTime(context: Application, isSilent: Boolean = false) {
+    fun startTime(context: Context, isSilent: Boolean = false) {
         timerIsRunning.value = true
         request = workRequestBuilder.setInputData(
             workDataOf(
@@ -139,7 +140,7 @@ object WorkUtil {
 
     }
 
-    fun changeCurrentTime(time: Time, context: Application? = null) {
+    fun changeCurrentTime(time: Time, context: Context? = null) {
         context?.let { stopTimer(it) }
         runningTimeType.value = time
         cachedTime = runningTimeType.value.time

@@ -3,6 +3,7 @@ package com.oguzhancetin.pomodoro
 import android.app.Activity
 import android.app.Application
 import androidx.datastore.preferences.core.edit
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.oguzhancetin.pomodoro.core.preference.dataStore
 import com.oguzhancetin.pomodoro.core.time.Time
@@ -28,14 +29,13 @@ class PomodoroApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            androidContext(this@PomodoroApplication)
+            androidContext(ApplicationProvider.getApplicationContext())
             modules(listOf(appModule, dbModule,useCaseModule,repositoryModule))
         }
         CoroutineScope(Dispatchers.Main).launch {
             initializeDataStoreValues()
         }
     }
-
 
     private suspend fun initializeDataStoreValues() {
         this.dataStore.edit { settings ->
@@ -57,5 +57,4 @@ class PomodoroApplication : Application() {
             }
         }
     }
-
 }

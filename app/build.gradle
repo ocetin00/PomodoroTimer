@@ -4,7 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.firebase.crashlytics'
-    id("app.cash.sqldelight") version "2.0.0-alpha05"
+    id("app.cash.sqldelight") version "2.0.0"
 }
 
 
@@ -176,6 +176,9 @@ dependencies {
 
 
     //sqlDelight
+    implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
     implementation("app.cash.sqldelight:android-driver:2.0.1")
+    implementation("app.cash.sqldelight:primitive-adapters:2.0.1")
+    implementation("app.cash.sqldelight:coroutines-extensions:2.0.1")
 
 }
