@@ -5,6 +5,7 @@ import com.oguzhancetin.pomodoro.core.model.TaskItem
 import com.oguzhancetin.pomodoro.domain.use_case.category.AddCategoryUseCase
 import javax.inject.Inject
 
+/*
 class AddTaskItemWithCategoryIfNotExistUseCase @Inject constructor(
     private val addTaskItemUseCase: AddTaskItemUseCase,
     private val addCategoryUseCase: AddCategoryUseCase
@@ -14,4 +15,4 @@ class AddTaskItemWithCategoryIfNotExistUseCase @Inject constructor(
         addCategoryUseCase.invoke(category)
         addTaskItemUseCase.invoke(taskItem.apply { this.categoryId = categoryId })
     }
-}
+}*/

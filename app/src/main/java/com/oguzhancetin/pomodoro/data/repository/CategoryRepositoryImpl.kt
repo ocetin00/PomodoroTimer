@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 
-class CategoryRepositoryImpl  constructor(private val categoryDao: CategoryDao) :
+class CategoryRepositoryImpl constructor(private val categoryDao: CategoryDao) :
     CategoryRepository {
     override suspend fun upsertCategory(category: Category) {
         categoryDao.upsert(category.toCategoryEntity())
@@ -30,12 +30,8 @@ class CategoryRepositoryImpl  constructor(private val categoryDao: CategoryDao) 
         return categoryDao.categoryById(id).toCategory()
     }
 
-    override fun getCategoryByName(name: String): Flow<Category> {
-        return categoryDao.getCategoryByName(name)
-            .map {
-                it.toCategory()
-            }
-
+    override fun getCategoryByName(name: String): Category {
+        return categoryDao.getCategoryByName(name).toCategory()
 
     }
 

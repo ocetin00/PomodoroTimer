@@ -1,13 +1,12 @@
 CREATE TABLE  TaskItemEntity(
- id INTEGER PRIMARY KEY AUTOINCREMENT,
- description TEXT,
- create_date INTEGER,
- done_date INTEGER,
- is_favorite INTEGER NOT NULL,
- is_finished INTEGER NOT NULL,
- categoryId INTEGER NOT NULL
- );
-
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     description TEXT,
+     create_date INTEGER,
+     done_date INTEGER,
+     is_favorite INTEGER NOT NULL,
+     is_finished INTEGER NOT NULL,
+     categoryId INTEGER
+     );
 
  selectAll:
  SELECT *
@@ -23,3 +22,18 @@ delete:
 DELETE FROM TaskItemEntity
 WHERE id = ?;
 
+selectFavorite:
+SELECT * FROM TaskItemEntity
+WHERE is_favorite = ?;
+
+getById:
+SELECT * FROM TaskItemEntity
+WHERE id = ?;
+
+getByCategoryId:
+SELECT * FROM TaskItemEntity
+WHERE categoryId = ?;
+
+
+getWithTasks:
+SELECT * FROM TaskItemEntity INNER JOIN CategoryEntity ON CategoryEntity.id = 1;

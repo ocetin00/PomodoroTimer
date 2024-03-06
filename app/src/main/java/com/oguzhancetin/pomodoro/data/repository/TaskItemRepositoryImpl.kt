@@ -12,11 +12,10 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class TaskItemRepositoryImpl  constructor(private val taskItemDao: TaskItemDao) :
+class TaskItemRepositoryImpl constructor(private val taskItemDao: TaskItemDao) :
     TaskItemRepository {
     override fun getTaskItems(): Flow<List<TaskItem>> {
         return taskItemDao.tasKItems()
-
             .map {
                 it.map { m -> m.toMapTaskItem() }
             }

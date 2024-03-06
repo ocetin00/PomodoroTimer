@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oguzhancetin.pomodoro.R
 import com.oguzhancetin.pomodoro.presentation.common.MainAppBar
 import com.oguzhancetin.pomodoro.core.util.removeDetails
@@ -177,7 +176,9 @@ fun Category(
     openCategoryDetail: (Category) -> Unit
 ) {
 
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
 
     Column(modifier = modifier) {
         Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
@@ -320,7 +321,7 @@ fun TaskScreenContent(
     onAddItem: (taskItem: TaskItem) -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
-    onClickTaskItem: (id: UUID) -> Unit = { },
+    onClickTaskItem: (id: Long) -> Unit = { },
     onCategoryAddClick: () -> Unit = {},
     onCategoryLongClick: (Category) -> Unit,
     categories: List<CategoryWithTask> = listOf(),
@@ -401,7 +402,7 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                 if (text.text.isNotBlank()) {
                     onAddItem(
                         TaskItem(
-                            id = UUID.randomUUID(),
+                            id = 1,//UUID.randomUUID(),
                             description = text.text,
                             createdDate = System.currentTimeMillis(),
                             isFavorite = false,
@@ -452,7 +453,7 @@ fun TaskItemAdd(modifier: Modifier = Modifier, onAddItem: (taskItem: TaskItem) -
                         if (text.text.isNotBlank()) {
                             onAddItem(
                                 TaskItem(
-                                    id = UUID.randomUUID(),
+                                    id = 1,// UUID.randomUUID(),
                                     description = text.text,
                                     createdDate = System.currentTimeMillis(),
                                     isFavorite = false,
@@ -480,7 +481,7 @@ fun TaskItemContent(
     taskItem: TaskItem, modifier: Modifier = Modifier,
     onItemFinish: (taskItem: TaskItem) -> Unit,
     onItemFavorite: (taskItem: TaskItem) -> Unit,
-    onTaskItemClick: (id: UUID) -> Unit = {},
+    onTaskItemClick: (id: Long) -> Unit = {},
 ) {
     val song: MediaPlayer =
         MediaPlayer.create(LocalContext.current, com.oguzhancetin.pomodoro.R.raw.done_sound)
@@ -529,11 +530,11 @@ fun TaskItemContent(
 fun TaskListBodyPreview() {
 
     val taskList = listOf(
-        TaskItem(description = "Task1", id = UUID.randomUUID(), isFinished = true),
-        TaskItem(description = "Task2", id = UUID.randomUUID(), doneDate = 12321),
-        TaskItem(description = "Task3", id = UUID.randomUUID()),
-        TaskItem(description = "Task4", id = UUID.randomUUID()),
-        TaskItem(description = "Task5", id = UUID.randomUUID(), doneDate = 12321)
+        TaskItem(description = "Task1", id = 1, isFinished = true),
+        TaskItem(description = "Task2", id = 1, doneDate = 12321),
+        TaskItem(description = "Task3", id = 1),
+
+        TaskItem(description = "Task5", id = 1, doneDate = 12321)
     )
 
     PomodoroTheme {
@@ -564,7 +565,7 @@ fun TaskListBody(
     onClickNewTask: () -> Unit = {},
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
-    onClickTaskItem: (UUID) -> Unit,
+    onClickTaskItem: (Long) -> Unit,
     onClearListClick: () -> Unit = {}
 
 ) {
@@ -651,7 +652,7 @@ fun TaskBodyItemPreview() {
     Column {
         TaskBodyItem(
             taskItem = TaskItem(
-                UUID.randomUUID(),
+                1,
                 "dasdsadsadsad sadsadsadsad asdsa" +
                         " dsad sadasd sad sad sad sadasdasdadsad as" +
                         " dasdsadsadsadasd asd sad asd asd sad asd"
@@ -659,7 +660,7 @@ fun TaskBodyItemPreview() {
         )
         TaskBodyItem(
             taskItem = TaskItem(
-                UUID.randomUUID(),
+                2,
                 "dasdsadsadsad sadsadsadsad asdsa"
             ), onClickTaskItem = {}
         )
@@ -672,7 +673,7 @@ fun TaskBodyItem(
     taskItem: TaskItem,
     onItemFinish: (taskItem: TaskItem) -> Unit = {},
     onItemFavorite: (taskItem: TaskItem) -> Unit = {},
-    onClickTaskItem: (UUID) -> Unit
+    onClickTaskItem: (Long) -> Unit
 ) {
     if (taskItem.isFinished) {
         Row(

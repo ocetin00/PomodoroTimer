@@ -102,20 +102,20 @@ class TaskDetailViewModel
             if (taskId.value?.clearSufAndPrefix().isNullOrEmpty()) {
                 addTaskItemUseCase.invoke(
                     TaskItem(
-                        id = UUID.randomUUID(),
-                        categoryId = UUID.fromString(
+                        id = 1,//UUID.randomUUID(),
+                        categoryId = 1 /*UUID.fromString(
                             selectedCategoryId?.removePrefix("{")?.removeSuffix("}")
-                        ),
+                        )*/,
                         description = _text.value.trim()
                     )
                 )
             } else {
                 updateTaskItemUseCase.invoke(
                     TaskItem(
-                        id = UUID.fromString(taskId.value?.clearSufAndPrefix()),
-                        categoryId = UUID.fromString(
-                            selectedCategoryId?.clearSufAndPrefix()
-                        ),
+                        id = 1,//UUID.fromString(taskId.value?.clearSufAndPrefix()),
+                        categoryId =1,// UUID.fromString(
+                           // selectedCategoryId?.clearSufAndPrefix()
+                      //  ),
                         description = _text.value.trim()
                     )
                 )

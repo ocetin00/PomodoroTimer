@@ -22,6 +22,7 @@ interface CategoryDao {
 
     @Query("SELECT * FROM task_category")
     fun getAllCategory(): Flow<List<CategoryEntity>>
+
     @Query("DELETE FROM TASK_CATEGORY")
     fun deleteAllCategory()
 
@@ -36,14 +37,13 @@ interface CategoryDao {
     suspend fun categoryById(id: UUID): CategoryEntity
 
     @Query("Select * from task_category where name= :name")
-    fun getCategoryByName(name:String): Flow<CategoryEntity>
+    fun getCategoryByName(name: String): CategoryEntity
 
     @Insert
     suspend fun upsert(categoryEntity: CategoryEntity)
 
     @Update
     suspend fun updateCategory(category: CategoryEntity)
-
 
 
 }

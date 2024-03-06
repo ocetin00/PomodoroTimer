@@ -2,3 +2,45 @@ CREATE TABLE CategoryEntity (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
     name TEXT
 );
+
+ selectAll:
+ SELECT *
+ FROM CategoryEntity;
+
+insertOrRelace:
+INSERT OR REPLACE INTO CategoryEntity (
+id,
+name)
+  VALUES (?,?);
+
+delete:
+DELETE FROM CategoryEntity
+WHERE id = ?;
+
+deleteAll:
+DELETE FROM CategoryEntity;
+
+
+getById:
+SELECT * FROM CategoryEntity
+WHERE id = ?;
+
+getByName:
+SELECT * FROM CategoryEntity
+WHERE name = ?;
+
+
+getWithTaskCount:
+SELECT CategoryEntity.id, CategoryEntity.name, COUNT(TaskItemEntity.id) AS task_count
+FROM CategoryEntity
+LEFT JOIN TaskItemEntity ON CategoryEntity.id = TaskItemEntity.categoryId
+GROUP BY CategoryEntity.id, CategoryEntity.name;
+
+getWithTask:
+SELECT c.id,c.name, t.id, t.title, t.description, t.categoryId, t.isComplete
+FROM CategoryEntity c
+INNER JOIN TaskItemEntity t ON c.id = t.categoryId;
+
+
+
+
